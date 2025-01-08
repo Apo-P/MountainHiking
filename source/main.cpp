@@ -1,9 +1,21 @@
 #include <iostream>
 #include <cstdlib>
 
+
+#include <vector>
+#include <string>
+#include <cstring> //for memcmp
+#include <map>
+#include <memory>
+
 //include glew before glfw
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+
+//include headers
+#include <renderer.hpp>
 
 #define W_WIDTH 1024
 #define W_HEIGHT 768
@@ -59,6 +71,101 @@ GLFWwindow* initialize_window(){
 
 }
 
+
+static std::vector<unsigned int> VEC_UINT_DEFAUTL_VALUE{};
+static std::vector<glm::vec3> VEC_VEC3_DEFAUTL_VALUE{};
+static std::vector<glm::vec2> VEC_VEC2_DEFAUTL_VALUE{};
+static std::map<std::string, GLuint> MAP_STRING_GLUINT_DEFAULT_VALUE{};
+
+struct VertexData
+{
+    glm::vec3 position;
+    glm::vec2 uv;
+    glm::vec3 normal;
+
+    VertexData( 
+        const glm::vec3& position,
+        const glm::vec2& uv = glm::vec2(0),
+        const glm::vec3& normal = glm::vec3(0)
+    ) {
+        this->position = position;
+        this->uv = uv;
+        this->normal = normal;
+    }
+
+    bool operator<(const VertexData that) const {
+        return std::memcmp((void*) this, (void*) &that, sizeof(VertexData)) > 0;
+    };
+
+};
+
+
+class Mesh{
+    
+    std::vector<VertexData> indexedVertices;
+    std::vector<unsigned int> indices;
+
+    Mesh(
+        const std::vector<glm::vec3>& positions,
+        const std::vector<glm::vec2>& uvs = VEC_VEC2_DEFAUTL_VALUE,
+        const std::vector<glm::vec3>& normals = VEC_VEC3_DEFAUTL_VALUE
+    );
+
+};
+
+bool getSimilarVertexIndex(
+    const VertexData& packed,
+    std::map<VertexData, unsigned int>& vertexToOutIndex,
+    unsigned int& result
+) {
+    std::map<VertexData, unsigned int>::iterator it = vertexToOutIndex.find(packed);
+    if (it == vertexToOutIndex.end()) {
+        return false;
+    } else {
+        result = it->second;
+        return true;
+    }
+}
+
+void indexVBO(
+    const std::vector<VertexData>& in_vertices,
+    std::vector<unsigned int>& out_indices,
+    std::vector<VertexData>& out_vertices
+) {
+    std::map<VertexData, unsigned int> vertexToOutIndex;
+
+    for (const auto& vertex: in_vertices) {
+        // Try to find a similar vertex in out_XXXX
+        unsigned int index;
+        bool found = getSimilarVertexIndex(vertex, vertexToOutIndex, index);
+
+        if (found) { // A similar vertex is already in the VBO, use it instead !
+            out_indices.push_back(index);
+        } else { // If not, it needs to be added in the output data.
+            out_vertices.push_back(vertex);
+            unsigned int newindex = (unsigned int) out_vertices.size() - 1;
+            out_indices.push_back(newindex);
+            vertexToOutIndex[vertex] = newindex;
+        }
+    }
+}
+
+Mesh::Mesh(const std::vector<glm::vec3>& positions,
+        const std::vector<glm::vec2>& uvs = VEC_VEC2_DEFAUTL_VALUE,
+        const std::vector<glm::vec3>& normals = VEC_VEC3_DEFAUTL_VALUE
+){
+    std::vector<VertexData> vertices;
+
+    for (size_t i=0; i<positions.size(); i++) {
+        VertexData vertex = {positions[i], uvs[i], normals[i]};
+        vertices.push_back(vertex);
+    }
+
+    indexVBO(vertices, indices, indexedVertices);
+};
+
+
+
 int main()
 {
     std::cout << "Hello World!" << std::endl;
@@ -70,7 +177,7 @@ int main()
         GLFWwindow* window = initialize_window();
 
         // initialize graphics pipeline / renderer
-
+        Renderer renderer;
         // initialize and load meshes and models
 
         // initialize other systems

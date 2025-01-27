@@ -1,15 +1,30 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include <iostream>
+#include <memory>
+
+#include "shader.hpp"
+#include "mesh.hpp"
+
+/// @brief Possible RenderModes for Renderer
+//? could later add map to cast RenderMode to GLenum
+enum class RenderModes{
+                wireFrame,
+                Normal
+            };
 
 class Renderer{
+        
     private:
-        int shader;
+        std::shared_ptr<Shader> simpleShader;
+        RenderModes mode = RenderModes::Normal; //Default is normal
     public:
+
         Renderer();
 
-        void Render();
+        void SimpleRender(const Mesh& meshObj);
+
+        void changeMode(RenderModes new_mode);
 
         ~Renderer();
 };

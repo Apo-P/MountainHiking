@@ -18,9 +18,18 @@
 
 ### Version 0.0.3 - Implement basic architecture
 
-- [] Implement basic architecture classes
-- [] Add basic shaders and basic triangle
-- [] Add basic test 3d models
+- [x] Implement basic architecture classes
+- [x] Add basic shaders and basic triangle
+- [x] Add basic test 3d models
+
+### Version 0.0.4 - Implement M V P Matrices
+- [] Implement Model matrices
+- [] Implement Static Camera
+
+### Version 0.0.5 - Implement moving camera
+- [] Implement Noclip camera 
+- [] Implement camera controls
+
 
 ## version 0.1 - Random terrain generation
 

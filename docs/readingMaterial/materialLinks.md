@@ -13,3 +13,9 @@
 
 ## Quick debug GUI
 - [imGui](https://github.com/ocornut/imgui/wiki/Getting-Started)
+
+## Vscode and general code
+- [debug](https://www.youtube.com/watch?v=-tGSO5-eRRg)
+- [debug cmake](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/debug-launch.md)
+- [documenting better](https://developer.lsst.io/cpp/api-docs.html)
+- triple /// will make fast doxygen style comments

@@ -84,52 +84,48 @@ GLFWwindow* initialize_window(){
 
 }
 
+class GameEngine{
+    public:
+        GameEngine(){};
+};
+
+
+/// @brief test cube object
+class Cube:public Object {
+    public:
+        /// @brief constructor
+        /// ! todo remember to add texture here later
+        Cube(GameEngine& eng, std::string modelMesh);
+
+        /// @brief an update method
+        virtual void update(GameEngine& engine) override;
+        /// @brief a draw method
+        virtual void draw(Renderer& renderer) override;
+};
+
+
+
+
+Cube::Cube(GameEngine& eng, std::string modelMesh){
+
+    mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/cube.obj"));
+
+}
+
+void Cube::update(GameEngine& engine){
+
+}
+void Cube::draw(Renderer& renderer){
+
+    // bind VAO
+    mesh->bind();
+    // draw mesh
+    mesh->draw(renderer);
+
+}
 
 #include <glm/gtx/string_cast.hpp>
-void testObjects(){
-    using std::cout, std::endl;
-    using glm::to_string;
 
-    // test triangle
-    vector<VertexData> triangle_vertices = {
-        VertexData(vec3(-0.5f, -0.5f, 0.0f)),
-        VertexData(vec3( 0.5f, -0.5f, 0.0f)),
-        VertexData(vec3( 0.0f,  0.5f, 0.0f))
-    };
-
-    Mesh* triangle = new Mesh(triangle_vertices);
-
-    if(triangle){
-        cout << "Made triangle" << endl;
-    }
-
-    // test cube
-
-    Mesh* cube = new Mesh("resources/models/cube.obj");
-    if(cube){
-        cout << "Made cube" << endl;
-    }
-
-}
-
-void testShader(){
-    // test shader
-
-    std::shared_ptr<Shader> simpleShader = std::make_shared<Shader>("shaders/simpleVertex.vert", "shaders/simpleFragment.frag");
-
-    vector<VertexData> triangle_vertices = {
-        VertexData(vec3(-0.5f, -0.5f, 0.0f)),
-        VertexData(vec3( 0.5f, -0.5f, 0.0f)),
-        VertexData(vec3( 0.0f,  0.5f, 0.0f))
-    };
-
-    Mesh* triangle = new Mesh(triangle_vertices);
-
-    simpleShader->bind();
-
-    triangle->draw(glm::mat4(0), simpleShader);
-
-}
 
 int main()
 {
@@ -159,9 +155,13 @@ int main()
             VertexData(vec3( 0.0f,  0.5f, 0.0f))
         };
 
-        Mesh* triangle = new Mesh(triangle_vertices);
+        std::shared_ptr<Mesh> triangle = std::make_shared<Mesh>(triangle_vertices);
 
-        Mesh* cube = new Mesh("resources/models/cube.obj");
+        GameEngine gameEngine;
+
+        #define eng_getObjectTyped(obj_n, obj_t) std::static_pointer_cast<obj_t>(eng.getObject(obj_n))
+
+        std::shared_ptr<Object> cube = std::static_pointer_cast<Object>(std::make_shared<Cube>(gameEngine,"resources/models/cube.obj"));
 
 
         //Enter main loop
@@ -179,14 +179,8 @@ int main()
 
             // Render into framebuffer
 
-            renderer.SimpleRender(*triangle);
-
-            // bind our shader
-            // simpleShader->bind();
-            //draw our models
-            // triangle->draw(glm::mat4(0), simpleShader);
-
-            // cube->draw(glm::mat4(0), simpleShader);
+            renderer.SimpleRender(triangle);
+            renderer.SimpleRender(cube);
 
 
             // Swap Buffers

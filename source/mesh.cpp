@@ -198,16 +198,22 @@ Mesh::Mesh(const std::string path) {
 
 Mesh::~Mesh(){unloadVram();}
 
-void Mesh::draw(const glm::mat4 modelMatrix, const std::shared_ptr<Shader> shader) const {
-    
-    // TODO: pass model matrix to shader
-
-
+void Mesh::bind() {
     // bind Mesh VAO
     glBindVertexArray(VAO);
+
+}
+
+void Mesh::unbind() {
+    // Reset bounded VAO to 0
+    glBindVertexArray(0);
+}
+
+void Mesh::draw(Renderer& renderer) {
+
     // draw elements
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     // Reset bounded VAO after we are done drawing
-    glBindVertexArray(0);
+    unbind();
 
 }

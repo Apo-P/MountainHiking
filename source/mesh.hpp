@@ -9,8 +9,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-
-#include "shader.hpp"
+#include <shader.hpp>
 
 static std::vector<unsigned int> VEC_UINT_DEFAULT_VALUE{};
 static std::vector<glm::vec3> VEC_VEC3_DEFAULT_VALUE{};
@@ -44,7 +43,8 @@ struct VertexData
 
 };
 
-
+/// @brief this is temporary to let compiler know there is a class named renderer
+class Renderer;
 
 /// Mesh class has mesh data
 class Mesh{
@@ -84,14 +84,20 @@ class Mesh{
         void loadVram();
         /// @brief unload Vram
         void unloadVram();
-
+        /// @brief bind mesh VAO
+        void bind();
+        /// @brief Reset bounded VAO to 0
+        void unbind();
 
         /// @brief returns index count
         int indexCount() const {return indices.size();}
         /// @brief returns vertices count
         int vertexCount() const {return indexedVertices.size();}
 
-        void draw(const glm::mat4 modelMatrix, const std::shared_ptr<Shader> shader) const;
+        /// @brief draws Mesh triangles to screen. 
+        /// NOTE ALSO UNBINDS VAO AFTER DRAWING
+        /// @param renderer renderer reference is required to let compiler know we wont change constant ref
+        void draw(Renderer& renderer);
 
 
 };

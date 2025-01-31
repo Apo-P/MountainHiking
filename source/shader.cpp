@@ -105,6 +105,7 @@ void Shader::createShaderProgram(
 
 void Shader::getUniformLocations(){
     std::cout << "TODO:getting unform locations" << std::endl;
+
 }
 
 void Shader::bind() const {
@@ -120,7 +121,18 @@ Shader::Shader(
     const std::string fragmentFilePath,
     const std::string geometryFilePath
 ) {
+    // create shader program
     createShaderProgram(vertexFilePath, fragmentFilePath, geometryFilePath);
+    // get VP UBO location
+    VPmatricesLocation = glGetUniformBlockIndex(programId, "VPmatrices");
+
+    glUniformBlockBinding(programId, VPmatricesLocation, 0);
+
     getUniformLocations();
 }
 
+void Shader::sendUniform(std::string uniformName, const glm::mat4 &matrix) {
+
+    std::cout << "TODO:sending unform locations" << std::endl;
+
+}

@@ -23,22 +23,26 @@ Renderer::Renderer(){
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // bind the UBO to a binding point
-    glBindBufferBase(GL_UNIFORM_BUFFER, VP_UBO_BINDING_POINT, VPmatricesUBO);
+    glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<int>(Shader::bindingPoints::VPmatrix), VPmatricesUBO);
 
 }
 
 Renderer::~Renderer(){
     std::cout << "Renderer class Deleted" << std::endl;
 }
-
+#include <glm/gtc/matrix_transform.hpp>
 void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj){
     // std::cout << "Renderer Render called" << std::endl;
 
     //bind shader
     simpleShader->bind();
 
+
     // bind VAO
     meshObj.get()->bind();
+
+    //send uniforms
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , glm::scale(glm::mat4(1), glm::vec3(0.5)));
 
     // draw mesh
     meshObj.get()->draw(*this);
@@ -50,8 +54,10 @@ void Renderer::SimpleRender(std::shared_ptr<Object> obj){
     simpleShader->bind();
 
     // 2.Bind VAO
+    obj->bind();
     // 3.Bind texture
     // 4.Send Uniforms
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
     // 5.Draw Triangles
 
     obj->draw(*this);

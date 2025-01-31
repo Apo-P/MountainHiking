@@ -6,6 +6,8 @@
 
 - how to map one enum to another? For example my enum to GLenum for easier coding
 
+- enum class to int https://stackoverflow.com/questions/8357240/how-to-automatically-convert-strongly-typed-enum-into-int
+
 - Why we need static referances in order to compile code? https://stackoverflow.com/questions/26963510/error-passing-const-as-this-argument-of-discards-qualifiers
 
 - We need constant referances to the highest obj to compile. Maybe make a Super Intendant class like an engine class?

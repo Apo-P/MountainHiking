@@ -21,3 +21,15 @@ void Object::applyTransformation(glm::mat4 transformation)
     
     // if we have a collider update coords
 }
+
+void Object::bind() {
+    // bind VAO
+    mesh->bind();
+
+    // bind texture
+}
+
+void Object::draw(Renderer& renderer) {
+    // draw mesh
+    mesh->draw(renderer);
+}

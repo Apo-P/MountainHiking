@@ -99,8 +99,6 @@ class Cube:public Object {
 
         /// @brief an update method
         virtual void update(GameEngine& engine) override;
-        /// @brief a draw method
-        virtual void draw(Renderer& renderer) override;
 };
 
 
@@ -113,14 +111,6 @@ Cube::Cube(GameEngine& eng, std::string modelMesh){
 }
 
 void Cube::update(GameEngine& engine){
-
-}
-void Cube::draw(Renderer& renderer){
-
-    // bind VAO
-    mesh->bind();
-    // draw mesh
-    mesh->draw(renderer);
 
 }
 

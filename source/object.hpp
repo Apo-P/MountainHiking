@@ -18,6 +18,17 @@ class Object {
     
         /// @brief object's mesh
         std::shared_ptr<Mesh> mesh = nullptr;
+
+    protected:
+        //! bind and draw are virtual for now but i dont thinks they need to be
+        
+        // Bind and draw should be only be accessed by renderer (friend class)
+
+        /// @brief 
+        virtual void bind();
+
+        /// @brief a draw method draws the mesh
+        virtual void draw(Renderer& renderer);
         
     public:
         /// @brief constructor
@@ -25,16 +36,20 @@ class Object {
 
         /// @brief an update method
         virtual void update(GameEngine& engine){};
-        /// @brief a draw method
-        virtual void draw(Renderer& renderer){};
+
         /// @brief Set ModelMatrix
         /// @param newModelMatrix Model Matrix to set
         void setModelMatrix(glm::mat4 newModelMatrix);
         /// @brief Get Complete ModelMatrix
         /// @return modelMatrix * baseModelMatrix
         glm::mat4 getModelMatrix();
+
         /// @brief Permanently apply a transformation to baseModelMatrix
         /// @param transformation Transformation to Apply
         void applyTransformation(glm::mat4 transformation);
+
+
+        // Renderer is a friend class and should be able to access bind and draw
+        friend Renderer; 
 
 };

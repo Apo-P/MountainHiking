@@ -6,17 +6,49 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-// ! This will be inside shader file, as shader controls them
-// ! this defines layout position for shaders
-#define POSITION_LOCATION 0
-#define NORMAL_LOCATION 1
-#define UV_LOCATION 2
-
-// The binding point for the VP_UBO
-#define VP_UBO_BINDING_POINT 0
-
 /// @brief  shader class stores shader program id and uniform locations. It can be bound 
 class Shader{
+
+    public:
+        // allowed uniforms
+        // enum starts from 0
+        enum class uniforms{
+            ModelMatrix=0, //! be carefull order of uniforms needs to be the same as the order in Uniform names
+            
+            VPmatrix=100   //! UBO OBJECTS Have 100 in front to distinguish them, last digit need to be the same as binding point
+        };
+
+        //? should UBOs be different from uniforms?
+        //? if so we could overload functions
+
+        enum class layoutPosition{
+            POSITION = 0,
+            NORMAL = 1,
+            UV = 2
+        };
+
+
+        // where uniform block index will be bounded to
+        enum class bindingPoints{
+            VPmatrix = 0
+        };
+
+        //! Macro to cast enum to int Carefull with scope
+        //? can this be integrated in enum class with a wrapper?
+        // #define castEnumInt(enum) static_cast<int>(enum)
+        
+    private: 
+
+        /// @brief searches for UBO binding point using uniform Enum
+        /// @param uniformUBO uniform Enum
+        /// @return Returns binding point int
+        int getBindingPoint(Shader::uniforms uniformUBO);
+
+        /// @brief searches for UBO binding point using Name
+        /// @param UBOName UBO Name
+        /// @return Returns binding point int
+        int getBindingPoint(std::string UBOName);
+
 
     private:
         /// Shader program id
@@ -29,12 +61,16 @@ class Shader{
         // Locations(indexes)
         std::unordered_map<std::string, GLuint> uniform_locations;
 
-        ///TODO: Remove these variables as they are stores in the map  
-
-        struct uniformNames{
-            std::string ModelMatrix = "ModelMatrix";
-            std::string VPmatrix = "VPmatrix";
+        /// @brief list of possible uniform names
+        std::string uniformNames[1] = {
+            "M"
         };
+        /// @brief list of possible UBO names
+        std::string UBONames[1] = {
+            "VPmatrices"
+        };
+
+        ///TODO: Remove these variables as they are stores in the map 
 
         /// ModelLocation
         GLuint Mlocation;
@@ -48,6 +84,9 @@ class Shader{
         /// @param geometryFile geometry shader location, if Specified
         void createShaderProgram(const std::string vertexFile, const std::string fragmentFile, const std::string geometryFile="");
         
+
+        std::string getUniformName(Shader::uniforms uniformTarget);
+
         /// @brief Gets locations of uniform variables and stores them
         /// Note any location not found will be -1!
         void getUniformLocations();
@@ -63,13 +102,15 @@ class Shader{
         
         /// @brief Binds this shaderProgram to gpu (locks current state)
         void bind() const;
+        /// @brief Unbinds this shaderProgram to gpu
+        void unbind() const;
         /// @brief Releases this shaderProgram from gpu (deletes)
         void release();
 
         /// @brief Send a uniform matrix
-        /// @param uniformName The name of the uniform
+        /// @param uniformTarget The target uniform
         /// @param matrix Matrix data
-        void sendUniform(std::string uniformName, const glm::mat4 &matrix);
+        void sendUniform(Shader::uniforms uniformTarget, const glm::mat4 &matrix);
 };
 
 #endif

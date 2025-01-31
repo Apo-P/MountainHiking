@@ -106,6 +106,8 @@ void indexVBO(
 }
 
 void Mesh::loadVram() {
+
+
     // Generate a VAO and bind it to GPU
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -115,14 +117,14 @@ void Mesh::loadVram() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, indexedVertices.size() * sizeof(indexedVertices[0]), indexedVertices.data(), GL_STATIC_DRAW);
     //Specify position attribute 
-    glVertexAttribPointer(POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), NULL);
-    glEnableVertexAttribArray(POSITION_LOCATION);
+    glVertexAttribPointer(static_cast<int>(Shader::layoutPosition::POSITION), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), NULL);
+    glEnableVertexAttribArray(static_cast<int>(Shader::layoutPosition::POSITION));
     //Specify normal attribute 
-    glVertexAttribPointer(NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
-    glEnableVertexAttribArray(NORMAL_LOCATION);
+    glVertexAttribPointer(static_cast<int>(Shader::layoutPosition::NORMAL), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
+    glEnableVertexAttribArray(static_cast<int>(Shader::layoutPosition::NORMAL));
     //Specify uv attribute 
-    glVertexAttribPointer(UV_LOCATION, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, uv));
-    glEnableVertexAttribArray(UV_LOCATION);
+    glVertexAttribPointer(static_cast<int>(Shader::layoutPosition::UV), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, uv));
+    glEnableVertexAttribArray(static_cast<int>(Shader::layoutPosition::UV));
 
 
     //Generate EBO and bind it to GPU

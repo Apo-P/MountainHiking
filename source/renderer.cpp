@@ -96,7 +96,7 @@ void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj){
     meshObj.get()->draw(*this);
 }
 
-void Renderer::SimpleRender(std::shared_ptr<Object> obj){
+void Renderer::SimpleRender(std::shared_ptr<Model> obj){
 
     // 1.Bind shader
     simpleShader->bind();

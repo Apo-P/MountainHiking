@@ -80,45 +80,23 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
     // keyboard handling
     
     Camera* camera = scene.camera.get();
-    float movementSpeed = 1.0f;
 
 
     // move foward
-    if (isKeyPressed(GLFW_KEY_W)) {
-        //TODO move these to a function
-        // get forward vector
-        glm::vec3 forwardVector = camera->forward();
-
-        //! change velocity to be smooth and later update, but for now translate immediately
-        camera->translate(forwardVector * movementSpeed);
-
+    if (isKeyHeld(GLFW_KEY_W)) {
+        camera->moveForward();
     }
     // move backwards
-    if (isKeyPressed(GLFW_KEY_S)) {
-        //TODO move these to a function
-        // get forward vector
-        glm::vec3 forwardVector = camera->forward();
-
-        //! change velocity to be smooth and later update, but for now translate immediately
-        camera->translate( -forwardVector * movementSpeed);
+    if (isKeyHeld(GLFW_KEY_S)) {
+        camera->moveBackward();
     }
     // move left
-    if (isKeyPressed(GLFW_KEY_A)) {
-        //TODO move these to a function
-        // get right vector
-        glm::vec3 rightVector = camera->right();
-
-        //! change velocity to be smooth and later update, but for now translate immediately
-        camera->translate( -rightVector * movementSpeed);
+    if (isKeyHeld(GLFW_KEY_A)) {
+        camera->moveLeft();
     }
     // move right
-    if (isKeyPressed(GLFW_KEY_D)) {
-        //TODO move these to a function
-        // get right vector
-        glm::vec3 rightVector = camera->right();
-
-        //! change velocity to be smooth and later update, but for now translate immediately
-        camera->translate( rightVector * movementSpeed);
+    if (isKeyHeld(GLFW_KEY_D)) {
+        camera->moveRight();
     }
 
 }

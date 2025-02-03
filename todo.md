@@ -30,6 +30,11 @@
 - [x] Implement NoClip camera 
 - [x] Implement camera controls
 
+### Version 0.0.6 - Updating class architecture
+- [x] renamed old Object -> Model class
+- [x] New Object class has model according to new class architecture
+- [x] make camera move with velocity
+
 
 ## version 0.1 - Random terrain generation
 

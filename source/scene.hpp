@@ -4,6 +4,7 @@
 #include <common.hpp>
 
 #include <camera.hpp>
+#include <object.hpp>
 
 /// @brief a collection of objects and camera in a scene
 struct Scene {
@@ -25,7 +26,9 @@ public:
     {};
 
 
-    void update();
+    /// @brief updates all scene components
+    /// @param deltaTime time elapsed since last update
+    void update(const float deltaTime);
 
 
 };

@@ -1,51 +1,38 @@
 
 #include <camera.hpp>
 
-Camera::Camera(const glm::vec3 position, const glm::quat orientation) :position(position), orientation(orientation) {
+Camera::Camera(const glm::vec3 position, const glm::quat orientation) : Object(position, orientation) {
     updateViewMatrix();
     updateProjectionMatrix();
 }
 
-// Cartesian vectors
-glm::vec3 Camera::up() const {
-    return orientation * glm::vec3(0,1,0); //+y is up
-}
-glm::vec3 Camera::forward() const {
-    return orientation * glm::vec3(0,0,-1); //-z is front
-}
-glm::vec3 Camera::right() const {
-    return orientation * glm::vec3(1,0,0); //+x is right
-}
+
 
 // Transformations
 void Camera::translate(const glm::vec3 translation) {
     // update position
-    position += translation;
+    Object::translate(translation);
 
     // update view matrix
     updateViewMatrix();
 }
 void Camera::rotate(const glm::quat rotation) {
     // update rotation
-    glm::quat rotationQuat = glm::normalize(rotation);
-
-    orientation = glm::normalize(rotationQuat * orientation);
+    Object::rotate(rotation);
 
     // update view matrix
     updateViewMatrix();
 }
 void Camera::rotate(const float angle, const glm::vec3 axis) {
     // update rotation
-    glm::quat rotationQuat = glm::normalize(angleAxis(angle, axis));
-
-    orientation = glm::normalize(rotationQuat * orientation);
+    Object::rotate(angle, axis);
 
     // update view matrix
     updateViewMatrix();
 }
 void Camera::changeScale(const glm::vec3 scaleFactor) {
     // update scale
-    scale += scaleFactor;
+    Object::changeScale(scaleFactor);
 
     // update view matrix
     updateViewMatrix();
@@ -132,11 +119,67 @@ void Camera::zoom(const float amount) {
 
 
 void Camera::setPosition(const glm::vec3 position) {
-    this->position = position;
+    Object::setPosition(position);
     updateViewMatrix();
 }
 
 void Camera::setOrientation(const glm::quat orientation) {
-    this->orientation = glm::normalize(orientation);
+    Object::setOrientation(orientation);
     updateViewMatrix();
+}
+
+
+
+void Camera::moveForward() {
+    // get forward vector
+    glm::vec3 forwardVector = forward();
+
+    //if we have velocity normalize it to add new direction
+    if (glm::length(velocity) > 0) velocity = normalize(velocity);
+    velocity += forwardVector;
+
+    // calculate velocity
+    velocity = normalize(velocity) * movementSpeed;
+}
+
+void Camera::moveBackward() {
+    glm::vec3 forwardVector = forward();
+
+    //if we have velocity normalize it to add new direction
+    if (glm::length(velocity) > 0) velocity = normalize(velocity);
+    velocity += -forwardVector;
+    
+    // calculate velocity
+    velocity = normalize(velocity) * movementSpeed;
+}
+
+void Camera::moveLeft() {
+    // get right vector
+    glm::vec3 rightVector = right();
+ 
+    //if we have velocity normalize it to add new direction
+    if (glm::length(velocity) > 0) velocity = normalize(velocity);
+    velocity += -rightVector;
+
+    // calculate velocity
+    velocity = normalize(velocity) * movementSpeed;
+}
+
+void Camera::moveRight() {
+    // get right vector
+    glm::vec3 rightVector = right();
+ 
+    //if we have velocity normalize it to add new direction
+    if (glm::length(velocity) > 0) velocity = normalize(velocity);
+    velocity += rightVector;
+
+    // calculate velocity
+    velocity = normalize(velocity) * movementSpeed;
+}
+
+void Camera::update(const float deltaTime) {
+    // apply translation
+    translate(velocity * deltaTime);
+    //reset velocity for next check
+    velocity = glm::vec3(0);
 }

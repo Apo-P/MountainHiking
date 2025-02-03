@@ -44,6 +44,10 @@
 
 - Add gamepad controls 
 
+- Add inertia to objects
+
+- Resolve double key press behavior
+
 ### Features
 - [] use normal mapping for lighting
 

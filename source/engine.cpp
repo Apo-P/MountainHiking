@@ -110,7 +110,7 @@ void GameEngine::initialize(){
 
 
 /// @brief test cube object
-class Cube:public Object {
+class Cube:public Model {
     public:
         /// @brief constructor
         /// ! todo remember to add texture here later
@@ -160,7 +160,7 @@ int GameEngine::startGame() {
 
         std::shared_ptr<Mesh> triangle = std::make_shared<Mesh>(triangle_vertices);
 
-        std::shared_ptr<Object> cube = std::static_pointer_cast<Object>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
+        std::shared_ptr<Model> cube = std::static_pointer_cast<Model>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
 
 
         //make a camera
@@ -207,7 +207,9 @@ int GameEngine::startGame() {
             renderer.get()->sendViewMatrix(mainScene.camera.get()->getView());
 
 
-            // update camera
+            // update scene
+
+            mainScene.update(deltaTime);
 
             // Render into framebuffer //! this should be in renderer
             

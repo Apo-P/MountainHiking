@@ -6,26 +6,19 @@
 #include "object.hpp"
 
 
-class Camera : Object {
-    public:
-        // should this be common in all objects?
-        glm::vec3 up() const;
-        glm::vec3 forward() const;
-        glm::vec3 right() const;
+class Camera : public Object {
+    
     protected:
-
-        // should this be common in all objects?
-        glm::vec3 position = DEFAULT_POSITION;
-        glm::quat orientation = DEFAULT_ORIENTATION;
-        glm::vec3 scale = DEFAULT_SCALE;
-
-        // glm::vec3 WorldUp;
 
         float nearCP = 0.1f;
         float farCP = 100.0f;
 
         float fov = 45.0f;
         float aspectRatio = 4.0f / 3.0f; //16.0f/9.0f;
+
+        // for smooth camera
+        glm::vec3 velocity = glm::vec3(0);
+        float movementSpeed = 5.0f;
 
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         glm::mat4 projectionMatrix = glm::mat4(1.0f);
@@ -38,7 +31,7 @@ class Camera : Object {
 
     public:
         /// @brief default constructor
-        Camera() : Camera(glm::vec3(0), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0)) {};
+        Camera() : Camera(DEFAULT_POSITION, DEFAULT_ORIENTATION) {};
         /// @brief constructor 
         /// @param position camera position
         /// @param orientation camera orientation
@@ -88,7 +81,7 @@ class Camera : Object {
 
         /// @brief rotates camera
         /// @param rotation rotation amount
-        void rotate(const glm::quat rotation);
+        virtual void rotate(const glm::quat rotation);
         /// @brief rotates cameras
         /// @param angle angle amount
         /// @param axis rotation axis
@@ -104,6 +97,19 @@ class Camera : Object {
         /// @param up up direction
         /// @param alternativeUp alternative up direction (required for quat)
         void lookAt(const glm::vec3 target, const glm::vec3 up = glm::vec3(0, 1, 0), const glm::vec3 alternativeUp = glm::vec3(0,0,1));
+    
+        /// @brief moves camera forward
+        void moveForward();
+        /// @brief moves camera backward
+        void moveBackward();
+        /// @brief moves camera right
+        void moveRight();
+        /// @brief moves camera left
+        void moveLeft();
+    
+        //updates camera
+        void update(const float deltaTime);
+
     };
 
 #endif

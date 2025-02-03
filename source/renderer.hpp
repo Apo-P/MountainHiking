@@ -7,7 +7,7 @@
 
 #include "shader.hpp"
 #include "mesh.hpp"
-#include "object.hpp"
+#include "model.hpp"
 #include "scene.hpp"
 
 /// @brief Possible RenderModes for Renderer
@@ -52,7 +52,7 @@ class Renderer{
         void SimpleRender(std::shared_ptr<Mesh> meshObj);
         /// @brief simple render a object
         /// @param obj object to render
-        void SimpleRender(std::shared_ptr<Object> obj);
+        void SimpleRender(std::shared_ptr<Model> obj);
 
         /// @brief simple render a scene
         /// @param scene scene to render

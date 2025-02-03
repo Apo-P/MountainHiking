@@ -1,3 +1,6 @@
+#ifndef OBJECT_HPP
+#define OBJECT_HPP
+
 #include <mesh.hpp>
 
 
@@ -12,6 +15,8 @@ class Object {
         bool exists;
         
         /// @brief object's model matrix , BaseModelMatrix
+        /// Model matrix can be used for temporary animations 
+        /// Base model matrix is object's position model matrix
         glm::mat4 modelMatrix, baseModelMatrix;
 
     public:
@@ -53,3 +58,5 @@ class Object {
         friend Renderer; 
 
 };
+
+#endif

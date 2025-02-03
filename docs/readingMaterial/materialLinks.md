@@ -4,6 +4,11 @@
 - [learn openGL video-series](https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-)
 - [learn openGL website](https://learnopengl.com/Advanced-OpenGL/Geometry-Shader)
 - [OpenGL Docs](https://docs.gl/)
+- [opengltutorials] (https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/)
+
+## glfw
+-[glfw docs](https://www.glfw.org/docs/latest/)
+-[glfw input handling](https://www.glfw.org/docs/latest/input_guide.html)
 
 ## Terrain Generation
 - [Terrain Generation with perlin noise](https://www.redblobgames.com/maps/terrain-from-noise/)

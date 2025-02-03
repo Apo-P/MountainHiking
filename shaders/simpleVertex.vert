@@ -17,6 +17,6 @@ layout(std140) uniform VPmatrices {
 
 void main()
 {
-    
-    gl_Position = M * vec4(modelSpace_vertexPosition, 1.0);
+    //! BE CAREFUL WITH MATRIX MULTIPLICATION ORDER
+    gl_Position = P * V * M * vec4(modelSpace_vertexPosition, 1.0);
 }

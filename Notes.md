@@ -8,9 +8,9 @@
 
 - enum class to int https://stackoverflow.com/questions/8357240/how-to-automatically-convert-strongly-typed-enum-into-int
 
-- Why we need static referances in order to compile code? https://stackoverflow.com/questions/26963510/error-passing-const-as-this-argument-of-discards-qualifiers
+- Why we need static references in order to compile code? https://stackoverflow.com/questions/26963510/error-passing-const-as-this-argument-of-discards-qualifiers
 
-- We need constant referances to the highest obj to compile. Maybe make a Super Intendant class like an engine class?
+- We need constant references to the highest obj to compile. Maybe make a Super Intendant class like an engine class?
 
 - constructor quick set variables. https://en.cppreference.com/w/cpp/language/constructor
 
@@ -28,12 +28,26 @@
 
 - static or dynamic draw for UBO? https://www.reddit.com/r/opengl/comments/mkxn2w/using_a_uniform_buffer_object_with/
 
+- Make_shared calls constructor 
+
+- Use callbacks or polling for input handling?? I think polling will create less problem for now
+
+- Do all the .get() of the shared pointers create a noticeable performance issue?
+
+- Handling fix for wsl could be similar to the one I did in the Lab
+
 ## Suggestions for future versions
 
+- find workaround for mouse input problem on wsl (I mentioned this on :https://github.com/microsoft/wslg/issues/376)
+
+- check if we are running on wsl automatically and change input mode (https://superuser.com/questions/1749781/how-can-i-check-if-the-environment-is-wsl-from-a-shell-script)
+
+- Add gamepad controls 
+
 ### Features
-- [x] use normal mapping for lighting
+- [] use normal mapping for lighting
 
 ### Optimizations
 - [X] Use EBO instead of VBO
 - [] Use Asset map instead of loading everything
-- [] Use UBO for View and Projection matrix that stay the same between frames 
+- [X] Use UBO for View and Projection matrix that stay the same between frames 

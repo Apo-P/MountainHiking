@@ -111,6 +111,8 @@ class Shader{
         /// @param uniformTarget The target uniform
         /// @param matrix Matrix data
         void sendUniform(Shader::uniforms uniformTarget, const glm::mat4 &matrix);
+
+        GLuint getProgramId(){ return programId; };
 };
 
 #endif

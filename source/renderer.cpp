@@ -1,15 +1,10 @@
 #include <iostream>
 
 #include <renderer.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
-Renderer::Renderer(){
-    std::cout << "Renderer class made" << std::endl;
-
-    // compile shaders
-    simpleShader = std::make_shared<Shader>("shaders/simpleVertex.vert", "shaders/simpleFragment.frag");
-
-    // allocate Memory for UBO's
+void Renderer::makeUBO_VP(){
 
     // Allocate memory for view and projection matrices
     glGenBuffers(1, &VPmatricesUBO);
@@ -17,14 +12,67 @@ Renderer::Renderer(){
     // bind UBO
     glBindBuffer(GL_UNIFORM_BUFFER, VPmatricesUBO);
     // ? STATIC OR DYNAMIC DRAW for UBO?
-    // allocate memory
+    // allocate memory for UBO
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
     // Unbind UBO
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    // bind the UBO to a binding point
+    // bind the UBO to a binding point //? would glBindBufferRange be better?
     glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<int>(Shader::bindingPoints::VPmatrix), VPmatricesUBO);
 
+}
+
+void Renderer::sendViewMatrix(glm::mat4 viewMatrix) {
+
+    // bind UBO
+    glBindBuffer(GL_UNIFORM_BUFFER, getUBO_VP());
+    // send data 
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(viewMatrix)); //value_ptr is similar to &V[0][0]
+    // Unbind UBO
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Renderer::sendProjectionMatrix(glm::mat4 projectionMatrix) {
+
+    // bind UBO
+    glBindBuffer(GL_UNIFORM_BUFFER, getUBO_VP());
+    // send data //! Be carefull with offset
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(projectionMatrix)); //value_ptr is similar to &V[0][0]
+    // Unbind UBO
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
+
+    window = new_window;
+
+    std::cout << "Renderer class made" << std::endl;
+
+    // compile shaders
+    simpleShader = std::make_shared<Shader>("shaders/simpleVertex.vert", "shaders/simpleFragment.frag");
+
+    // allocate Memory for UBO's
+    makeUBO_VP();
+
+    // set initial VP
+    glm::mat4 V = glm::mat4(1);
+    glm::mat4 P = glm::mat4(1);
+
+    // to send data to UBO
+    // Sending View //! This will be done every frame by camera
+    sendViewMatrix(V);
+    // sending projection //! this will be done whenever projection matrix changes by camera
+    sendProjectionMatrix(P);
+
+}
+
+glm::vec2 Renderer::getWindowSize()
+{
+    int width, height;
+    // get framebuffer size instead of window size
+    glfwGetFramebufferSize(window.get(), &width, &height);
+    // glfwGetWindowSize(window.get(), &width, &height);
+    return glm::vec2(width, height);
 }
 
 Renderer::~Renderer(){

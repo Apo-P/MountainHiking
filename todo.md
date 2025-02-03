@@ -23,12 +23,12 @@
 - [x] Add basic test 3d models
 
 ### Version 0.0.4 - Implement M V P Matrices
-- [] Implement Model matrices
-- [] Implement Static Camera
+- [x] Implement Model matrices
+- [x] Implement Static Camera
 
 ### Version 0.0.5 - Implement moving camera
-- [] Implement Noclip camera 
-- [] Implement camera controls
+- [x] Implement NoClip camera 
+- [x] Implement camera controls
 
 
 ## version 0.1 - Random terrain generation

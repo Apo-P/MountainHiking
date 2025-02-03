@@ -63,7 +63,11 @@
     "cSpell.words": [
         "glew",
         "glfw",
+        "OPENGL",
         "perlin",
+        "Pmatrices",
+        "tinyobj",
+        "TINYOBJLOADER",
         "Wwindow"
     ]
 }

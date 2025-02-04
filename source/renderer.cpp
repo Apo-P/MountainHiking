@@ -95,6 +95,22 @@ void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj){
     // draw mesh
     meshObj.get()->draw(*this);
 }
+void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix){
+    // std::cout << "Renderer Render called" << std::endl;
+
+    //bind shader
+    simpleShader->bind();
+
+
+    // bind VAO
+    meshObj.get()->bind();
+
+    //send uniforms
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , modelMatrix);
+
+    // draw mesh
+    meshObj.get()->draw(*this);
+}
 
 void Renderer::SimpleRender(std::shared_ptr<Model> obj){
 

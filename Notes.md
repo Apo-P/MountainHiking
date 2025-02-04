@@ -50,6 +50,8 @@
 
 - Resolve double key press behavior
 
+- Use glBufferSubData to update only needed vertex
+
 ### Features
 - [] use normal mapping for lighting
 

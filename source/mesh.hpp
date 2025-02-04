@@ -82,6 +82,8 @@ class Mesh{
 
         /// @brief load Stored indices to Vram
         void loadVram();
+        /// @brief updates Vram (by resending indexed vertices)
+        void updateVram();
         /// @brief unload Vram
         void unloadVram();
         /// @brief bind mesh VAO
@@ -93,6 +95,17 @@ class Mesh{
         int indexCount() const {return indices.size();}
         /// @brief returns vertices count
         int vertexCount() const {return indexedVertices.size();}
+        /// @brief returns vertexData (indexedVertices) read only
+        const std::vector<VertexData> getVertexData() {return indexedVertices;} 
+
+        // Todo: change this to a better method
+        // Todo: allow manipulation without needing this update function
+        /// @brief Modifies the z of a indexed vertex
+        /// @param index index
+        /// @param newZ 
+        void updateVertexZ(int index , float newZ) {
+            indexedVertices.at(index).position.z = newZ;
+        }
 
         /// @brief draws Mesh triangles to screen. 
         /// NOTE ALSO UNBINDS VAO AFTER DRAWING

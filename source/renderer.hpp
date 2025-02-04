@@ -50,6 +50,9 @@ class Renderer{
         /// @brief simple render a mesh obj
         /// @param meshObj mesh to render
         void SimpleRender(std::shared_ptr<Mesh> meshObj);
+        void SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix);
+
+
         /// @brief simple render a object
         /// @param obj object to render
         void SimpleRender(std::shared_ptr<Model> obj);

@@ -139,6 +139,22 @@ void Mesh::loadVram() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Mesh::updateVram() {
+
+    //bind VAO
+    glBindVertexArray(VAO);
+
+    // bind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    // re-upload new data
+    glBufferData(GL_ARRAY_BUFFER, indexedVertices.size() * sizeof(indexedVertices[0]), indexedVertices.data(), GL_STATIC_DRAW);
+    
+    // unbind VAO and VBO after were are done
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Mesh::unloadVram() {
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);

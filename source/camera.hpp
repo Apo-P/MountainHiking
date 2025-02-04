@@ -11,14 +11,14 @@ class Camera : public Object {
     protected:
 
         float nearCP = 0.1f;
-        float farCP = 100.0f;
+        float farCP = 500.0f;
 
         float fov = 45.0f;
         float aspectRatio = 4.0f / 3.0f; //16.0f/9.0f;
 
         // for smooth camera
         glm::vec3 velocity = glm::vec3(0);
-        float movementSpeed = 5.0f;
+        float movementSpeed = 50.0f;
 
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         glm::mat4 projectionMatrix = glm::mat4(1.0f);

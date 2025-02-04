@@ -36,6 +36,8 @@
 
 - Handling fix for wsl could be similar to the one I did in the Lab
 
+- Should i export parameters for some objects to json files for changing without restarting?
+
 ## Suggestions for future versions
 
 - find workaround for mouse input problem on wsl (I mentioned this on :https://github.com/microsoft/wslg/issues/376)

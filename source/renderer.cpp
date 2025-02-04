@@ -90,7 +90,7 @@ void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj){
     meshObj.get()->bind();
 
     //send uniforms
-    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , glm::scale(glm::mat4(1), glm::vec3(0.5)));
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , glm::scale(glm::mat4(1), glm::vec3(1)));
 
     // draw mesh
     meshObj.get()->draw(*this);

@@ -133,6 +133,134 @@ void Cube::update(GameEngine& engine){
 
 }
 
+class Plane {
+
+    private:
+    int width;
+	int height;
+	int widthSegments;
+	int heightSegments;
+
+    
+
+    std::vector<VertexData> createVertices(float width = 1, float height = 1, int widthSegments = 1, int heightSegments = 1);
+
+    public:
+    // TODO: make getter
+    std::shared_ptr<Mesh> mesh;
+
+    Plane(float width = 1, float height = 1, int widthSegments = 1, int heightSegments = 1);
+};
+
+std::vector<VertexData> Plane::createVertices(float width, float height, int widthSegments, int heightSegments) {
+    //to have it go from -half_width to +half_width in model space
+    float width_half = width / 2;
+    float height_half = height / 2;
+
+    // store segments
+    int gridX = widthSegments;
+    int gridY = heightSegments;
+
+    // add +1 to create enough vertices
+    int gridX1 = gridX + 1;
+    int gridY1 = gridY + 1;
+
+    // calculate segment width and height
+    float segment_width = width / gridX;
+    float segment_height = height / gridY;
+
+    // create arrays for vertex data
+    std::vector<glm::vec3> indices;
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uvs;
+
+
+    float x,y;
+    for(int iy = 0; iy < gridY1; iy++) {
+
+        y = iy * segment_height - height_half;
+
+        for(int ix = 0; ix < gridX1; ix++) {
+
+            x = ix * segment_width - width_half;
+
+            positions.push_back(glm::vec3(x, -y, 0));
+
+            normals.push_back(glm::vec3(0, 0, 1));
+
+            uvs.push_back( glm::vec2( ix / gridX ));
+            uvs.push_back( glm::vec2( 1 - ( iy / gridY )) );
+
+        }
+
+    }
+
+    // indice data
+    unsigned int a,b,c,d;
+    for (int iy = 0; iy < gridY; iy ++ ) {
+
+        for (int ix = 0; ix < gridX; ix ++ ) {
+
+            a = ix + gridX1 * iy;
+            b = ix + gridX1 * ( iy + 1 );
+            c = ( ix + 1 ) + gridX1 * ( iy + 1 );
+            d = ( ix + 1 ) + gridX1 * iy;
+
+            indices.push_back(glm::vec3 (a, b, d) );
+            indices.push_back(glm::vec3 (b, c, d) );
+
+        }
+
+    }
+
+    // pack data to vertex data
+    std::vector<VertexData> vertexData;
+    for (auto index :indices) {
+        vertexData.push_back(VertexData(positions.at(index.x), uvs.at(index.x) ,normals.at(index.x)));
+        vertexData.push_back(VertexData(positions.at(index.y), uvs.at(index.y) ,normals.at(index.y)));
+        vertexData.push_back(VertexData(positions.at(index.z), uvs.at(index.z) ,normals.at(index.z)));
+    }
+
+    return vertexData;
+}
+
+Plane::Plane(float width, float height, int widthSegments, int heightSegments) : 
+        width(width),
+        height(height),
+        widthSegments(widthSegments),
+        heightSegments(heightSegments) {
+
+        std::vector<VertexData> vertexData;
+
+        vertexData = createVertices(width, height, widthSegments, heightSegments);
+
+        mesh = std::make_shared<Mesh>(vertexData);
+
+
+        };
+
+
+class Terrain: public Model {
+    public:
+        /// @brief constructor
+        /// ! add terrain location for loading terrain
+        Terrain(int size);
+
+        void createChunk(int size);
+};
+
+Terrain::Terrain(int size) {
+    createChunk(size);
+}
+void Terrain::createChunk(int size) {
+
+    std::vector<glm::vec3> vertices;
+
+
+}
+
+
 
 
 int GameEngine::startGame() {
@@ -161,6 +289,8 @@ int GameEngine::startGame() {
         std::shared_ptr<Mesh> triangle = std::make_shared<Mesh>(triangle_vertices);
 
         std::shared_ptr<Model> cube = std::static_pointer_cast<Model>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
+
+        Plane* plane = new Plane(4,4,5,4);
 
 
         //make a camera
@@ -214,8 +344,10 @@ int GameEngine::startGame() {
             // Render into framebuffer //! this should be in renderer
             
 
-            renderer.get()->SimpleRender(triangle);
-            renderer.get()->SimpleRender(cube);
+            // renderer.get()->SimpleRender(triangle);
+            // renderer.get()->SimpleRender(cube);
+
+            renderer.get()->SimpleRender(plane->mesh);
 
 
             // Swap Buffers //! this should be in renderer

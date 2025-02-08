@@ -66,16 +66,15 @@ class RandomNoise : public NoiseFunction {
         std::mt19937 seededGenerator;
         std::uniform_int_distribution<> distribution;
 
-        float noise(float x, float z) {
+        float noise() {
             return distribution(seededGenerator);
         } ;
 
     public:
         // create random noise within given range
-        RandomNoise(int seed, int range) {  
-            std::mt19937 seededGenerator(seed);
-
-            std::uniform_int_distribution<> distribution(0, range); // define the range
+        RandomNoise(int seed, int range) :
+        seededGenerator(seed),
+        distribution(0, range)  {  
         };
 
         float calculateNoise(float x, float z) override {
@@ -83,7 +82,7 @@ class RandomNoise : public NoiseFunction {
             float noiseValue = 0.0f;
         
             //use noise function (x,z) to get a value
-            noiseValue = this->noise(x,z);
+            noiseValue = this->noise();
 
             return noiseValue;
             
@@ -111,32 +110,7 @@ class SmoothHill : public NoiseFunction {
         }
 
 
-        float noise(float x, float z) ;// {
-        //     //using smoothstep
-        //     hillRadius=250;
-
-        //     glm::vec2 position = glm::vec2(x,z);
-
-        //     if (x>250 && z>250) {
-        //         x=250;
-        //     }
-
-        //     float distance = glm::length(hillCenter- position);
-            
-        //     // find height factor
-        //     float heightFactor = smoothstep(0.0f, hillRadius, distance);
-
-            
-
-        //     // return height
-        //     float height = maxHeight * (1.0f - heightFactor);
-        //     // we subtract in order to get the center to be the greatest height
-             
-            
-
-        //     return height;
-        // } ;
-
+        float noise(float x, float z) ;
     public:
 
         // create random noise within given range

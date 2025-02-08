@@ -219,11 +219,14 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
 
     // initialize noiseFunction with seed
 
-    // RandomNoise rndNoise(seed, 120);
+
     //TODO Change this to be configurable in height generation init
     //! carefull with -z because we look towards -z!
-    // SmoothHill smoothHill(21, glm::vec2(5,-5), 5, 10.0f);
+
     SmoothHill smoothHill(21);
+
+    // add some random noise //? with a weight(range) of 5 
+    RandomNoise rndNoise(seed, 5);
 
     
     // to find max and min height
@@ -238,8 +241,13 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
 
         //use noise function (x,z) to get a value
         //? could use multiple noises here to calculate
-        // noiseValue = rndNoise.calculateNoise(x,z);
+    
         noiseValue = smoothHill.calculateNoise(x,z);
+        //if we are on a hill add noise
+        if (noiseValue!=0) {
+            noiseValue += rndNoise.calculateNoise(x,z);
+        }
+
         
         //Put final height to heightMap
         float height = noiseValue; 

@@ -171,9 +171,9 @@ int GameEngine::startGame() {
 
         oldTerrainChunk* chunk = new oldTerrainChunk(terrain);
 
-        HeightGenerator* GEN = new HeightGenerator(0.0f, 10.0f);
+        HeightGenerator* GEN = new HeightGenerator();
 
-        TerrainChunk* mychunk = new TerrainChunk(*GEN, 0.0f, 0.0f, 10, 10);
+        TerrainChunk* mychunk = new TerrainChunk(*GEN);
         mychunk->generateChunk();
 
 

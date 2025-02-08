@@ -222,8 +222,9 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
     // RandomNoise rndNoise(seed, 120);
     //TODO Change this to be configurable in height generation init
     //! carefull with -z because we look towards -z!
-    SmoothHill smoothHill(21, glm::vec2(5,-5), 5, 10.0f);
-    
+    // SmoothHill smoothHill(21, glm::vec2(5,-5), 5, 10.0f);
+    SmoothHill smoothHill(21);
+
     
     // to find max and min height
     float minHeight = FLT_MAX, maxHeight = -FLT_MAX;

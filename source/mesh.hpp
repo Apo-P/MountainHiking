@@ -96,7 +96,7 @@ class Mesh{
         /// @brief returns vertices count
         int vertexCount() const {return indexedVertices.size();}
         /// @brief returns vertexData (indexedVertices) read only
-        const std::vector<VertexData> getVertexData() {return indexedVertices;} 
+        const std::vector<VertexData>& getVertexData() {return indexedVertices;} 
 
         // Todo: change this to a better method
         // Todo: allow manipulation without needing this update function

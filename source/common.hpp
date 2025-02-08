@@ -9,6 +9,7 @@
 #include <string>
 #include <cstring> //for memcmp
 #include <map>
+#include <random>
 
 // for file streams
 #include <fstream>

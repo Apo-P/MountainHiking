@@ -38,6 +38,10 @@
 
 - Should i export parameters for some objects to json files for changing without restarting?
 
+- dont forget to use by referance even in auto& keyword
+
+- maybe pass normalazations in order to optimise, by reducing computes?
+
 ## Suggestions for future versions
 
 - find workaround for mouse input problem on wsl (I mentioned this on :https://github.com/microsoft/wslg/issues/376)

@@ -133,314 +133,8 @@ void Cube::update(GameEngine& engine){
 
 }
 
-class Plane {
 
-    private:
-    int width;
-	int height;
-	int widthSegments;
-	int heightSegments;
-
-    
-
-    std::vector<VertexData> createVertices(float width = 1, float height = 1, int widthSegments = 1, int heightSegments = 1);
-
-    public:
-    // TODO: make getter
-    std::shared_ptr<Mesh> mesh;
-
-    Plane(float width = 1, float height = 1, int widthSegments = 1, int heightSegments = 1);
-};
-
-std::vector<VertexData> Plane::createVertices(float width, float height, int widthSegments, int heightSegments) {
-    //to have it go from -half_width to +half_width in model space
-    float width_half = width / 2;
-    float height_half = height / 2;
-
-    // store segments
-    int gridX = widthSegments;
-    int gridY = heightSegments;
-
-    // add +1 to create enough vertices
-    int gridX1 = gridX + 1;
-    int gridY1 = gridY + 1;
-
-    // calculate segment width and height
-    float segment_width = width / gridX;
-    float segment_height = height / gridY;
-
-    // create arrays for vertex data
-    std::vector<glm::vec3> indices;
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uvs;
-
-
-    float x,y;
-    for(int iy = 0; iy < gridY1; iy++) {
-
-        y = iy * segment_height - height_half;
-
-        for(int ix = 0; ix < gridX1; ix++) {
-
-            x = ix * segment_width - width_half;
-
-            positions.push_back(glm::vec3(x, -y, 0));
-
-            normals.push_back(glm::vec3(0, 0, 1));
-
-            uvs.push_back( glm::vec2( ix / gridX ));
-            uvs.push_back( glm::vec2( 1 - ( iy / gridY )) );
-
-        }
-
-    }
-
-    // indice data
-    unsigned int a,b,c,d;
-    for (int iy = 0; iy < gridY; iy ++ ) {
-
-        for (int ix = 0; ix < gridX; ix ++ ) {
-
-            a = ix + gridX1 * iy;
-            b = ix + gridX1 * ( iy + 1 );
-            c = ( ix + 1 ) + gridX1 * ( iy + 1 );
-            d = ( ix + 1 ) + gridX1 * iy;
-
-            indices.push_back(glm::vec3 (a, b, d) );
-            indices.push_back(glm::vec3 (b, c, d) );
-
-        }
-
-    }
-
-    // pack data to vertex data
-    std::vector<VertexData> vertexData;
-    for (auto index :indices) {
-        vertexData.push_back(VertexData(positions.at(index.x), uvs.at(index.x) ,normals.at(index.x)));
-        vertexData.push_back(VertexData(positions.at(index.y), uvs.at(index.y) ,normals.at(index.y)));
-        vertexData.push_back(VertexData(positions.at(index.z), uvs.at(index.z) ,normals.at(index.z)));
-    }
-
-    return vertexData;
-}
-
-Plane::Plane(float width, float height, int widthSegments, int heightSegments) : 
-        width(width),
-        height(height),
-        widthSegments(widthSegments),
-        heightSegments(heightSegments) {
-
-        std::vector<VertexData> vertexData;
-
-        vertexData = createVertices(width, height, widthSegments, heightSegments);
-
-        mesh = std::make_shared<Mesh>(vertexData);
-
-
-        };
-
-
-class Terrain: public Model {
-    public:
-        /// @brief constructor
-        /// ! add terrain location for loading terrain
-        Terrain(int size);
-
-        float chunkSize=10;
-
-        /// @brief create chunk at x,z
-        void createChunk(int x,int z){
-            glm::vec2 offset = glm::vec2(x * chunkSize, z * chunkSize);
-        };
-};
-
-Terrain::Terrain(int size) {
-    // createChunk(size);
-}
-
-//generating func
-class Generator {
-
-    static double sat(double x){
-      return glm::min(glm::max(x, 0.0), 1.0);
-    }
-
-    public:
-    Generator(){};
-
-    static const int chunkCenter = 250;
-    static const int maxHeight = 128;
-    // static glm::vec2 chuckStartinPoint = glm::vec2(0,0);
-    
-
-    static float Get(float x, float y) {
-        float distance = glm::distance(glm::vec2(0,0), glm::vec2(x,y));
-
-        // test
-        float t = sat(1.5);
-
-        // h = height
-        float h = 1.0 - sat(distance / chunkCenter);
-        h = h * h * h * (h * (h * 6 - 15) + 10);
-
-        //test 
-        if (distance <200){
-         t=t+1;   
-        }
-
-        // return height, normalization
-        float height = h * maxHeight; //max height
-        return height;//128; //, 1;
-    }
-
-};
-
-
-// #include <functional> // for std::function
-// could using this instead of typedef 
-
-#include <utility> // for std::pair
-
-// define a pointer to a function that takes 2 floats and return 1 float
-typedef float (*generatorGet) (float, float);
-
-
-class HeightGenerator {
-
-    glm::vec2 offset;
-    glm::vec2 radius;
-    /// @brief generator
-    std::shared_ptr<Generator> generator;
-
-    double sat(double x){
-      return glm::min(glm::max(x, 0.0), 1.0);
-    }
-
-    public:
-
-    HeightGenerator(std::shared_ptr<Generator> generator, glm::vec2& new_offset, float minRadius, float maxRadius) :
-        generator(generator),
-        offset(new_offset)
-    {
-        radius = glm::vec2(minRadius, maxRadius);
-    }
-
-    std::pair< float, float > Get(const float x, const float y) {
-
-        float distance = glm::distance(offset, glm::vec2(x,y));
-        
-        float normalization = 1.0 - sat(
-            (distance - radius.x) / (radius.y - radius.x));
-
-
-        normalization = normalization * normalization * (3 - 2 * normalization);
-
-        float height = generator.get()->Get(x, y); 
-
-        return {height, normalization};
-    }
-
-};
-
-class TerrainChunkManager {
-
-    public:
-        int chunkGroup; //change later
-
-    TerrainChunkManager(){}; //change later
-
-};
-
-class TerrainChunk {
-    // constructor(params) {
-    // this._params = params;
-    // this._Init(params);
-    // }
-
-    glm::vec3 size;
-    // how many faces will it have
-    int resolution = 128;
-    glm::vec3 offset;
-
-    public:
-    Plane* plane; //temporary
-
-    TerrainChunk(TerrainChunkManager &TerrainManager, glm::vec3 offset=glm::vec3(0), float chunkSize=500 , float scale=1) {  //!Terrain will be controller
-
-        // size
-        size = glm::vec3(chunkSize * scale, 0, chunkSize * scale);
-
-        //store offset
-        offset = offset;
-
-        //make plane 
-        plane = new Plane(size.x, size.z, resolution, resolution);
-        // sets plane's position
-        // plane.position = offset
-
-        // add plane mesh to chunk group in Terrain Manager
-
-        // make plane into chunk
-        makeChunk();
-
-    }
-
-
-    void makeChunk() {
-
-        // for testing
-        float _chunkSize =500;
-        float x = 0,z=0;
-        glm::vec2 offset = glm::vec2(x * _chunkSize, z * _chunkSize);
-
-        std::vector<HeightGenerator> heightGenerators = { HeightGenerator(std::make_shared<Generator>(), offset, 100000, 100000 + 1) };
-
-        // for every vertex
-        int index=0;
-        for (auto vertex :plane->mesh.get()->getVertexData()) {
-
-            std::vector< std::pair<float, float> > heightPairs {};
-            float normalization = 0;
-            vertex.position.z = 0;
-
-            if (vertex.position.x >240){
-
-            }
-
-            
-
-            for (auto gen :heightGenerators) {
-                heightPairs.push_back(gen.Get(vertex.position.x + offset.x, vertex.position.y + offset.y));
-                
-                normalization += heightPairs.at(heightPairs.size() - 1 ).second;
-            }
-
-            if (normalization > 0) {
-                // TODO CHANGE THIS LATER
-                float newZ=0;
-                for (auto h :heightPairs) {
-
-                    // vertex.position.z += h.first * h.second / normalization;
-                    newZ +=  h.first * h.second / normalization;
-                }
-                if (newZ != 0) {
-                    plane->mesh->updateVertexZ(index, newZ);
-                }
-            }
-            index++;
-        }
-
-
-        // update mesh
-        plane->mesh.get()->updateVram();
-
-
-    }
-
-};
-
-
+#include <chunk.hpp>
 
 
 int GameEngine::startGame() {
@@ -473,14 +167,19 @@ int GameEngine::startGame() {
         Plane* plane = new Plane(4,4,5,4);
         
 
-        TerrainChunkManager terrain = TerrainChunkManager();
+        oldTerrainChunkManager terrain = oldTerrainChunkManager();
 
-        TerrainChunk* chunk = new TerrainChunk(terrain);
+        oldTerrainChunk* chunk = new oldTerrainChunk(terrain);
+
+        HeightGenerator* GEN = new HeightGenerator(0.0f, 10.0f);
+
+        TerrainChunk* mychunk = new TerrainChunk(*GEN, 0.0f, 0.0f, 10, 10);
+        mychunk->generateChunk();
 
 
 
-        //make a camera
-        std::shared_ptr<Camera> mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 3.0f), DEFAULT_ORIENTATION);
+        //make a camera   //?be 5 units up and look a bit down
+        std::shared_ptr<Camera> mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 5.0f, 0.0f), eulerToQuat(-45,0,0));
 
         //make a scene
         Scene mainScene(mainCamera);
@@ -535,7 +234,9 @@ int GameEngine::startGame() {
 
             // renderer.get()->SimpleRender(plane->mesh);
 
-            renderer.get()->SimpleRender(chunk->plane->mesh, glm::rotate(glm::mat4(1), (float)(-3.14/2), vec3(1,0,0)));
+            // renderer.get()->SimpleRender(chunk->plane->mesh, glm::rotate(glm::mat4(1), (float)(-3.14/2), vec3(1,0,0)));
+
+            renderer.get()->SimpleRender(mychunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
 
 
             // Swap Buffers //! this should be in renderer

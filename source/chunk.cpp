@@ -325,7 +325,7 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
     //TODO Change this to be configurable in height generation init
     //! carefull with -z because we look towards -z!
 
-    SmoothHill smoothHill(21);
+    SmoothHill smoothHill(21, glm::vec2(250,-250), 500, 128);
 
     // add some random noise //? with a weight(range) of 5 
     RandomNoise rndNoise(seed, 5);
@@ -351,9 +351,9 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
         noiseValue += 4 * smoothHill.calculateNoise(x,z);
 
         //if we are on a hill add noise
-        if (noiseValue!=0) {
-            // noiseValue += rndNoise.calculateNoise(x,z);
-        }
+        // if (noiseValue!=0) {
+        //     // noiseValue += rndNoise.calculateNoise(x,z);
+        // }
 
         // use simplex noise as test
         noiseValue += smpNoise.calculateNoise(x,z);
@@ -361,11 +361,6 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
         
         //Put final height to heightMap
         float height = noiseValue; 
-
-
-        // check for min,max value
-        minHeight = std::min(minHeight, height);
-        maxHeight = std::max(maxHeight, height);
 
         //store height
         returnHeightMap[std::make_pair(x,z)] = height;
@@ -382,10 +377,11 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
 
     // normalizeHeightmap heightmap
     
-    // if they are the same then add 1 to avoid dividing by 0
-    if ((maxHeight - minHeight) == 0){
-        maxHeight=1;
-    }
+    // estimated max and min height is based on noise function used
+    // estimated regardless of actual values
+    //! should find better way then to do it by hand
+    minHeight = 0;
+    maxHeight = 128 + 128; //128 by the smooth hill and 128 by the simplex noise
 
     // Normalize to our desire range
     float range = MAX_HEIGHT - MIN_HEIGHT;

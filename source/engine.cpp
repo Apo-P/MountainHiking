@@ -133,8 +133,9 @@ void Cube::update(GameEngine& engine){
 
 }
 
+//TODO add this to a header when done with testing
+#include <terrainChunkManager.hpp>
 
-#include <chunk.hpp>
 
 
 int GameEngine::startGame() {

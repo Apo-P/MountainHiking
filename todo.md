@@ -38,9 +38,9 @@
 
 ## version 0.1 - Random terrain generation
 
-- [] Version 0.1.1 - Generate siple slopes using perlin noise
-- [] Version 0.1.2 - Create seeding system, to create same maps with same seed
-- [] Version 0.1.3 - Use pre-generation to speed up runtime
+- [x] Version 0.1.1 - Generate siple slopes using perlin noise
+- [x] Version 0.1.2 - Create seeding system, to create same maps with same seed
+- [x] Version 0.1.3 - Use pre-generation to speed up runtime
 
 ## Version 0.2 - Textures and Vegetation
 

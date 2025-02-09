@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include <cstring> //for memcmp
-#include <map>
+#include <unordered_map>
 #include <random>
 #include <utility> // for std::pair
 
@@ -32,6 +32,46 @@
 #define DEFAULT_POSITION glm::vec3(0)
 #define DEFAULT_ORIENTATION glm::quat(glm::vec3(0,0,0))  //x:pitch, y:yaw, z:roll
 #define DEFAULT_SCALE glm::vec3(1)
+
+// convert float value to bits
+inline uint32_t floatToBits(float f) {
+    uint32_t result;
+    std::memcpy(&result, &f, sizeof(result));  // Same as using a union for type-punning
+    return result;
+}
+
+// Custom hash function for FloatPair
+struct FloatPairHash {
+    // operator when called
+    size_t operator()(const std::pair<float,float>& pair) const {
+        // convert floats to bits
+        uint32_t xBits = floatToBits(pair.first);
+        uint32_t yBits = floatToBits(pair.second);
+
+        // Combine the bits using a prime multiplier to minimize collisions
+        size_t hash = xBits;
+        hash = hash * 31 + yBits;  // 31 is a small prime number
+
+        return hash;
+    }
+};
+
+// Custom hash function for IntPair
+struct IntPairHash {
+    // operator when called
+    size_t operator()(const std::pair<int,int>& pair) const {
+        // convert ints to bits
+        uint32_t xBits = floatToBits(pair.first);
+        uint32_t yBits = floatToBits(pair.second);
+
+        // Combine the bits using a prime multiplier to minimize collisions
+        size_t hash = xBits;
+        hash = hash * 31 + yBits;  // 31 is a small prime number
+
+        return hash;
+    }
+};
+
 
 
 

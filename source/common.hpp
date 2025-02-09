@@ -10,6 +10,7 @@
 #include <cstring> //for memcmp
 #include <map>
 #include <random>
+#include <utility> // for std::pair
 
 // for file streams
 #include <fstream>

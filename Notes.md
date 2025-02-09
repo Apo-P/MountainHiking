@@ -60,6 +60,8 @@
 
 - Use glBufferSubData to update only needed vertex
 
+- improve multiple input handling
+
 ### Features
 - [] use normal mapping for lighting
 

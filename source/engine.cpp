@@ -164,17 +164,15 @@ int GameEngine::startGame() {
 
         std::shared_ptr<Model> cube = std::static_pointer_cast<Model>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
 
-        Plane* plane = new Plane(4,4,5,4);
+        // Plane* plane = new Plane(4,4,5,4);
         
 
-        oldTerrainChunkManager terrain = oldTerrainChunkManager();
+        // HeightGenerator* GEN = new HeightGenerator();
 
-        oldTerrainChunk* chunk = new oldTerrainChunk(terrain);
+        // TerrainChunk* mychunk = new TerrainChunk(*GEN);
+        // mychunk->generateChunk();
 
-        HeightGenerator* GEN = new HeightGenerator();
-
-        TerrainChunk* mychunk = new TerrainChunk(*GEN);
-        mychunk->generateChunk();
+        ChunkManager* chunkmanager = new ChunkManager(21,1);
 
 
 
@@ -234,9 +232,14 @@ int GameEngine::startGame() {
 
             // renderer.get()->SimpleRender(plane->mesh);
 
-            // renderer.get()->SimpleRender(chunk->plane->mesh, glm::rotate(glm::mat4(1), (float)(-3.14/2), vec3(1,0,0)));
+            // renderer.get()->SimpleRender(mychunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
 
-            renderer.get()->SimpleRender(mychunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
+            for (auto keyValuePair : chunkmanager->chunks) {
+                // get the chunk pointer for key,value pair
+                TerrainChunk* chunk = keyValuePair.second.get();
+
+                renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
+            }
 
 
             // Swap Buffers //! this should be in renderer

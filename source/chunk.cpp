@@ -347,12 +347,12 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
         //use noise function (x,z) to get a value
         //? could use multiple noises here to calculate
     
-        // make a big hill at center
-        noiseValue += smoothHill.calculateNoise(x,z);
+        // make a big hill at center (can multiply weight here so it can have a bigger effect)
+        noiseValue += 4 * smoothHill.calculateNoise(x,z);
 
         //if we are on a hill add noise
         if (noiseValue!=0) {
-            noiseValue += rndNoise.calculateNoise(x,z);
+            // noiseValue += rndNoise.calculateNoise(x,z);
         }
 
         // use simplex noise as test
@@ -375,6 +375,7 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
     int possize = positions.size();
     int mapsize = returnHeightMap.size();
 
+    // test
     if (possize != mapsize) {
         std::cout << "what?" <<std::endl;
     }
@@ -432,9 +433,9 @@ TerrainChunk::TerrainChunk(HeightGenerator& heightGenerator, float chunkX, float
 std::vector<VertexData> TerrainChunk::createVertices() {
 
     // float width, float length, int widthSegments, int lengthSegments
-    // total width and length is starting point + size
-    float width = chunkX + chunkSize;
-    float length = chunkZ + chunkSize;
+    
+    float width = chunkSize;
+    float length = chunkSize;
 
     // store segments
     int gridX = resolution;
@@ -458,13 +459,15 @@ std::vector<VertexData> TerrainChunk::createVertices() {
     float x,z;
     for(int iz = 0; iz < gridZ1; iz++) {
 
-        z = iz * segment_length;
+
+        // we want -iz so chunk grows towards -z
+        z = (-iz * segment_length) + chunkZ;
 
         for(int ix = 0; ix < gridX1; ix++) {
 
-            x = ix * segment_width;
+            x = (ix * segment_width) + chunkX;
 
-            positions.push_back(glm::vec3(x, 0, -z));
+            positions.push_back(glm::vec3(x, 0, z));
 
             normals.push_back(glm::vec3(0, 0, 1));
 
@@ -535,12 +538,48 @@ void TerrainChunk::generateChunk(int seed) {
 }
 
 
-// #include <functional> // for std::function
-// could using this instead of typedef 
+void ChunkManager::addChunk(int x, int z) {
+    std::cout << "adding chunk x:" << x << " z:" << z << std::endl;
 
-#include <utility> // for std::pair
+    int chunkSize=500;
+    float chunkX, chunkZ;
+    int resolution = 128;
 
-// define a pointer to a function that takes 2 floats and return 1 float
-typedef float (*generatorGet) (float, float);
+    chunkX = x * chunkSize;
+    chunkZ = z * chunkSize;
+
+    // make requested chunk
+    std::shared_ptr<TerrainChunk> newChunk = std::make_shared<TerrainChunk>(*generator.get(), chunkX, chunkZ, chunkSize, resolution);
+
+    // here we could add special generators or something based on which grid positions it is
+    // so we could make a biome system
+    // We always should have a big mountain in the middle of the world
+
+    // generate the chunk
+    //? should this should be done at chunk call?
+    newChunk.get()->generateChunk();
+
+    // calculate edges of chunk to change the as required to improve performance
+
+
+    // add chunk to list
+    chunks[std::make_pair(x,z)] = newChunk;
+
+}
+
+void ChunkManager::initTerrain() {
+
+    // initialize anything else needed for generation
+
+    // make grid of chunks
+
+    for (int x = -GridSizeHalf; x <= GridSizeHalf; x++) {
+        for (int z = -GridSizeHalf; z <= GridSizeHalf; z++) {
+            addChunk(x,z);
+        }
+    }
+
+}
+
 
 

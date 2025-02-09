@@ -40,6 +40,108 @@ float SmoothHill::noise(float x, float z) {
     return height;
 } ;
 
+#include <OpenSimplex2S.hpp>
+
+class SimplexNoise : public NoiseFunction {
+
+    private:
+    
+        OpenSimplex2S simplex;
+
+        int lodLevel;
+        float noiseScale;
+        float persistence;
+        int octaves;
+        // chunk starting x,z used for offset
+        float chunkX,chunkZ;
+
+        int maxHeight;
+
+        float noise(float x, float z) {
+
+            
+            // double worldX = (m_chunkX * CHUNK_SIZE) + x;
+            // double worldZ = (m_chunkZ * CHUNK_SIZE) + z;
+
+            // Add some offset to avoid repeating patterns between chunks
+            // double offsetX = chunkX * 1000.0;
+            // double offsetZ = chunkZ * 1000.0;
+
+            //for test
+            maxHeight = 128;
+
+            // as we increase scale the number of hills decreases
+            float scale = 200; 
+
+            float xScaled = x / scale;
+            float zScaled = z / scale;
+
+            
+            // Set the persistence and octaves
+            float persistence = 0.5;  // Example persistence
+            int octaves = 4;  // Number of octaves for terrain detail
+
+
+            // Multiple octaves with persistence
+            double noiseValue = 0.0;
+            double amplitude = 1.0;  // Initial amplitude for first octave
+            double frequency = 1.0;  // Initial frequency for first octave
+
+            float lacunarity = 2;
+            float maxAmplitude = 0;
+
+            //multiple passes for better result
+            for (int i = 0; i < octaves; ++i) {
+
+                noiseValue += amplitude * simplex.noise2(xScaled, zScaled);
+
+                frequency *= lacunarity;  // Increase frequency based on lacunarity
+
+                maxAmplitude += amplitude; //keep adding amplitude to know max value
+
+                amplitude *= persistence;  // Reduce amplitude for next octave
+            }
+
+            // Normalize from (-maxAmplitude,+maxAmplitude) to [0, 1]
+            double normalizedHeight = (noiseValue - maxAmplitude) / (2 * maxAmplitude);
+
+            float height = normalizedHeight * maxHeight;
+
+
+            return height;
+        };
+
+    public:
+
+    SimplexNoise(int seed=21) : 
+        simplex(seed) { //initialize open simplex
+ 
+    
+        //configure
+
+        // Calculate the LOD level based on the distance
+        // int lodLevel = calculateLODLevel(distance);
+
+        // Use the appropriate scale based on the LOD level
+        // float noiseScale = getNoiseScaleForLOD(lodLevel);
+
+        
+
+    };
+
+    float calculateNoise(float x, float z) override {
+        
+        float noiseValue = 0.0f;
+    
+        //use noise function (x,z) to get a value
+        noiseValue = this->noise(x,z);
+
+        return noiseValue;
+        
+    }
+
+};
+
 
 
 std::vector<VertexData> Plane::createVertices(float width, float length, int widthSegments, int lengthSegments) {
@@ -228,6 +330,9 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
     // add some random noise //? with a weight(range) of 5 
     RandomNoise rndNoise(seed, 5);
 
+    // test SimpleNoise
+    SimplexNoise smpNoise(21);
+
     
     // to find max and min height
     float minHeight = FLT_MAX, maxHeight = -FLT_MAX;
@@ -242,11 +347,16 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
         //use noise function (x,z) to get a value
         //? could use multiple noises here to calculate
     
-        noiseValue = smoothHill.calculateNoise(x,z);
+        // make a big hill at center
+        noiseValue += smoothHill.calculateNoise(x,z);
+
         //if we are on a hill add noise
         if (noiseValue!=0) {
             noiseValue += rndNoise.calculateNoise(x,z);
         }
+
+        // use simplex noise as test
+        noiseValue += smpNoise.calculateNoise(x,z);
 
         
         //Put final height to heightMap

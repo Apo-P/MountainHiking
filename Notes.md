@@ -42,6 +42,10 @@
 
 - maybe pass normalazations in order to optimise, by reducing computes?
 
+- maybe store data of generation in a jpeg and the upscale? https://www.reddit.com/r/proceduralgeneration/comments/1c65s7b/best_approach_to_upscale_height_maps/
+
+- Maybe use terrain generation in a shader to simulate low res terrain in a distance
+
 ## Suggestions for future versions
 
 - find workaround for mouse input problem on wsl (I mentioned this on :https://github.com/microsoft/wslg/issues/376)

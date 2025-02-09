@@ -177,9 +177,57 @@ void Camera::moveRight() {
     velocity = normalize(velocity) * movementSpeed;
 }
 
+void Camera::moveUp() {
+    // get up vector
+    glm::vec3 upVector = up();
+ 
+    //if we have velocity normalize it to add new direction
+    if (glm::length(velocity) > 0) velocity = normalize(velocity);
+    velocity += upVector;
+
+    // calculate velocity
+    velocity = normalize(velocity) * movementSpeed;
+}
+
+void Camera::moveDown() {
+    // get up vector
+    glm::vec3 upVector = up();
+ 
+    //if we have velocity normalize it to add new direction
+    if (glm::length(velocity) > 0) velocity = normalize(velocity);
+    velocity += -upVector;
+
+    // calculate velocity
+    velocity = normalize(velocity) * movementSpeed;
+}
+
+void Camera::sprint() {
+    // if camera is already sprinting
+    if (movementSpeed > normalSpeed) {
+        return;
+    }
+    doSprint = true;
+}
+void Camera::walk() {
+    // if camera is already walking
+    if (movementSpeed < sprintSpeed) {
+        return;
+    }
+    doSprint = false;
+}
+
 void Camera::update(const float deltaTime) {
     // apply translation
     translate(velocity * deltaTime);
     //reset velocity for next check
     velocity = glm::vec3(0);
+
+    // change movement speed for next check 
+    //! could optimise this
+    if (doSprint) {
+        movementSpeed = sprintSpeed;
+    }
+    else {
+        movementSpeed = normalSpeed;
+    }
 }

@@ -98,6 +98,24 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
     if (isKeyHeld(GLFW_KEY_D)) {
         camera->moveRight();
     }
+    // move up
+    if (isKeyHeld(GLFW_KEY_SPACE)) {
+        camera->moveUp();
+    }
+    // move down
+    if (isKeyHeld(GLFW_KEY_LEFT_CONTROL)) {
+        camera->moveDown();
+    }
+    // change movement speed while key is held
+    //? change in movement speed could bew calculated in class
+    if (isKeyHeld(GLFW_KEY_LEFT_SHIFT)) {
+        //speed up camera if pressed
+        camera->sprint();
+    }
+    else {
+        //slow down camera if not pressed
+        camera->walk();
+    }
 
 }
 

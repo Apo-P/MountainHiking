@@ -11,7 +11,7 @@ class Camera : public Object {
     protected:
 
         float nearCP = 0.1f;
-        float farCP = 750.0f;
+        float farCP = 1750.0f;
 
         float fov = 45.0f;
         float aspectRatio = 4.0f / 3.0f; //16.0f/9.0f;
@@ -19,6 +19,12 @@ class Camera : public Object {
         // for smooth camera
         glm::vec3 velocity = glm::vec3(0);
         float movementSpeed = 50.0f;
+
+        const float normalSpeed = 50.0f; 
+        const float sprintSpeed = 100.0f;
+
+        // if camera wants to sprint
+        bool doSprint = false;
 
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         glm::mat4 projectionMatrix = glm::mat4(1.0f);
@@ -106,6 +112,14 @@ class Camera : public Object {
         void moveRight();
         /// @brief moves camera left
         void moveLeft();
+        /// @brief moves camera up
+        void moveUp();
+        /// @brief moves camera down
+        void moveDown();
+
+        /// @brief changes camera speed
+        void sprint();
+        void walk();
     
         //updates camera
         void update(const float deltaTime);

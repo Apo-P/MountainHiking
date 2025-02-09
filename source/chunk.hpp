@@ -5,6 +5,8 @@
 #include <mesh.hpp>
 #include <model.hpp>
 
+#include <OpenSimplex2S.hpp>
+
 // convert float value to bits
 inline uint32_t floatToBits(float f) {
     uint32_t result;
@@ -151,6 +153,107 @@ class SmoothHill : public NoiseFunction {
 
 };
 
+class SimplexNoise : public NoiseFunction {
+
+    private:
+    
+        OpenSimplex2S simplex;
+
+        int lodLevel;
+        float noiseScale;
+        float persistence;
+        int octaves;
+        // chunk starting x,z used for offset
+        float chunkX,chunkZ;
+
+        int maxHeight;
+
+        float noise(float x, float z) {
+
+            
+            // double worldX = (m_chunkX * CHUNK_SIZE) + x;
+            // double worldZ = (m_chunkZ * CHUNK_SIZE) + z;
+
+            // Add some offset to avoid repeating patterns between chunks
+            // double offsetX = chunkX * 1000.0;
+            // double offsetZ = chunkZ * 1000.0;
+
+            //for test
+            maxHeight = 128;
+
+            // as we increase scale the number of hills decreases
+            float scale = 200; 
+
+            float xScaled = x / scale;
+            float zScaled = z / scale;
+
+            
+            // Set the persistence and octaves
+            float persistence = 0.5;  // Example persistence
+            int octaves = 4;  // Number of octaves for terrain detail
+
+
+            // Multiple octaves with persistence
+            double noiseValue = 0.0;
+            double amplitude = 1.0;  // Initial amplitude for first octave
+            double frequency = 1.0;  // Initial frequency for first octave
+
+            float lacunarity = 2;
+            float maxAmplitude = 0;
+
+            //multiple passes for better result
+            for (int i = 0; i < octaves; ++i) {
+
+                noiseValue += amplitude * simplex.noise2(xScaled, zScaled);
+
+                frequency *= lacunarity;  // Increase frequency based on lacunarity
+
+                maxAmplitude += amplitude; //keep adding amplitude to know max value
+
+                amplitude *= persistence;  // Reduce amplitude for next octave
+            }
+
+            // Normalize from (-maxAmplitude,+maxAmplitude) to [0, 1]
+            double normalizedHeight = (noiseValue - maxAmplitude) / (2 * maxAmplitude);
+
+            float height = normalizedHeight * maxHeight;
+
+
+            return height;
+        };
+
+    public:
+
+    SimplexNoise(int seed=21) : 
+        simplex(seed) { //initialize open simplex
+ 
+    
+        //configure
+
+        // Calculate the LOD level based on the distance
+        // int lodLevel = calculateLODLevel(distance);
+
+        // Use the appropriate scale based on the LOD level
+        // float noiseScale = getNoiseScaleForLOD(lodLevel);
+
+        
+
+    };
+
+    float calculateNoise(float x, float z) override {
+        
+        float noiseValue = 0.0f;
+    
+        //use noise function (x,z) to get a value
+        noiseValue = this->noise(x,z);
+
+        return noiseValue;
+        
+    }
+
+};
+
+
 
 class HeightGenerator {
 
@@ -266,185 +369,5 @@ class ChunkManager {
 
 };
 
-
-
-
-
-class oldTerrain: public Model {
-    public:
-        /// @brief constructor
-        /// ! add terrain location for loading terrain
-        oldTerrain(int size);
-
-        float chunkSize=10;
-
-        /// @brief create chunk at x,z
-        void createChunk(int x,int z){
-            glm::vec2 offset = glm::vec2(x * chunkSize, z * chunkSize);
-        };
-};
-
-//generating func
-class oldGenerator {
-
-    static double sat(double x){
-      return glm::min(glm::max(x, 0.0), 1.0);
-    }
-
-    public:
-    oldGenerator(){};
-
-    static const int chunkCenter = 250;
-    static const int maxHeight = 128;
-    // static glm::vec2 chuckStartinPoint = glm::vec2(0,0);
-    
-
-    static float Get(float x, float z) {
-        float distance = glm::distance(glm::vec2(0,0), glm::vec2(x,z));
-
-        // h = length
-        float h = 1.0 - sat(distance / chunkCenter);
-        h = h * h * h * (h * (h * 6 - 15) + 10);
-
-        // return length, normalization
-        float length = h * maxHeight; //max length
-        return length;//128; //, 1;
-    }
-
-};
-
-class oldHeightGenerator {
-
-    glm::vec2 offset;
-    glm::vec2 radius;
-    /// @brief generator
-    std::shared_ptr<oldGenerator> generator;
-
-    double sat(double x){
-      return glm::min(glm::max(x, 0.0), 1.0);
-    }
-
-    public:
-
-    oldHeightGenerator(std::shared_ptr<oldGenerator> generator, glm::vec2& new_offset, float minRadius, float maxRadius) :
-        generator(generator),
-        offset(new_offset)
-    {
-        radius = glm::vec2(minRadius, maxRadius);
-    }
-
-    std::pair< float, float > Get(const float x, const float y) {
-
-        float distance = glm::distance(offset, glm::vec2(x,y));
-        
-        float normalization = 1.0 - sat(
-            (distance - radius.x) / (radius.y - radius.x));
-
-
-        normalization = normalization * normalization * (3 - 2 * normalization);
-
-        float length = generator.get()->Get(x, y); 
-
-        return {length, normalization};
-    }
-
-};
-
-class oldTerrainChunkManager {
-
-    public:
-        int chunkGroup; //change later
-
-    oldTerrainChunkManager(){}; //change later
-
-};
-
-class oldTerrainChunk {
-    // constructor(params) {
-    // this._params = params;
-    // this._Init(params);
-    // }
-
-    glm::vec3 size;
-    // how many faces will it have
-    int resolution = 128;
-    glm::vec3 offset;
-
-    public:
-    Plane* plane; //temporary
-
-    oldTerrainChunk(oldTerrainChunkManager &TerrainManager, glm::vec3 offset=glm::vec3(0), float chunkSize=500 , float scale=1) {  //!Terrain will be controller
-
-        // size
-        size = glm::vec3(chunkSize * scale, 0, chunkSize * scale);
-
-        //store offset
-        offset = offset;
-
-        //make plane 
-        plane = new Plane(size.x, size.z, resolution, resolution);
-        // sets plane's position
-        // plane.position = offset
-
-        // add plane mesh to chunk group in Terrain Manager
-
-        // make plane into chunk
-        makeChunk();
-
-    }
-
-
-    void makeChunk() {
-
-        // for testing
-        float _chunkSize =500;
-        float x = 0,z=0;
-        glm::vec2 offset = glm::vec2(x * _chunkSize, z * _chunkSize);
-
-        std::vector<oldHeightGenerator> lengthGenerators = { oldHeightGenerator(std::make_shared<oldGenerator>(), offset, 100000, 100000 + 1) };
-
-        // for every vertex
-        int index=0;
-        for (auto vertex :plane->mesh.get()->getVertexData()) {
-
-            std::vector< std::pair<float, float> > lengthPairs {};
-            float normalization = 0;
-            vertex.position.z = 0;
-
-            if (vertex.position.x >240){
-
-            }
-
-            
-
-            for (auto gen :lengthGenerators) {
-                lengthPairs.push_back(gen.Get(vertex.position.x + offset.x, vertex.position.y + offset.y));
-                
-                normalization += lengthPairs.at(lengthPairs.size() - 1 ).second;
-            }
-
-            if (normalization > 0) {
-                // TODO CHANGE THIS LATER
-                float newZ=0;
-                for (auto h :lengthPairs) {
-
-                    // vertex.position.z += h.first * h.second / normalization;
-                    newZ +=  h.first * h.second / normalization;
-                }
-                if (newZ != 0) {
-                    plane->mesh->updateVertexZ(index, newZ);
-                }
-            }
-            index++;
-        }
-
-
-        // update mesh
-        plane->mesh.get()->updateVram();
-
-
-    }
-
-};
 
 #endif

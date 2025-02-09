@@ -1,22 +1,5 @@
 #include <chunk.hpp>
 
-// int rand_int () {
-//     std::random_device randomNum; // obtain a random number from hardware
-//     std::mt19937 randomGenerator(randomNum); // seed the generator (with random number if we want)
-//     std::mt19937 seededGenerator(21); // seed the generator (with same number if we want)
-//     std::uniform_int_distribution<> distribution(25, 63); // define the range (min, max)
-
-//     return distribution(randomGenerator); //returns a random value in distribution using generator
-
-// }
-
-
-
-
-std::string make_hash(float x, float z) {
-    return std::to_string(x) + "," + std::to_string(z);
-} // use this to avoid making a hash function for the std::pair
-
 
 float SmoothHill::noise(float x, float z) {
     //using smoothstep
@@ -39,109 +22,6 @@ float SmoothHill::noise(float x, float z) {
 
     return height;
 } ;
-
-#include <OpenSimplex2S.hpp>
-
-class SimplexNoise : public NoiseFunction {
-
-    private:
-    
-        OpenSimplex2S simplex;
-
-        int lodLevel;
-        float noiseScale;
-        float persistence;
-        int octaves;
-        // chunk starting x,z used for offset
-        float chunkX,chunkZ;
-
-        int maxHeight;
-
-        float noise(float x, float z) {
-
-            
-            // double worldX = (m_chunkX * CHUNK_SIZE) + x;
-            // double worldZ = (m_chunkZ * CHUNK_SIZE) + z;
-
-            // Add some offset to avoid repeating patterns between chunks
-            // double offsetX = chunkX * 1000.0;
-            // double offsetZ = chunkZ * 1000.0;
-
-            //for test
-            maxHeight = 128;
-
-            // as we increase scale the number of hills decreases
-            float scale = 200; 
-
-            float xScaled = x / scale;
-            float zScaled = z / scale;
-
-            
-            // Set the persistence and octaves
-            float persistence = 0.5;  // Example persistence
-            int octaves = 4;  // Number of octaves for terrain detail
-
-
-            // Multiple octaves with persistence
-            double noiseValue = 0.0;
-            double amplitude = 1.0;  // Initial amplitude for first octave
-            double frequency = 1.0;  // Initial frequency for first octave
-
-            float lacunarity = 2;
-            float maxAmplitude = 0;
-
-            //multiple passes for better result
-            for (int i = 0; i < octaves; ++i) {
-
-                noiseValue += amplitude * simplex.noise2(xScaled, zScaled);
-
-                frequency *= lacunarity;  // Increase frequency based on lacunarity
-
-                maxAmplitude += amplitude; //keep adding amplitude to know max value
-
-                amplitude *= persistence;  // Reduce amplitude for next octave
-            }
-
-            // Normalize from (-maxAmplitude,+maxAmplitude) to [0, 1]
-            double normalizedHeight = (noiseValue - maxAmplitude) / (2 * maxAmplitude);
-
-            float height = normalizedHeight * maxHeight;
-
-
-            return height;
-        };
-
-    public:
-
-    SimplexNoise(int seed=21) : 
-        simplex(seed) { //initialize open simplex
- 
-    
-        //configure
-
-        // Calculate the LOD level based on the distance
-        // int lodLevel = calculateLODLevel(distance);
-
-        // Use the appropriate scale based on the LOD level
-        // float noiseScale = getNoiseScaleForLOD(lodLevel);
-
-        
-
-    };
-
-    float calculateNoise(float x, float z) override {
-        
-        float noiseValue = 0.0f;
-    
-        //use noise function (x,z) to get a value
-        noiseValue = this->noise(x,z);
-
-        return noiseValue;
-        
-    }
-
-};
-
 
 
 std::vector<VertexData> Plane::createVertices(float width, float length, int widthSegments, int lengthSegments) {
@@ -236,14 +116,7 @@ Plane::Plane(float width, float length, int widthSegments, int lengthSegments) :
         };
 
 
-
-oldTerrain::oldTerrain(int size) {
-    // createChunk(size);
-}
-
-
-
-
+// height generator
 
 void HeightGenerator::generateHeightMap(std::vector<glm::vec3> positions, int seed) {
 
@@ -406,7 +279,6 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
 }
 
 
-
 float HeightGenerator::getHeight(float x, float z) {
     if (heightMap.empty()) {
         throw std::logic_error("heightMap is empty!");
@@ -415,6 +287,8 @@ float HeightGenerator::getHeight(float x, float z) {
     return heightMap[std::make_pair(x,z)];
 }
 
+
+// Terrain chunk
 
 TerrainChunk::TerrainChunk(HeightGenerator& heightGenerator, float chunkX, float chunkZ, int chunkSize, int resolution) :
     heightGenerator(heightGenerator),
@@ -533,6 +407,8 @@ void TerrainChunk::generateChunk(int seed) {
 
 }
 
+
+// chunk manager
 
 void ChunkManager::addChunk(int x, int z) {
     std::cout << "adding chunk x:" << x << " z:" << z << std::endl;

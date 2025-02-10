@@ -50,7 +50,8 @@ std::vector<VertexData> TerrainChunk::createVertices() {
 
             positions.push_back(glm::vec3(x, 0, z));
 
-            normals.push_back(glm::vec3(0, 0, 1));
+            // Initial normals looks up
+            normals.push_back(glm::vec3(0, 1, 0));
 
             uvs.push_back( glm::vec2( ix / gridX ));
             uvs.push_back( glm::vec2( 1 - ( iz / gridZ )) );

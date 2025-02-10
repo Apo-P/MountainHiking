@@ -2,6 +2,8 @@
 
 // Model Space In
 layout(location = 0) in vec3 modelSpace_vertexPosition;
+layout(location = 0) in vec3 modelSpace_vertexNormal;
+layout(location = 0) in vec3 modelSpace_vertexUV;
 
 uniform vec3 cameraPosition;
 

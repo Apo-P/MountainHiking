@@ -51,6 +51,8 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
     // compile shaders
     simpleShader = std::make_shared<Shader>("shaders/simpleVertex.vert", "shaders/simpleFragment.frag");
 
+    normalDebugShader = std::make_shared<Shader>("shaders/normalDebug.vert", "shaders/normalDebug.frag", "shaders/normalDebug.geom");
+
     // allocate Memory for UBO's
     makeUBO_VP();
 
@@ -124,6 +126,13 @@ void Renderer::SimpleRender(std::shared_ptr<Model> obj){
     simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
     // 5.Draw Triangles
 
+    obj->draw(*this);
+
+
+    //debug 
+    normalDebugShader->bind();
+    obj->bind();
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
     obj->draw(*this);
 
 }

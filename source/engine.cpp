@@ -221,17 +221,17 @@ int GameEngine::startGame() {
             // Render into framebuffer //! this should be in renderer
             
 
-            // renderer.get()->SimpleRender(triangle);
-            // renderer.get()->SimpleRender(cube);
+            renderer.get()->SimpleRender(triangle);
+            renderer.get()->SimpleRender(cube);
 
             // renderer.get()->SimpleRender(plane->mesh);
 
-            for (auto keyValuePair : chunkmanager->chunks) {
-                // get the chunk pointer for key,value pair
-                TerrainChunk* chunk = keyValuePair.second.get();
+            // for (auto keyValuePair : chunkmanager->chunks) {
+            //     // get the chunk pointer for key,value pair
+            //     TerrainChunk* chunk = keyValuePair.second.get();
 
-                renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
-            }
+            //     renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
+            // }
 
 
             // Swap Buffers //! this should be in renderer

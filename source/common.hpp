@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <cstring> //for memcmp
+#include <map>
 #include <unordered_map>
 #include <random>
 #include <utility> // for std::pair

@@ -18,10 +18,10 @@ class Camera : public Object {
 
         // for smooth camera
         glm::vec3 velocity = glm::vec3(0);
-        float movementSpeed = 50.0f;
+        float movementSpeed = 25.0f;
 
-        const float normalSpeed = 50.0f; 
-        const float sprintSpeed = 100.0f;
+        const float normalSpeed = 25.0f; 
+        const float sprintSpeed = 150.0f;
 
         // if camera wants to sprint
         bool doSprint = false;

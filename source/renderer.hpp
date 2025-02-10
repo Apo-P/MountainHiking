@@ -23,6 +23,8 @@ class Renderer{
         
     private:
         std::shared_ptr<Shader> simpleShader;
+        std::shared_ptr<Shader> normalDebugShader;
+
         RenderModes mode = RenderModes::Normal; //Default is normal
         GLuint VPmatricesUBO;
 

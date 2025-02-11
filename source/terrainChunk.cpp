@@ -53,8 +53,11 @@ std::vector<VertexData> TerrainChunk::createVertices() {
             // set normals to 0 and recalculate them after heightmap
             normals.push_back(glm::vec3(0, 0, 0));
 
-            uvs.push_back( glm::vec2( ix / gridX ));
-            // uvs.push_back( glm::vec2( 1 - ( iz / gridZ )) );
+            // set uv coords
+            // u = (ix / gridX) * resolution  | So we increase U based on X and then we multiply by our resolution to tile the texture on each face
+            // v = 1 - (iz / gridZ)* resolution | So we increa V based on inverse of z (the more it goes to -z) and then we multiply by our resolution to tile the texture on each face
+            uvs.push_back(glm::vec2((ix / float(gridX)) * (resolution), 1 - (iz / float(gridZ))* (resolution)));
+
 
         }
 

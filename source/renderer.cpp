@@ -115,6 +115,12 @@ void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix
 
     // draw mesh
     meshObj.get()->draw(*this);
+
+    //debug 
+    normalDebugShader->bind();
+    meshObj.get()->bind();
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , modelMatrix);
+    meshObj.get()->draw(*this);
 }
 
 void Renderer::SimpleRender(std::shared_ptr<Model> obj){

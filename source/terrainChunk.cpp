@@ -71,8 +71,9 @@ std::vector<VertexData> TerrainChunk::createVertices() {
             c = ( ix + 1 ) + gridX1 * ( iz + 1 );
             d = ( ix + 1 ) + gridX1 * iz;
 
-            indices.push_back(glm::vec3 (a, b, d) );
-            indices.push_back(glm::vec3 (b, c, d) );
+            // Be carefull with order for face culling
+            indices.push_back(glm::vec3 (a, d, b) );
+            indices.push_back(glm::vec3 (b, d, c) );
 
         }
 

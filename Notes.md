@@ -62,6 +62,8 @@
 
 - improve multiple input handling
 
+- the terrain could store multiple materials and textures and change/blend them based on gradient/ height
+
 ### Features
 - [] use normal mapping for lighting
 

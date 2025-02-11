@@ -53,6 +53,9 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
 
     normalDebugShader = std::make_shared<Shader>("shaders/normalDebug.vert", "shaders/normalDebug.frag", "shaders/normalDebug.geom");
 
+
+    testShader = std::make_shared<Shader>("shaders/testVertex.vert", "shaders/testTexture.frag");
+
     // allocate Memory for UBO's
     makeUBO_VP();
 

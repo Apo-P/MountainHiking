@@ -19,11 +19,16 @@ enum class RenderModes{
 
 // class GameEngine; // this in order to be able to store window without messing up file references
 
+// test render cube //!remove later
+#include"testCube.hpp"
+
 class Renderer{
         
     private:
         std::shared_ptr<Shader> simpleShader;
         std::shared_ptr<Shader> normalDebugShader;
+
+        std::shared_ptr<Shader> testShader;
 
         RenderModes mode = RenderModes::Normal; //Default is normal
         GLuint VPmatricesUBO;
@@ -53,6 +58,10 @@ class Renderer{
         /// @param meshObj mesh to render
         void SimpleRender(std::shared_ptr<Mesh> meshObj);
         void SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix);
+
+        
+        // test render
+        void testRender(std::shared_ptr<Cube> obj);
 
 
         /// @brief simple render a object

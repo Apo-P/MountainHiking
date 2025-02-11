@@ -67,6 +67,10 @@ void GameEngine::initialize_window(int windowWidth, int windowHeight, std::strin
     }
     //! if we are on wsl activate WSL bool
 
+    // Enable back face culling
+    //! this will NOT render back faces of objects (even if we are inside them)
+    glEnable(GL_CULL_FACE);
+
 
     //Specify the viewport of openGL in the window
     glViewport(0, 0, windowWidth, windowHeight);
@@ -108,30 +112,48 @@ void GameEngine::initialize(){
 
 }
 
-
-/// @brief test cube object
-class Cube:public Model {
-    public:
-        /// @brief constructor
-        /// ! todo remember to add texture here later
-        Cube(GameEngine& eng, std::string modelMesh);
-
-        /// @brief an update method
-        virtual void update(GameEngine& engine) override;
-};
-
-
-
+// Test cube --------
 
 Cube::Cube(GameEngine& eng, std::string modelMesh){
 
     mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/cube.obj"));
+
+    texture = std::make_shared<Texture>("resources/textures/grass1.png");
 
 }
 
 void Cube::update(GameEngine& engine){
 
 }
+
+void Renderer::testRender(std::shared_ptr<Cube> obj){
+
+    //! Clean this up after testing
+
+    // 1.Bind shader
+    testShader->bind();
+
+    // 2.Bind VAO
+    obj->bind();
+    // 3.Bind texture
+    obj->texture.get()->bind(0);
+    // 4.Send Uniforms
+    testShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
+    // 5.Draw Triangles
+    obj->draw(*this);
+
+
+    //debug 
+    normalDebugShader->bind();
+    obj->bind();
+    testShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
+    obj->draw(*this);
+
+}
+
+
+
+
 
 //TODO add this to a header when done with testing
 #include <terrainChunkManager.hpp>
@@ -153,7 +175,7 @@ int GameEngine::startGame() {
         // testing ----
 
         // Test wireframe mode
-        renderer.get()->changeMode(RenderModes::wireFrame);
+        // renderer.get()->changeMode(RenderModes::wireFrame);
 
         vector<VertexData> triangle_vertices = {
             VertexData(vec3(-0.5f, -0.5f, 0.0f)),
@@ -163,7 +185,7 @@ int GameEngine::startGame() {
 
         std::shared_ptr<Mesh> triangle = std::make_shared<Mesh>(triangle_vertices);
 
-        std::shared_ptr<Model> cube = std::static_pointer_cast<Model>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
+        std::shared_ptr<Cube> cube = std::static_pointer_cast<Cube>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
 
 
         ChunkManager* chunkmanager = new ChunkManager(21,1);
@@ -222,7 +244,7 @@ int GameEngine::startGame() {
             
 
             renderer.get()->SimpleRender(triangle);
-            renderer.get()->SimpleRender(cube);
+            renderer.get()->testRender(cube);
 
             // renderer.get()->SimpleRender(plane->mesh);
 

@@ -26,9 +26,9 @@ class Renderer{
         
     private:
         std::shared_ptr<Shader> simpleShader;
-        std::shared_ptr<Shader> normalDebugShader;
+        
 
-        std::shared_ptr<Shader> testShader;
+        
 
         RenderModes mode = RenderModes::Normal; //Default is normal
         GLuint VPmatricesUBO;
@@ -39,6 +39,10 @@ class Renderer{
         /// @brief make UBO for view and projection matrix
         void makeUBO_VP();
     public:
+
+        std::shared_ptr<Shader> testShader;
+        std::shared_ptr<Shader> normalDebugShader;
+
         //! scene should have access to these
         /// @brief send view matrix to shaders
         /// @param viewMatrix view matrix to send

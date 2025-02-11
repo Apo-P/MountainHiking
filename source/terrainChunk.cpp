@@ -50,11 +50,11 @@ std::vector<VertexData> TerrainChunk::createVertices() {
 
             positions.push_back(glm::vec3(x, 0, z));
 
-            // Initial normals looks up
-            normals.push_back(glm::vec3(0, 1, 0));
+            // set normals to 0 and recalculate them after heightmap
+            normals.push_back(glm::vec3(0, 0, 0));
 
             uvs.push_back( glm::vec2( ix / gridX ));
-            uvs.push_back( glm::vec2( 1 - ( iz / gridZ )) );
+            // uvs.push_back( glm::vec2( 1 - ( iz / gridZ )) );
 
         }
 
@@ -114,6 +114,41 @@ void TerrainChunk::generateChunk(int seed) {
     for (auto& vertex : vertices){
         vertex.position.y = heightMap[std::make_pair(vertex.position.x, vertex.position.z)];
     } 
+
+    //! TEST
+    // this is inefficient make this all happen in create vertex class, first generate heightmap and the make vertices 
+
+    //recalculate normals 
+
+    // face positions
+    glm::vec3 pA = glm::vec3(), pB = glm::vec3(), pC = glm::vec3();
+
+    glm::vec3 cb = glm::vec3(), ab = glm::vec3();
+
+    for ( int i = 0, il = vertices.size(); i < il; i += 3 ) {
+
+        // get vertex data
+        VertexData& vA = vertices.at( i + 0 );
+        VertexData& vB = vertices.at( i + 1 );
+        VertexData& vC = vertices.at( i + 2 );
+
+        // get positions
+        pA = vA.position;
+        pB = vB.position;
+        pC = vC.position;
+
+        // calculate face normal
+        cb =  pC - pB;
+        ab =  pA - pB;
+        cb = glm::cross(cb, ab);
+
+        // store new normal
+        vA.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
+        vB.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
+        vC.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
+
+    }
+
 
     // generate Mesh
     mesh = std::make_shared<Mesh>(vertices);

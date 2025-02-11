@@ -126,10 +126,10 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
     int possize = positions.size();
     int mapsize = returnHeightMap.size();
 
-    // test
-    if (possize != mapsize) {
-        std::cout << "what?" <<std::endl;
-    }
+    // // test
+    // if (possize != mapsize) {
+    //     std::cout << "what?" <<std::endl;
+    // }
 
     // normalizeHeightmap heightmap
     

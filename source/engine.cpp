@@ -154,7 +154,6 @@ void Renderer::testRender(std::shared_ptr<Cube> obj){
 
 
 
-
 //TODO add this to a header when done with testing
 #include <terrainChunkManager.hpp>
 
@@ -188,7 +187,20 @@ int GameEngine::startGame() {
         std::shared_ptr<Cube> cube = std::static_pointer_cast<Cube>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
 
 
-        ChunkManager* chunkmanager = new ChunkManager(21,1);
+
+        // ChunkManager* chunkmanager = new ChunkManager(21,0);
+
+
+        std::shared_ptr<Shader> testShader = renderer.get()->testShader;
+        std::shared_ptr<Shader> testNormalDebugShader = renderer.get()->normalDebugShader;
+        std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
+
+        glm::mat4 testModelMatrix = glm::translate(glm::mat4(1),glm::vec3(0,0,0));
+
+        HeightGenerator* gen = new HeightGenerator();
+
+        TerrainChunk* testchunk = new TerrainChunk(*gen);// (*gen,0,0,5,5);
+        testchunk->generateChunk();
 
 
 
@@ -248,12 +260,43 @@ int GameEngine::startGame() {
 
             // renderer.get()->SimpleRender(plane->mesh);
 
-            for (auto keyValuePair : chunkmanager->chunks) {
-                // get the chunk pointer for key,value pair
-                TerrainChunk* chunk = keyValuePair.second.get();
 
-                renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
-            }
+            // for (auto keyValuePair : chunkmanager->chunks) {
+            //     // get the chunk pointer for key,value pair
+            //     TerrainChunk* chunk = keyValuePair.second.get();
+
+            //     renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
+            // }
+
+
+            
+            // TEST RENDER -----
+            // 1.Bind shader
+            testShader->bind();
+            // 2.Bind VAO
+            testchunk->mesh->bind();
+            // 3.Bind texture
+
+            // 4.Send Uniforms
+            testShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
+            // 5.Draw Triangles
+            testchunk->mesh->draw(*renderer.get());
+
+
+            //debug 
+            testNormalDebugShader->bind();
+            testchunk->mesh->bind();
+            testNormalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
+            testchunk->mesh->draw(*renderer.get());
+
+
+            // END TEST RENDER ---
+
+
+
+
+
+            
 
 
             // Swap Buffers //! this should be in renderer

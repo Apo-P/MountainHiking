@@ -17,13 +17,13 @@ void Scene::SampleHeight(glm::vec3 pos) const{
 
     float chunkY = testChunk->approximateHeight(pos);
 
-    std::cout << "pos:(" << pos.x << "," << pos.z <<") chunkY:" << chunkY << std::endl;
+    // std::cout << "pos:(" << pos.x << "," << pos.z <<") chunkY:" << chunkY << std::endl;
 
     // get camera pos (we already have it as input)
     // glm::vec3 cam_pos = camera.get()->getPosition();
 
     // set camera y as chunkY + some height (i.e player height)
-    pos.y = chunkY+5;
+    pos.y = chunkY+10;
 
     camera.get()->setPosition(pos);
 

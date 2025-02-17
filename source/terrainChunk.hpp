@@ -47,6 +47,38 @@ class TerrainChunk {
 
         void generateChunk(int seed=21);
 
+        /// @brief  Interpolates between 2 values in a grid
+        /// @param X X value
+        /// @param Z Z values
+        /// @param X0 bottom left x
+        /// @param Z0 bottom left z
+        /// @param X1 top right x
+        /// @param Z1 top right z
+        /// @param h00 value at bottom left (x0,z0)
+        /// @param h10 value at bottom right (x1,z0)
+        /// @param h01 value at top left (x0,z1)
+        /// @param h11 value at top right (x1,z1)
+        /// @return interpolated value
+        float bilinearInterpolation(
+            float X, float Z,
+            float X0, float Z0,
+            float X1, float Z1,
+            float h00, float h10, float h01, float h11) {
+
+            // calculate normalized position of x,z between x,z 0-1
+            float normX = (X - X0) / (X1 - X0);
+            float normZ = (Z - Z0) / (Z1 - Z0);
+
+            // Interpolate along the X direction
+            float botEdge = h00 * (1 - normX) + h10 * normX;  // bottom edge interpolation
+            float topEdge = h01 * (1 - normX) + h11 * normX;  // top edge interpolation
+
+            // Interpolate along the Z direction
+            float H_interpolated = botEdge * (1 - normZ) + topEdge * normZ;
+
+            return H_interpolated;
+        }
+
         // will give the approximate height for a point
         float approximateHeight(glm::vec3 pos) {
 
@@ -60,12 +92,27 @@ class TerrainChunk {
 
             float height;
 
-            // gets only left corner height
-            // height = heightMap[std::make_pair(resx, resz)];
+            // get height at the 4 coners of a grid square
+            float resX0,resZ0,resX1,resZ1;
+            float h1,h2,h3,h4;
+            
+            resX0 = resx;
+            resX1 = resx + segment_width;
+            resZ0 = resz;
+            resZ1 = resz + segment_length;
 
-            // get average of 4 corners
-            height = heightMap[std::make_pair(resx, resz)] + heightMap[std::make_pair(resx+segment_width, resz)] + heightMap[std::make_pair(resx, resz+segment_length)] + heightMap[std::make_pair(resx+segment_width, resz+segment_length)];
-            height = height / 4;
+            h1 = heightMap[std::make_pair(resX0, resZ0)];
+            h2 = heightMap[std::make_pair(resX1, resZ0)];
+            h3 = heightMap[std::make_pair(resX0, resZ1)];
+            h4 = heightMap[std::make_pair(resX1, resZ1)];
+
+            //! caution this will create problems when we are on the edge of the chunk!
+            //! because we wont have some h values
+
+            // use billinear interpolation to get the height
+
+            height = bilinearInterpolation(pos.x, pos.z, resX0, resZ0, resX1, resZ1, h1,h2,h3,h4);
+
 
             return height;
 

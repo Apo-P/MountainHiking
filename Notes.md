@@ -66,6 +66,11 @@
 
 - the terrain could store multiple materials and textures and change/blend them based on gradient/ height
 
+- Maybe make a simple sloped mesh for collisions on top of the complex one as they do in video games?
+
+- Maybe store gradient of a face somewhere?
+
+
 ### Features
 - [] use normal mapping for lighting
 

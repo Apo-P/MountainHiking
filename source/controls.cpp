@@ -119,8 +119,9 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
 
     // test key for testing new features or functions
     if (isKeyPressed(GLFW_KEY_T)) {
-        scene.SampleHeight(scene.camera.get()->getPosition());
+        // scene.SampleHeight(scene.camera.get()->getPosition());
     }
+    scene.SampleHeight(scene.camera.get()->getPosition());
 
 }
 

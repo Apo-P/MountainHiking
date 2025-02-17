@@ -27,8 +27,8 @@ std::vector<VertexData> TerrainChunk::createVertices() {
     int gridZ1 = gridZ + 1;
 
     // calculate segment width and length
-    float segment_width = width / gridX;
-    float segment_length = length / gridZ;
+    segment_width = width / gridX;
+    segment_length = length / gridZ;
 
     // create arrays for vertex data
     std::vector<glm::vec3> indices;

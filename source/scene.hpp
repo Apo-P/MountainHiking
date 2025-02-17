@@ -6,6 +6,8 @@
 #include <camera.hpp>
 #include <object.hpp>
 
+#include <terrainChunk.hpp>
+
 /// @brief a collection of objects and camera in a scene
 struct Scene {
     /// @brief active camera of scene
@@ -29,6 +31,13 @@ public:
     /// @brief updates all scene components
     /// @param deltaTime time elapsed since last update
     void update(const float deltaTime);
+
+
+    TerrainChunk* testChunk;
+
+    void setTestChunk(TerrainChunk& newChunk) {testChunk = &newChunk;};
+
+    void SampleHeight(glm::vec3 pos) const;
 
 
 };

@@ -219,6 +219,7 @@ int GameEngine::startGame() {
         cube.get()->setModelMatrix(glm::translate(glm::mat4(1), vec3(0,0,-2)));
 
         
+        mainScene.setTestChunk(*testchunk);
 
         // end of testing ----
 

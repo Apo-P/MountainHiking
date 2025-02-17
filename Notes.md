@@ -46,6 +46,8 @@
 
 - Maybe use terrain generation in a shader to simulate low res terrain in a distance
 
+- Pass the game-engine into controls to have a way to interact with other systems?
+
 ## Suggestions for future versions
 
 - find workaround for mouse input problem on wsl (I mentioned this on :https://github.com/microsoft/wslg/issues/376)

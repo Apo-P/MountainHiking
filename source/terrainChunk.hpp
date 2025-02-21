@@ -29,6 +29,10 @@ class TerrainChunk {
 
         std::unordered_map<std::pair<float,float>, float, FloatPairHash> heightMap;
 
+        //? maybe since we start storing the gradient as well i would be better to just use a 2d image ?
+        //? we can calculate gradient in shaders i think
+        //! We can calculate the gradient of the surface from the normal of the surface
+        std::unordered_map<std::pair<float,float>, float, FloatPairHash> gradientMap;
 
         
 

@@ -17,6 +17,7 @@ out VS_OUT {
     vec3 normal;
 } vs_out;
 
+
 void main()
 {
     gl_Position = V * M * vec4(modelSpace_vertexPosition, 1.0); 

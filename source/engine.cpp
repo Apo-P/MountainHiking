@@ -174,7 +174,7 @@ int GameEngine::startGame() {
         // testing ----
 
         // Test wireframe mode
-        // renderer.get()->changeMode(RenderModes::wireFrame);
+        renderer.get()->changeMode(RenderModes::wireFrame);
 
         vector<VertexData> triangle_vertices = {
             VertexData(vec3(-0.5f, -0.5f, 0.0f)),

@@ -70,6 +70,9 @@
 
 - Maybe store gradient of a face somewhere?
 
+- Could be cool to generate a jpeg image as a map. That map could also be used and modified instead of storing an unordered map.
+
+- Store a list of object to be spawned and find their position via a random placement algorithm. Make rules for the placement of each block based on, slope, frequency, height, cold etc.
 
 ### Features
 - [] use normal mapping for lighting

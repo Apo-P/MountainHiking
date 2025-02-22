@@ -10,8 +10,11 @@ uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform sampler2D texture3;
 
-uniform float optimalHeight0 = 40;
-uniform float optimalHeight1 = 150;
+// height for blending
+uniform float optimalHeight0 = 40; // rocky texture
+uniform float optimalHeight1 = 150; // grass
+uniform float optimalHeight2 = 180; // snow
+
 
 uniform bool Terrain = false;
 
@@ -42,9 +45,22 @@ vec4 CalcTexColor()
         // test
         // TexColor = vec4(0,1,0,1);
     }  
+    else if (Height < optimalHeight2) { //if height is lower than optimalHeight1
+        // get color from textures
+        vec4 Color0 = texture(texture1, uvCoords);
+        vec4 Color1 = texture(texture2, uvCoords);
+        //set range to normalize
+        float Delta = optimalHeight2 - optimalHeight1;
+        // normalize
+        float Factor = (Height - optimalHeight1) / Delta;
+        //mix the final color
+        TexColor = mix(Color0, Color1, Factor);
+        // test
+        // TexColor = vec4(0,1,0,1);
+    }
     else { //else
         // get color from highest texture only
-        TexColor = texture(texture1, uvCoords);
+        TexColor = texture(texture2, uvCoords);
         //test
         // TexColor = vec4(0,0,1,1);
     }

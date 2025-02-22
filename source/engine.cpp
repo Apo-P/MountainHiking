@@ -70,6 +70,9 @@ void GameEngine::initialize_window(int windowWidth, int windowHeight, std::strin
     // Enable back face culling
     //! this will NOT render back faces of objects (even if we are inside them)
     glEnable(GL_CULL_FACE);
+    
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);  
 
 
     //Specify the viewport of openGL in the window
@@ -144,11 +147,12 @@ void Renderer::testRender(std::shared_ptr<Cube> obj){
 
 
     //debug 
-    normalDebugShader->bind();
-    obj->bind();
-    testShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
-    obj->draw(*this);
-
+    if (DebugNormals) {
+        normalDebugShader->bind();
+        obj->bind();
+        testShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
+        obj->draw(*this);
+    }
 }
 
 
@@ -195,6 +199,7 @@ int GameEngine::startGame() {
         std::shared_ptr<Shader> testNormalDebugShader = renderer.get()->normalDebugShader;
         std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
         std::shared_ptr<Texture> testTextureTwo = std::make_shared<Texture>("resources/textures/dryDirt.png");
+        std::shared_ptr<Texture> testTextureThree = std::make_shared<Texture>("resources/textures/snow1.png");
 
         //! IMPORTANT INTEGRATE LATER
 
@@ -205,6 +210,7 @@ int GameEngine::startGame() {
         GLuint testShaderId = renderer.get()->testShader.get()->getProgramId();
         glUniform1i(glGetUniformLocation(testShaderId, "texture0"), 0); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
         glUniform1i(glGetUniformLocation(testShaderId, "texture1"), 1); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
+        glUniform1i(glGetUniformLocation(testShaderId, "texture2"), 2); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
         // or set it via the texture class
         // ourShader.setInt("texture2", 1);
 
@@ -256,7 +262,8 @@ int GameEngine::startGame() {
             controller.get()->handleInputs(mainScene, deltaTime);
 
             // Clear Buffers / Screen //! this should be in renderer
-            glClear(GL_COLOR_BUFFER_BIT);
+            // dont forget to clear depth buffer
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
 
             // Event handling / Update game state //! this should be in scene
 
@@ -295,10 +302,8 @@ int GameEngine::startGame() {
             // 3.Bind texture
             testTextureTwo.get()->bind(0);
             testTexture.get()->bind(1);
-            // glActiveTexture(GL_TEXTURE0 + 0);
-            // glBindTexture(GL_TEXTURE_2D, testTextureTwo.get()->textureId);
-            // glActiveTexture(GL_TEXTURE1);
-            // glBindTexture(GL_TEXTURE_2D, testTexture.get()->textureId);
+            testTextureThree.get()->bind(2);
+            
             // 4.Send Uniforms
             testShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
             testShader->sendUniform(Shader::uniforms::Terrain , true);
@@ -312,10 +317,12 @@ int GameEngine::startGame() {
 
 
             //debug 
-            testNormalDebugShader->bind();
-            testchunk->mesh->bind();
-            testNormalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
-            testchunk->mesh->draw(*renderer.get());
+            if (renderer.get()->DebugNormals){
+                testNormalDebugShader->bind();
+                testchunk->mesh->bind();
+                testNormalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
+                testchunk->mesh->draw(*renderer.get());
+            }
 
 
             // END TEST RENDER ---

@@ -31,6 +31,7 @@ class Renderer{
         
 
         RenderModes mode = RenderModes::Normal; //Default is normal
+        
         GLuint VPmatricesUBO;
 
         std::shared_ptr<GLFWwindow> window;
@@ -40,6 +41,7 @@ class Renderer{
         void makeUBO_VP();
     public:
 
+        bool DebugNormals = false; // change to private later
         std::shared_ptr<Shader> testShader;
         std::shared_ptr<Shader> normalDebugShader;
 

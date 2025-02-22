@@ -117,10 +117,12 @@ void Renderer::SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix
     meshObj.get()->draw(*this);
 
     //debug 
-    normalDebugShader->bind();
-    meshObj.get()->bind();
-    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , modelMatrix);
-    meshObj.get()->draw(*this);
+    if (DebugNormals) {
+        normalDebugShader->bind();
+        meshObj.get()->bind();
+        simpleShader->sendUniform(Shader::uniforms::ModelMatrix , modelMatrix);
+        meshObj.get()->draw(*this);
+    }
 }
 
 void Renderer::SimpleRender(std::shared_ptr<Model> obj){
@@ -139,10 +141,12 @@ void Renderer::SimpleRender(std::shared_ptr<Model> obj){
 
 
     //debug 
-    normalDebugShader->bind();
-    obj->bind();
-    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
-    obj->draw(*this);
+    if (DebugNormals){
+        normalDebugShader->bind();
+        obj->bind();
+        simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
+        obj->draw(*this);
+    }
 
 }
 

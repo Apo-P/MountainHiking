@@ -74,6 +74,10 @@
 
 - Store a list of object to be spawned and find their position via a random placement algorithm. Make rules for the placement of each block based on, slope, frequency, height, cold etc.
 
+- objects should get textures from engine or some container so we dont load them every time (Maybe container in texture class?)
+
+- How to blend Materials together?
+
 ### Features
 - [] use normal mapping for lighting
 

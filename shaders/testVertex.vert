@@ -18,6 +18,7 @@ layout(std140) uniform VPmatrices {
 
 // forward to next stage (fragment)
 out vec2 uvCoords;
+out vec3 WorldPos;
 
 
 void main()
@@ -27,4 +28,5 @@ void main()
 
     // don't forget to forward to next stage the out vars
     uvCoords = modelSpace_vertexUV;
+    WorldPos = vec3(M * vec4(modelSpace_vertexPosition, 1.0)); //? Should we pass vec4 instead?
 }

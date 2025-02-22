@@ -222,3 +222,12 @@ void Shader::sendUniform(Shader::uniforms uniformTarget, const glm::mat4 &matrix
 
 }
 
+void Shader::sendUniform(Shader::uniforms uniformTarget, const bool &value) {
+
+    std::string requestedUniform = getUniformName(uniformTarget);
+
+    // glUniformMatrix4fv(glGetUniformLocation(programId, requestedUniform.c_str()), 1, GL_FALSE, &matrix[0][0]);
+    glUniform1f(glGetUniformLocation(programId, requestedUniform.c_str()), value);
+
+}
+

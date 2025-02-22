@@ -14,7 +14,8 @@ class Shader{
         // enum starts from 0
         enum class uniforms{
             ModelMatrix=0, //! be carefull order of uniforms needs to be the same as the order in Uniform names
-            
+            Terrain=1,
+
             VPmatrix=100   //! UBO OBJECTS Have 100 in front to distinguish them, last digit need to be the same as binding point
         };
 
@@ -62,8 +63,9 @@ class Shader{
         std::unordered_map<std::string, GLuint> uniform_locations;
 
         /// @brief list of possible uniform names
-        std::string uniformNames[1] = {
-            "M"
+        std::string uniformNames[2] = {
+            "M",
+            "Terrain"
         };
         /// @brief list of possible UBO names
         std::string UBONames[1] = {
@@ -111,6 +113,8 @@ class Shader{
         /// @param uniformTarget The target uniform
         /// @param matrix Matrix data
         void sendUniform(Shader::uniforms uniformTarget, const glm::mat4 &matrix);
+
+        void sendUniform(Shader::uniforms uniformTarget, const bool &matrix);
 
         GLuint getProgramId(){ return programId; };
 };

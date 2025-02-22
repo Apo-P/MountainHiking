@@ -5,5 +5,5 @@ in vec4 DebugColor;
 
 void main()
 {
-    FragColor = DebugColor;
+    // FragColor = DebugColor;
 }  

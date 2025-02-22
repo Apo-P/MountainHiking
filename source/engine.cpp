@@ -174,7 +174,7 @@ int GameEngine::startGame() {
         // testing ----
 
         // Test wireframe mode
-        renderer.get()->changeMode(RenderModes::wireFrame);
+        // renderer.get()->changeMode(RenderModes::wireFrame);
 
         vector<VertexData> triangle_vertices = {
             VertexData(vec3(-0.5f, -0.5f, 0.0f)),
@@ -194,6 +194,21 @@ int GameEngine::startGame() {
         std::shared_ptr<Shader> testShader = renderer.get()->testShader;
         std::shared_ptr<Shader> testNormalDebugShader = renderer.get()->normalDebugShader;
         std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
+        std::shared_ptr<Texture> testTextureTwo = std::make_shared<Texture>("resources/textures/dryDirt.png");
+
+        //! IMPORTANT INTEGRATE LATER
+
+        // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+        // -------------------------------------------------------------------------------------------
+        renderer.get()->testShader->bind();// don't forget to activate/use the shader before setting uniforms!
+        // either set it manually like so:
+        GLuint testShaderId = renderer.get()->testShader.get()->getProgramId();
+        glUniform1i(glGetUniformLocation(testShaderId, "texture0"), 0); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
+        glUniform1i(glGetUniformLocation(testShaderId, "texture1"), 1); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
+        // or set it via the texture class
+        // ourShader.setInt("texture2", 1);
+
+
 
         glm::mat4 testModelMatrix = glm::translate(glm::mat4(1),glm::vec3(0,0,0));
 
@@ -257,6 +272,7 @@ int GameEngine::startGame() {
             
 
             renderer.get()->SimpleRender(triangle);
+            //use test render for cube
             renderer.get()->testRender(cube);
 
             // renderer.get()->SimpleRender(plane->mesh);
@@ -277,11 +293,22 @@ int GameEngine::startGame() {
             // 2.Bind VAO
             testchunk->mesh->bind();
             // 3.Bind texture
-
+            testTextureTwo.get()->bind(0);
+            testTexture.get()->bind(1);
+            // glActiveTexture(GL_TEXTURE0 + 0);
+            // glBindTexture(GL_TEXTURE_2D, testTextureTwo.get()->textureId);
+            // glActiveTexture(GL_TEXTURE1);
+            // glBindTexture(GL_TEXTURE_2D, testTexture.get()->textureId);
             // 4.Send Uniforms
             testShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
+            testShader->sendUniform(Shader::uniforms::Terrain , true);
             // 5.Draw Triangles
             testchunk->mesh->draw(*renderer.get());
+
+            //! Temporary will change once we implement materials
+            //reset terrain to false after we are done drawing terrain
+            testShader->sendUniform(Shader::uniforms::Terrain , false);
+
 
 
             //debug 

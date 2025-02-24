@@ -4,7 +4,7 @@ float RandomNoise::noise() {
     return distribution(seededGenerator);
 } ;
 
-float RandomNoise::calculateNoise(float x, float z) {
+float RandomNoise::calculateHeight(float x, float z) {
         
     float noiseValue = 0.0f;
 
@@ -45,7 +45,7 @@ float SmoothHill::noise(float x, float z) {
     return height;
 } ;
 
-float SmoothHill::calculateNoise(float x, float z) {
+float SmoothHill::calculateHeight(float x, float z) {
         
     float noiseValue = 0.0f;
 
@@ -60,8 +60,6 @@ float SmoothHill::calculateNoise(float x, float z) {
 
 float SimplexNoise::noise(float x, float z) {
 
-    //for test
-    maxHeight = 128;
 
     // as we increase scale the number of hills decreases
     float scale = 200; 
@@ -69,6 +67,7 @@ float SimplexNoise::noise(float x, float z) {
     float xScaled = x / scale;
     float zScaled = z / scale;
 
+    //! Set scale, persistence and the rest of parameters in init function
     
     // Set the persistence and octaves
     float persistence = 0.5;  // Example persistence
@@ -96,22 +95,39 @@ float SimplexNoise::noise(float x, float z) {
     }
 
     // Normalize from (-maxAmplitude,+maxAmplitude) to [0, 1]
-    double normalizedHeight = (noiseValue - maxAmplitude) / (2 * maxAmplitude);
+    double normalizedHeight = (noiseValue + maxAmplitude) / (2 * maxAmplitude);
 
-    float height = normalizedHeight * maxHeight;
-
-
-    return height;
+    return normalizedHeight;
 };
 
-float SimplexNoise::calculateNoise(float x, float z) {
+float SimplexNoise::calculateHeight(float x, float z) {
         
     float noiseValue = 0.0f;
 
+    //! change later max height to be an input
+    //for test
+    maxHeight = 128;
+    
+
     //use noise function (x,z) to get a value
-    noiseValue = this->noise(x,z);
+    noiseValue = this->noise(x,z) * maxHeight;
 
     return noiseValue;
     
+}
+
+float SimplexNoise::calculateRadius(float x, float z) {
+
+    float noiseValue = 0.0f;
+
+    // change later max radius to be an input
+    // for test
+    maxRadius = 2.0f;
+
+    //use noise function (x,z) to get a value
+    noiseValue = this->noise(x,z) * maxRadius;
+
+    return noiseValue;
+
 }
 

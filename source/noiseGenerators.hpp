@@ -12,7 +12,9 @@ class NoiseFunction {
         NoiseFunction(){};
 
         // Calculate noise and return max noise value - Interface 
-        virtual float calculateNoise(float x, float z){};
+        virtual float calculateHeight(float x, float z){};
+
+        virtual float calculateRadius(float x, float z){};
 
 
 };
@@ -32,7 +34,7 @@ class RandomNoise : public NoiseFunction {
         distribution(0, range)  {  
         };
 
-        float calculateNoise(float x, float z) override;
+        float calculateHeight(float x, float z) override;
 
 
 };
@@ -64,7 +66,7 @@ class SmoothHill : public NoiseFunction {
             
             };
 
-        float calculateNoise(float x, float z) override ;
+        float calculateHeight(float x, float z) override ;
 
 
 };
@@ -83,6 +85,7 @@ class SimplexNoise : public NoiseFunction {
         float chunkX,chunkZ;
 
         int maxHeight;
+        float maxRadius;
 
         float noise(float x, float z);
 
@@ -104,7 +107,9 @@ class SimplexNoise : public NoiseFunction {
 
     };
 
-    float calculateNoise(float x, float z);
+    float calculateHeight(float x, float z);
+
+    float calculateRadius(float x, float z);
 
 };
 

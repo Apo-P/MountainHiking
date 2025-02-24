@@ -1,7 +1,9 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include "common.hpp"
 #include <mesh.hpp>
+#include <texture.hpp>
 
 
 class GameEngine;
@@ -23,6 +25,9 @@ class Model {
     
         /// @brief object's mesh
         std::shared_ptr<Mesh> mesh = nullptr;
+
+        // object's texture, inherited models could have more than one
+        std::shared_ptr<Texture> texture;
 
     protected:
         //! bind and draw are virtual for now but i dont thinks they need to be

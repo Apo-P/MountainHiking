@@ -217,8 +217,10 @@ void Shader::sendUniform(Shader::uniforms uniformTarget, const glm::mat4 &matrix
 
     // std::cout << "requested to send:" << requestedUniform << std::endl;
 
+    //? Maybe change to be stored in hash map instead?
+    GLuint uniformLocation = glGetUniformLocation(programId, requestedUniform.c_str());
 
-    glUniformMatrix4fv(glGetUniformLocation(programId, requestedUniform.c_str()), 1, GL_FALSE, &matrix[0][0]);
+    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, &matrix[0][0]);
 
 }
 

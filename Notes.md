@@ -48,6 +48,12 @@
 
 - Pass the game-engine into controls to have a way to interact with other systems?
 
+- Use poisson disk sampling for terrain placement and find a way to create places of high forested areas etc. Maybe find a way to combine the noise function of the terrain
+
+- Create rules for object placement i.e. gradient distance from other type of objects etc.
+
+- Maybe remove getting uniform location each time and store it in a map for common Uniforms?. Or even better maybe remove the Enum cause it only adds complexity and hasn't helped yet. Maybe if we want ot keep being able to send uniforms allowed then use one map. Maybe skip complexity all together, and have each different shader inherit from main shader class and store its own uniform locations as class variables, then find a way to allow access from outside shader class.
+
 ## Suggestions for future versions
 
 - find workaround for mouse input problem on wsl (I mentioned this on :https://github.com/microsoft/wslg/issues/376)

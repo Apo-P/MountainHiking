@@ -1,12 +1,8 @@
 #include "common.hpp"
 #include "model.hpp"
-#include "texture.hpp"
 
 /// @brief test cube object
 class Cube:public Model {
-
-    public:
-        std::shared_ptr<Texture> texture;
 
     public:
         /// @brief constructor

@@ -37,8 +37,8 @@ class HeightGenerator {
         // returns normalized height; 
         float getHeight(float x, float z);
 
-        //? make a function to give heightMap without storing it
-        std::unordered_map<std::pair<float,float>, float, FloatPairHash> makeHeightMap (std::vector<glm::vec3> positions, int seed=21);
+        //? make a function to give heightMap without storing it and make it virtual so inherited generators can override it
+        virtual std::unordered_map<std::pair<float,float>, float, FloatPairHash> makeHeightMap (std::vector<glm::vec3> positions, int seed=21);
 
 
 };

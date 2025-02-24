@@ -67,7 +67,7 @@ class Renderer{
 
         
         // test render
-        void testRender(std::shared_ptr<Cube> obj);
+        void testRender(std::shared_ptr<Model> obj);
 
 
         /// @brief simple render a object

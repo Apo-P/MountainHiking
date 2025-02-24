@@ -67,6 +67,9 @@ void GameEngine::initialize_window(int windowWidth, int windowHeight, std::strin
     }
     //! if we are on wsl activate WSL bool
 
+
+    //! these enables should be in renderer
+
     // Enable back face culling
     //! this will NOT render back faces of objects (even if we are inside them)
     glEnable(GL_CULL_FACE);
@@ -119,7 +122,13 @@ void GameEngine::initialize(){
 
 Cube::Cube(GameEngine& eng, std::string modelMesh){
 
-    mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/cube.obj"));
+    std::string modelLocation = "resources/models/cube.obj";
+
+    if(!modelMesh.empty()){
+        modelLocation = modelMesh;
+    }
+
+    mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>(modelLocation));
 
     texture = std::make_shared<Texture>("resources/textures/grass1.png");
 
@@ -129,7 +138,18 @@ void Cube::update(GameEngine& engine){
 
 }
 
-void Renderer::testRender(std::shared_ptr<Cube> obj){
+class Circle : public Model {
+    public:
+        Circle(){
+            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/testCircle.obj"));
+
+            // be carefull if no texture we will have a segmentation fault in texture renderer for now, maybe add check if obj has texture else use something else
+            // texture = std::make_shared<Texture>("resources/textures/grass1.png");
+        }
+
+};
+
+void Renderer::testRender(std::shared_ptr<Model> obj){
 
     //! Clean this up after testing
 
@@ -156,10 +176,29 @@ void Renderer::testRender(std::shared_ptr<Cube> obj){
 }
 
 
+class testHeightGen : public HeightGenerator {
+    std::unordered_map<std::pair<float,float>, float, FloatPairHash> makeHeightMap (std::vector<glm::vec3> positions, int seed) override{
+
+        std::unordered_map<std::pair<float,float>, float, FloatPairHash> returnHeightMap;
+
+        for(auto pos : positions){
+        
+            float x = pos.x;
+            float z = pos.z;
+    
+            //store height
+            returnHeightMap[std::make_pair(x,z)] = 0;
+    
+        }
+
+        return returnHeightMap;
+    }
+};
 
 
 //TODO add this to a header when done with testing
 #include <terrainChunkManager.hpp>
+#include <objectPlacer.hpp>
 
 
 
@@ -178,7 +217,8 @@ int GameEngine::startGame() {
         // testing ----
 
         // Test wireframe mode
-        // renderer.get()->changeMode(RenderModes::wireFrame);
+        renderer.get()->changeMode(RenderModes::wireFrame);
+        // renderer.get()->DebugNormals = true;
 
         vector<VertexData> triangle_vertices = {
             VertexData(vec3(-0.5f, -0.5f, 0.0f)),
@@ -190,6 +230,7 @@ int GameEngine::startGame() {
 
         std::shared_ptr<Cube> cube = std::static_pointer_cast<Cube>(std::make_shared<Cube>(*this,"resources/models/cube.obj"));
 
+        std::shared_ptr<Circle> circle = std::static_pointer_cast<Circle>(std::make_shared<Circle>());
 
 
         // ChunkManager* chunkmanager = new ChunkManager(21,0);
@@ -219,9 +260,25 @@ int GameEngine::startGame() {
         glm::mat4 testModelMatrix = glm::translate(glm::mat4(1),glm::vec3(0,0,0));
 
         HeightGenerator* gen = new HeightGenerator();
+        HeightGenerator* test_gen = new testHeightGen();
 
-        TerrainChunk* testchunk = new TerrainChunk(*gen);// (*gen,0,0,5,5);
+
+        TerrainChunk* testchunk = new TerrainChunk(*test_gen,0,0,50,50);
         testchunk->generateChunk();
+
+
+        PoissonDiscSampling objectPlacer;
+
+        // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it
+        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(1, glm::vec2(50,50));
+
+        std::vector<std::shared_ptr<Circle>> trees;
+        for (auto point: treePoints) {
+            std::shared_ptr<Circle> tree = std::make_shared<Circle>();
+            //set model matrix to point location (also scale down because radius is 1 and model size is 2)
+            tree.get()->setModelMatrix(glm::translate(glm::mat4(1), glm::vec3(point.x, 0 ,-point.y))*glm::scale(glm::mat4(1), glm::vec3(0.5)));
+            trees.push_back(tree);
+        }
 
 
 
@@ -281,6 +338,12 @@ int GameEngine::startGame() {
             renderer.get()->SimpleRender(triangle);
             //use test render for cube
             renderer.get()->testRender(cube);
+
+            renderer.get()->SimpleRender(circle);
+
+            for(auto& tree : trees){
+                renderer.get()->SimpleRender(tree);
+            }
 
             // renderer.get()->SimpleRender(plane->mesh);
 

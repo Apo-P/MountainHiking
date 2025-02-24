@@ -15,6 +15,9 @@
 - [Polygonal map generation](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)
 
 - [3d map generation video-series](https://www.youtube.com/watch?v=U9q-jM3-Phc)
+- [Game engine tutorials in java](https://www.youtube.com/watch?v=mnIQEQoHHCU&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=32)
+
+- [Object placement using poisson disk sampling](http://devmag.org.za/2009/05/03/poisson-disk-sampling/)
 
 ## Quick debug GUI
 - [imGui](https://github.com/ocornut/imgui/wiki/Getting-Started)

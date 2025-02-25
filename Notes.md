@@ -84,6 +84,8 @@
 
 - How to blend Materials together?
 
+- Better to just return a normalized range from noise generators and do the height multiplication in the height generator
+
 ### Features
 - [] use normal mapping for lighting
 

@@ -104,15 +104,15 @@ std::unordered_map<std::pair<float,float>, float, FloatPairHash> HeightGenerator
         //? could use multiple noises here to calculate
     
         // make a big hill at center (can multiply weight here so it can have a bigger effect)
-        noiseValue += 4 * smoothHill.calculateNoise(x,z);
+        noiseValue += 4 * smoothHill.calculateHeight(x,z);
 
         //if we are on a hill add noise
         // if (noiseValue!=0) {
-        //     // noiseValue += rndNoise.calculateNoise(x,z);
+        //     // noiseValue += rndNoise.calculateHeight(x,z);
         // }
 
         // use simplex noise as test
-        noiseValue += smpNoise.calculateNoise(x,z);
+        noiseValue += smpNoise.calculateHeight(x,z);
 
         
         //Put final height to heightMap

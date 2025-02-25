@@ -122,7 +122,7 @@ float SimplexNoise::calculateRadius(float x, float z) {
 
     // change later max radius to be an input
     // for test
-    maxRadius = 2.0f;
+    maxRadius = 1.0f;
 
     //use noise function (x,z) to get a value
     noiseValue = this->noise(x,z) * maxRadius;

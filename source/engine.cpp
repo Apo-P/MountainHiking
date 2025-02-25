@@ -271,6 +271,9 @@ int GameEngine::startGame() {
 
         // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it
         std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(1, glm::vec2(50,50));
+        // std::vector<glm::vec2> treePoints = objectPlacer.GenerateVariablePoints(glm::vec2(0,0), glm::vec2(100,100), 4, 2, 3);
+
+        std::vector<glm::vec2> treePoints2 = objectPlacer.GenerateVariablePoints(glm::vec2(100,100), glm::vec2(100,100), 4, 2, 3);
 
         std::vector<std::shared_ptr<Circle>> trees;
         for (auto point: treePoints) {
@@ -279,6 +282,13 @@ int GameEngine::startGame() {
             tree.get()->setModelMatrix(glm::translate(glm::mat4(1), glm::vec3(point.x, 0 ,-point.y))*glm::scale(glm::mat4(1), glm::vec3(0.5)));
             trees.push_back(tree);
         }
+
+        // for (auto point: treePoints2) {
+        //     std::shared_ptr<Circle> tree = std::make_shared<Circle>();
+        //     //set model matrix to point location (also scale down because radius is 1 and model size is 2)
+        //     tree.get()->setModelMatrix(glm::translate(glm::mat4(1), glm::vec3(point.x, 0 ,-point.y))*glm::scale(glm::mat4(1), glm::vec3(0.5)));
+        //     trees.push_back(tree);
+        // }
 
 
 

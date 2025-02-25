@@ -66,6 +66,8 @@ class Renderer{
         void SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix);
 
         
+        //test texture for those that dont have one yet
+        std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
         // test render
         void testRender(std::shared_ptr<Model> obj);
 

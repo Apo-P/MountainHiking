@@ -12,6 +12,7 @@ void Model::setModelMatrix(glm::mat4 newModelMatrix)
 
 glm::mat4 Model::getModelMatrix()
 {
+    // be carefull with order
     return modelMatrix * baseModelMatrix;
 }
 

@@ -43,7 +43,7 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
     // mouse handling
 
     // simulate mouse position
-    double mouseX, mouseY;
+    double mouseX=0, mouseY=0;
 
     // viewspeed
     double viewspeed = 1.0;
@@ -112,16 +112,16 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
         //speed up camera if pressed
         camera->sprint();
     }
-    else {
+    else if (glfwGetKey(window.get(), GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE){
         //slow down camera if not pressed
         camera->walk();
     }
 
     // test key for testing new features or functions
     if (isKeyPressed(GLFW_KEY_T)) {
-        // scene.SampleHeight(scene.camera.get()->getPosition());
+        scene.SampleHeight(scene.camera.get()->getPosition());
     }
-    scene.SampleHeight(scene.camera.get()->getPosition());
+    // scene.SampleHeight(scene.camera.get()->getPosition());
 
 }
 
@@ -140,6 +140,7 @@ void Controls::handleInputs(const Scene& scene, const float deltaTime) {
     }
         // if on normal environment
         std::cout << "we are on normal hardware! changing input mode!" << std::endl;
-        handleMouse(scene, deltaTime);
-        handleKeyboard(scene, deltaTime);
+        //commented to be sure because I saw weird behaviour
+        // handleMouse(scene, deltaTime);
+        // handleKeyboard(scene, deltaTime);
 }

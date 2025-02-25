@@ -12,7 +12,7 @@ class PhysicsEngine;
 
 /// @brief An abstract class for other object implementations to inherit from
 class Model {
-    private:
+    protected:
         /// @brief if object exists (if not should be deleted)
         bool exists;
         

@@ -11,9 +11,9 @@ uniform sampler2D texture2;
 uniform sampler2D texture3;
 
 // height for blending
-uniform float optimalHeight0 = 40; // rocky texture
+uniform float optimalHeight0 = 10; // rocky texture
 uniform float optimalHeight1 = 150; // grass
-uniform float optimalHeight2 = 180; // snow
+uniform float optimalHeight2 = 200; // snow
 
 
 uniform bool Terrain = false;
@@ -32,12 +32,12 @@ vec4 CalcTexColor()
         //test
         // TexColor = vec4(1,0,0,1);
     } 
-    else if (Height < optimalHeight1) { //if height is lower than optimalHeight1
+    else if (Height < optimalHeight1-100) { //if height is lower than optimalHeight1 (and is in blend zone which is 100 for ths optimal height)
         // get color from textures
         vec4 Color0 = texture(texture0, uvCoords);
         vec4 Color1 = texture(texture1, uvCoords);
         //set range to normalize
-        float Delta = optimalHeight1 - optimalHeight0;
+        float Delta = (optimalHeight1-100) - optimalHeight0;
         // normalize
         float Factor = (Height - optimalHeight0) / Delta;
         //mix the final color
@@ -45,7 +45,11 @@ vec4 CalcTexColor()
         // test
         // TexColor = vec4(0,1,0,1);
     }  
-    else if (Height < optimalHeight2) { //if height is lower than optimalHeight1
+    else if (Height < optimalHeight1) { //if height is lower than optimalHeight1 (and above previous blend zone) (doing this because I want less blending zone of grass and dirt)
+        // get color from grass texture only
+        TexColor = texture(texture1, uvCoords);
+    } 
+    else if (Height < optimalHeight2) { //if height is lower than optimalHeight2
         // get color from textures
         vec4 Color0 = texture(texture1, uvCoords);
         vec4 Color1 = texture(texture2, uvCoords);

@@ -8,7 +8,7 @@ TerrainChunk::TerrainChunk(HeightGenerator& heightGenerator, float chunkX, float
     chunkSize(chunkSize),
     resolution(resolution) {
 
-        std::cout << "chunk created" << std::endl;
+        // std::cout << "chunk created" << std::endl;
 }
 
 std::vector<VertexData> TerrainChunk::createVertices() {

@@ -1,17 +1,25 @@
 #include "objectPlacer.hpp"
 
 // static member must be defined in cpp to avoid linker error
-NoiseFunction* PoissonDiscSampling::noiseFunc = new SimplexNoise();
+NoiseFunction* allPoissonDiscSampling::noiseFunc = new SimplexNoise();
 
 
-bool PoissonDiscSampling::IsValid(const glm::vec2 &candidate, const glm::vec2 &sampleRegionSize, float cellSize, float radius,
+//Constant radius poisson
+
+
+// allocate memory for the static members (this need to be done because inside the class no memory is allocated they are only defined)
+//! Dont forget to initialize them later!
+std::mt19937 PoissonDiscSampling::seededGenerator;
+std::uniform_real_distribution<float> PoissonDiscSampling::floatDistribution;
+
+bool PoissonDiscSampling::IsValid(const glm::vec2 &candidate, const glm::vec2 &sampleRegionStartPos,  const glm::vec2 &sampleRegionSize, float cellSize, float radius,
     const std::vector<glm::vec2>& points, const std::vector<std::vector<int>>& grid) {
 
     // if candidate x,z is inside sampleRegion
-    if (candidate.x >= 0 && candidate.x < sampleRegionSize.x && candidate.y >= 0 && candidate.y < sampleRegionSize.y) {
+    if (candidate.x >= sampleRegionStartPos.x && candidate.x < sampleRegionStartPos.x + sampleRegionSize.x && candidate.y >= sampleRegionStartPos.y && candidate.y < sampleRegionStartPos.y + sampleRegionSize.y) {
         // finds its cell
-        int cellX = static_cast<int>(candidate.x / cellSize);
-        int cellY = static_cast<int>(candidate.y / cellSize);
+        int cellX = static_cast<int>((candidate.x - sampleRegionStartPos.x) / cellSize);
+        int cellY = static_cast<int>((candidate.y - sampleRegionStartPos.y) / cellSize);
 
         // find neighboring cells
         int searchStartX = std::max(0, cellX - 2);
@@ -49,8 +57,7 @@ bool PoissonDiscSampling::IsValid(const glm::vec2 &candidate, const glm::vec2 &s
 }
 
 
-
-std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius,const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection) {
+std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection) {
     
     // get cell size based on spawn radius
     float cellSize = radius / std::sqrt(2.0f);
@@ -68,18 +75,16 @@ std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius,const gl
     std::vector<glm::vec2> spawnPoints;
 
     // start at middle
-    spawnPoints.push_back(sampleRegionSize / 2.0f);
-    
-    // Random number generation setup
-    //! could use a seed here
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+    glm::vec2 middle =sampleRegionStartPos + (sampleRegionSize / 2.0f);
+    spawnPoints.push_back(middle);
+
+    // Initialize random generators
+    initialize(21);
 
     // while we have spawn points
     while (!spawnPoints.empty()) {
         // pick random spawn point
-        int spawnIndex = static_cast<int>(dist(rng) * spawnPoints.size());
+        int spawnIndex = static_cast<int>(floatDistribution(seededGenerator) * spawnPoints.size());
 
         // get spawn center
         glm::vec2 spawnCentre = spawnPoints[spawnIndex];
@@ -90,19 +95,19 @@ std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius,const gl
         // try to find an accepted spawn point within samples allowed
         for (int i = 0; i < numSamplesBeforeRejection; ++i) {
             //get random angle
-            float angle = dist(rng) * 2.0f * M_PI;
+            float angle = floatDistribution(seededGenerator) * 2.0f * M_PI;
             glm::vec2 dir(std::sin(angle), std::cos(angle));
             // calculate new candidate
-            glm::vec2 candidate = spawnCentre + dir * (dist(rng) * radius + radius);
+            glm::vec2 candidate = spawnCentre + dir * (floatDistribution(seededGenerator) * radius + radius);
             
             // if candidate is a valid candidate
-            if (IsValid(candidate, sampleRegionSize, cellSize, radius, points, grid)) {
+            if (IsValid(candidate, sampleRegionStartPos, sampleRegionSize, cellSize, radius, points, grid)) {
                 // add it to points list
                 points.push_back(candidate);
                 // add it as a new spawn point
                 spawnPoints.push_back(candidate);
                 // store which cell it is stored at
-                grid[static_cast<int>(candidate.x / cellSize)][static_cast<int>(candidate.y / cellSize)] = points.size();
+                grid[static_cast<int>((candidate.x -sampleRegionStartPos.x)  / cellSize)][static_cast<int>((candidate.y - sampleRegionStartPos.y) / cellSize)] = points.size();
 
                 // store we found a valid candidate to add to points
                 candidateAccepted = true;
@@ -123,7 +128,16 @@ std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius,const gl
 }
 
 
-glm::vec2 PoissonDiscSampling::spawnNewPoint(const glm::vec2 &spawnPointPosition, float radius){
+
+// Variable radius attempts
+
+
+
+
+
+// Variable radius attempts old
+
+glm::vec2 allPoissonDiscSampling::spawnNewPoint(const glm::vec2 &spawnPointPosition, float radius){
 
     // Random number generation setup
     //TODO add this to class
@@ -152,7 +166,7 @@ glm::vec2 PoissonDiscSampling::spawnNewPoint(const glm::vec2 &spawnPointPosition
     return candidate;
 };
 
-bool PoissonDiscSampling::IsVariableValid(const std::shared_ptr<PoisonPoint> candidate, const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float cellSize,
+bool allPoissonDiscSampling::IsVariableValid(const std::shared_ptr<PoisonPoint> candidate, const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float cellSize,
                                           const std::vector<std::vector<GridCell>> grid)
 {
 
@@ -224,7 +238,7 @@ bool PoissonDiscSampling::IsVariableValid(const std::shared_ptr<PoisonPoint> can
 
 
 
-std::vector<glm::vec2> PoissonDiscSampling::GenerateVariablePoints(const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float maxRadius, float minRadius, int numSamplesBeforeRejection) {
+std::vector<glm::vec2> allPoissonDiscSampling::GenerateVariablePoints(const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float maxRadius, float minRadius, int numSamplesBeforeRejection) {
 
 
     // get cell size based on spawn radius
@@ -331,23 +345,3 @@ std::vector<glm::vec2> PoissonDiscSampling::GenerateVariablePoints(const glm::ve
 
 }
 
-
-
-
-
-// int main() {
-//     // Define parameters for the Poisson Disc Sampling
-//     float radius = 2.0f;
-//     glm::vec2 sampleRegionSize(5.0f, 5.0f); // Size of the area to sample in
-
-//     // Generate points using Poisson Disc Sampling
-//     auto points = PoissonDiscSampling::GeneratePoints(radius, sampleRegionSize);
-
-//     // Print the generated points
-//     std::cout << "Generated " << points.size() << " points:" << std::endl;
-//     for (const auto& point : points) {
-//         std::cout << "(" << point.x << ", " << point.y << ")\n";
-//     }
-
-//     return 0;
-// }

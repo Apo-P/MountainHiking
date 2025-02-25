@@ -20,7 +20,7 @@ void Scene::SampleHeight(glm::vec3 pos) const{
     //? could get the height of the 4 vertices the player touches and approximate here
     //? so if we are on the edge of a chunk we get the rest from the nearest chunk 
 
-    // std::cout << "pos:(" << pos.x << "," << pos.z <<") chunkY:" << chunkY << std::endl;
+    std::cout << "pos:(" << pos.x << "," << pos.z <<")  posY:"<< pos.y << " chunkY:" << chunkY << std::endl;
 
     // get camera pos (we already have it as input)
     // glm::vec3 cam_pos = camera.get()->getPosition();

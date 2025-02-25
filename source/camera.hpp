@@ -11,7 +11,7 @@ class Camera : public Object {
     protected:
 
         float nearCP = 0.1f;
-        float farCP = 1750.0f;
+        float farCP = 2750.0f;
 
         float fov = 45.0f;
         float aspectRatio = 4.0f / 3.0f; //16.0f/9.0f;

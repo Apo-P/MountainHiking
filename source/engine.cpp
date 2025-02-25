@@ -49,6 +49,8 @@ void GameEngine::initialize_window(int windowWidth, int windowHeight, std::strin
 
     });
 
+    // allow window to be maximised
+    glfwSetWindowAttrib(new_window, GLFW_MAXIMIZED, GLFW_TRUE);
 
 
     // Some GLFW options //! these should be initialized in controls
@@ -59,7 +61,9 @@ void GameEngine::initialize_window(int windowWidth, int windowHeight, std::strin
 
     // Hide the mouse and enable unlimited movement
     //! this wont work on WSL (because we dont have cursor access?)
+    //! If cursor is disabled we cant maximisize screen
     glfwSetInputMode(new_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     // window mouse check if enables raw input
     if (glfwRawMouseMotionSupported()) {
         std::cout << "rawmouse supported!" <<std::endl;
@@ -149,6 +153,19 @@ class Circle : public Model {
 
 };
 
+class TestTree : public Model {
+    public:
+        TestTree(){
+            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/lowPolyTree.obj"));
+
+            this->baseModelMatrix = glm::scale(glm::mat4(1), glm::vec3(0.01));
+
+            // be carefull if no texture we will have a segmentation fault in texture renderer for now, maybe add check if obj has texture else use something else
+            // texture = std::make_shared<Texture>("resources/textures/grass1.png");
+        }
+
+};
+
 void Renderer::testRender(std::shared_ptr<Model> obj){
 
     //! Clean this up after testing
@@ -159,7 +176,9 @@ void Renderer::testRender(std::shared_ptr<Model> obj){
     // 2.Bind VAO
     obj->bind();
     // 3.Bind texture
-    obj->texture.get()->bind(0);
+    if(obj->texture) obj->texture.get()->bind(0);
+    else testTexture.get()->bind(0);
+    
     // 4.Send Uniforms
     testShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
     // 5.Draw Triangles
@@ -232,8 +251,13 @@ int GameEngine::startGame() {
 
         std::shared_ptr<Circle> circle = std::static_pointer_cast<Circle>(std::make_shared<Circle>());
 
+        // set test circle to approcimate radius of test tree (about 3 )
+        circle.get()->setModelMatrix(glm::scale(glm::mat4(1), glm::vec3(3)));
 
-        // ChunkManager* chunkmanager = new ChunkManager(21,0);
+        std::shared_ptr<TestTree> testTree = std::static_pointer_cast<TestTree>(std::make_shared<TestTree>());
+
+
+        // ChunkManager* chunkmanager = new ChunkManager(21,3);
 
 
         std::shared_ptr<Shader> testShader = renderer.get()->testShader;
@@ -263,23 +287,27 @@ int GameEngine::startGame() {
         HeightGenerator* test_gen = new testHeightGen();
 
 
-        TerrainChunk* testchunk = new TerrainChunk(*test_gen,0,0,50,50);
+        TerrainChunk* testchunk = new TerrainChunk(*test_gen,0,0,50,10); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
 
         PoissonDiscSampling objectPlacer;
 
-        // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it
-        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(1, glm::vec2(50,50));
+        // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it so add only 5 tries allowed (5,500,500,5)
+        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(5, glm::vec2(0,0), glm::vec2(50,50),5);
         // std::vector<glm::vec2> treePoints = objectPlacer.GenerateVariablePoints(glm::vec2(0,0), glm::vec2(100,100), 4, 2, 3);
 
-        std::vector<glm::vec2> treePoints2 = objectPlacer.GenerateVariablePoints(glm::vec2(100,100), glm::vec2(100,100), 4, 2, 3);
+        // std::vector<glm::vec2> treePoints2 = objectPlacer.GenerateVariablePoints(glm::vec2(100,100), glm::vec2(100,100), 4, 2, 3);
 
-        std::vector<std::shared_ptr<Circle>> trees;
+        std::vector<std::shared_ptr<TestTree>> trees;
         for (auto point: treePoints) {
-            std::shared_ptr<Circle> tree = std::make_shared<Circle>();
+            std::shared_ptr<TestTree> tree = std::make_shared<TestTree>();
             //set model matrix to point location (also scale down because radius is 1 and model size is 2)
-            tree.get()->setModelMatrix(glm::translate(glm::mat4(1), glm::vec3(point.x, 0 ,-point.y))*glm::scale(glm::mat4(1), glm::vec3(0.5)));
+
+            //! carefull with the -Z for now
+            float terrainY = testchunk->approximateHeight(glm::vec3(point.x,0,-point.y));
+
+            tree.get()->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(point.x, terrainY ,-point.y)));
             trees.push_back(tree);
         }
 
@@ -351,8 +379,10 @@ int GameEngine::startGame() {
 
             renderer.get()->SimpleRender(circle);
 
+            renderer.get()->SimpleRender(testTree);
+
             for(auto& tree : trees){
-                renderer.get()->SimpleRender(tree);
+                renderer.get()->testRender(tree);
             }
 
             // renderer.get()->SimpleRender(plane->mesh);
@@ -362,7 +392,29 @@ int GameEngine::startGame() {
             //     // get the chunk pointer for key,value pair
             //     TerrainChunk* chunk = keyValuePair.second.get();
 
-            //     renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
+            //     // renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
+
+            //     testShader->bind();
+            //     chunk->mesh->bind();
+
+            //     testTextureTwo.get()->bind(0);
+            //     testTexture.get()->bind(1);
+            //     testTextureThree.get()->bind(2);
+
+            //     testShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
+            //     testShader->sendUniform(Shader::uniforms::Terrain , true);
+                
+            //     chunk->mesh->draw(*renderer.get());
+
+            //     testShader->sendUniform(Shader::uniforms::Terrain , false);
+
+            //     if (renderer.get()->DebugNormals){
+            //         testNormalDebugShader->bind();
+            //         chunk->mesh->bind();
+            //         testNormalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
+            //         chunk->mesh->draw(*renderer.get());
+            //     }
+
             // }
 
 

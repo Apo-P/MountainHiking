@@ -1,7 +1,7 @@
 #include <terrainChunkManager.hpp>
 
 void ChunkManager::addChunk(int x, int z) {
-    std::cout << "adding chunk x:" << x << " z:" << z << std::endl;
+    // std::cout << "adding chunk x:" << x << " z:" << z << std::endl;
 
     int chunkSize=500;
     float chunkX, chunkZ;
@@ -32,6 +32,7 @@ void ChunkManager::addChunk(int x, int z) {
 void ChunkManager::initTerrain() {
 
     // initialize anything else needed for generation
+    std::cout << "Generating Terrain!"<< std::endl;
 
     // make grid of chunks
 

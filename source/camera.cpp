@@ -139,7 +139,7 @@ void Camera::moveForward() {
     velocity += forwardVector;
 
     // calculate velocity
-    velocity = normalize(velocity) * movementSpeed;
+    if (glm::length(velocity) > 0) velocity = normalize(velocity) * movementSpeed;
 }
 
 void Camera::moveBackward() {
@@ -150,7 +150,7 @@ void Camera::moveBackward() {
     velocity += -forwardVector;
     
     // calculate velocity
-    velocity = normalize(velocity) * movementSpeed;
+    if (glm::length(velocity) > 0) velocity = normalize(velocity) * movementSpeed;
 }
 
 void Camera::moveLeft() {
@@ -162,7 +162,7 @@ void Camera::moveLeft() {
     velocity += -rightVector;
 
     // calculate velocity
-    velocity = normalize(velocity) * movementSpeed;
+    if (glm::length(velocity) > 0) velocity = normalize(velocity) * movementSpeed;
 }
 
 void Camera::moveRight() {
@@ -174,7 +174,7 @@ void Camera::moveRight() {
     velocity += rightVector;
 
     // calculate velocity
-    velocity = normalize(velocity) * movementSpeed;
+    if (glm::length(velocity) > 0) velocity = normalize(velocity) * movementSpeed;
 }
 
 void Camera::moveUp() {

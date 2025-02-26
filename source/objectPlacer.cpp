@@ -168,7 +168,7 @@ std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius, const g
 
 // static member must be defined in cpp to avoid linker error
 //! change later
-NoiseFunction* VariablePoissonDiscSampling::noiseFunc = new SimplexNoise(21);
+NoiseFunction* VariablePoissonDiscSampling::noiseFunc = new SimplexNoise(21); //RandomNoise(0,1);
 
 // allocate memory for the static members (this need to be done because inside the class no memory is allocated they are only defined)
 //! Dont forget to initialize them later!
@@ -281,16 +281,17 @@ bool VariablePoissonDiscSampling::isValid(const glm::vec2 &candidatePos, const g
 
 
 
-std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumumRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection) {
+std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumumRadius, float maxWantedRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection) {
 
 
-    //TODO IMPORTANT MAKE WE INCREASE TOWARDS -Z!!!!!
+    //!Carefull it expands towards +z
 
-    // how many time we can make radius bigger (used in noise calculations)
-    float RADIUS_VARIABILITY = 4;
+    if (minumumRadius > maxWantedRadius) throw std::range_error("MinimumRange given was smaller than maximum!");
+
+
     // maxRadius doesn't play much role but help make the grid size 
     // (normally it is calculated by max radius that could happen for noise function, Say we get a point of radius 20 and its the highest, the 20 should be the maxRadius)
-    float maxRadius = RADIUS_VARIABILITY * minumumRadius;
+    float maxRadius = maxWantedRadius;
 
     // get cell size based on maximum radius
     float cellSize = maxRadius / std::sqrt(2.0f);
@@ -318,11 +319,13 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
 
     
 
+    //! carefull it is rare but we cant fail form bad first point!
+    //? maybe start from random location?
     // calculate middle pos
     glm::vec2 middlePos(sampleRegionStartPos + (sampleRegionSize / 2.0f));
     // get middle radius
     //! radius should always be at least minumum and -1 minimum from maximum (so we dont exceed maximum)
-    float middleRadius = minumumRadius + noiseFunc->calculateRadius(middlePos.x, middlePos.y) * minumumRadius * (RADIUS_VARIABILITY-1);
+    float middleRadius = minumumRadius + noiseFunc->calculateRadius(middlePos.x, middlePos.y) * (maxRadius - minumumRadius);
 
     // make middle point
     std::shared_ptr<PoisonPoint>middle = std::make_shared<PoisonPoint>(middlePos, middleRadius);
@@ -332,6 +335,30 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
     int middleX = static_cast<int>((middlePos.x - sampleRegionStartPos.x) / cellSize);
     int middleY = static_cast<int>((middlePos.y - sampleRegionStartPos.y) / cellSize);
     grid[middleX][middleY].pointsNeighbourhood.push_back(middle);
+
+    // //! could be a problem is we dont have enough grid_squares
+    // try adding more spawn points
+    // for (int x = middleX-2; x<= middleX +2; x+=2){
+    //     // dont put middle point again
+    //     if(x==0)continue;
+
+    //     for (int y = middleY-2; y<= middleY +2; y+=2){
+
+    //         // dont put middle point again
+    //         if(y==0)continue;
+
+    //         // make more sample locations
+    //         glm::vec2 extraSamplesPos(grid[x][y].position + (cellSize / 2.0f));
+    //         float extraSamplesRadius = minumumRadius + noiseFunc->calculateRadius(extraSamplesPos.x, extraSamplesPos.y) * (maxRadius - minumumRadius);
+
+    //         std::shared_ptr<PoisonPoint>extraSamples = std::make_shared<PoisonPoint>(extraSamplesPos, extraSamplesRadius);
+
+    //         // add these new samples
+    //         spawnPoints.push_back(extraSamples);
+    //         grid[x][y].pointsNeighbourhood.push_back(extraSamples);
+
+    //     }
+    // }
 
     // Initialize random generators
     initialize(21);
@@ -357,7 +384,7 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
             glm::vec2 candidatePos = spawnNewPoint(spawnCentre, spawnRadius);
 
             // get candidates radius
-            float candidateRadius = minumumRadius + noiseFunc->calculateRadius(candidatePos.x, candidatePos.y) * minumumRadius * (RADIUS_VARIABILITY-1);
+            float candidateRadius = minumumRadius + noiseFunc->calculateRadius(candidatePos.x, candidatePos.y) * (maxRadius - minumumRadius);
 
             // check if candidate is a valid candidate
             if (isValid(candidatePos, sampleRegionStartPos, sampleRegionSize, cellSize, candidateRadius, grid)) { 
@@ -401,6 +428,11 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
     //? could it be a bit more efficient to change storage structure to skip this?
     for(auto& point : points) {
         finalPoints.push_back(point->position);
+    }
+
+    // if no point was created
+    if (finalPoints.empty()) {
+        std::cout << "bad middle as first point! No obj was spawned\nMiddle point was:" << middlePos.x << "," <<middlePos.y <<std::endl;
     }
 
     // return point positions

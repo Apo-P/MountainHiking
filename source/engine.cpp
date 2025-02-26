@@ -236,7 +236,7 @@ int GameEngine::startGame() {
         // testing ----
 
         // Test wireframe mode
-        renderer.get()->changeMode(RenderModes::wireFrame);
+        // renderer.get()->changeMode(RenderModes::wireFrame);
         // renderer.get()->DebugNormals = true;
 
         vector<VertexData> triangle_vertices = {
@@ -287,17 +287,36 @@ int GameEngine::startGame() {
         HeightGenerator* test_gen = new testHeightGen();
 
 
-        TerrainChunk* testchunk = new TerrainChunk(*test_gen,0,0,500,100); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
+        TerrainChunk* testchunk = new TerrainChunk(*gen,0,0,5000,1000); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
 
         VariablePoissonDiscSampling objectPlacer;
 
         // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it so add only 5 tries allowed (5,500,500,5)
-        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(3, glm::vec2(0,0), glm::vec2(500,500),30);
-        // std::vector<glm::vec2> treePoints = objectPlacer.GenerateVariablePoints(glm::vec2(0,0), glm::vec2(100,100), 4, 2, 3);
+        std::vector<glm::vec2> treePoints; //= objectPlacer.GeneratePoints(3, 15, glm::vec2(0,0), glm::vec2(500,500),30);
+        
 
-        // std::vector<glm::vec2> treePoints2 = objectPlacer.GenerateVariablePoints(glm::vec2(100,100), glm::vec2(100,100), 4, 2, 3);
+
+        //! stress testing showed (3, 15, glm::vec2(startx,startz), glm::vec2(step,step),10) with step at 500 and max length being 5000 to take a minute to load
+        //! testing showed random noise does better more dense forest maybe tweek simple for rolling hills
+        //! making step 250 yielded better results
+
+        //! important finding multiplying noise by some factor (3 in the test) increased density and frequency of forests
+
+        //! final configuration as stress test takes 1,5 minutes to load
+
+        float step = 250;
+
+        for(float startz=-5000; startz <0; startz +=step){
+            for (float startx=0; startx< 5000; startx +=step){
+                 
+                std::vector<glm::vec2> newtrees = objectPlacer.GeneratePoints(3, 15, glm::vec2(startx,startz), glm::vec2(step,step),10);
+
+                // Concatenate newtrees to treePoints
+                treePoints.insert(treePoints.end(), newtrees.begin(), newtrees.end());
+            }
+        }
 
         std::vector<std::shared_ptr<TestTree>> trees;
         for (auto point: treePoints) {
@@ -305,18 +324,13 @@ int GameEngine::startGame() {
             //set model matrix to point location (also scale down because radius is 1 and model size is 2)
 
             //! carefull with the -Z for now
-            float terrainY = testchunk->approximateHeight(glm::vec3(point.x,0,-point.y));
+            float terrainY = testchunk->approximateHeight(glm::vec3(point.x,0,point.y));
 
-            tree.get()->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(point.x, terrainY ,-point.y)));
+            tree.get()->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(point.x, terrainY ,point.y)));
             trees.push_back(tree);
         }
 
-        // for (auto point: treePoints2) {
-        //     std::shared_ptr<Circle> tree = std::make_shared<Circle>();
-        //     //set model matrix to point location (also scale down because radius is 1 and model size is 2)
-        //     tree.get()->setModelMatrix(glm::translate(glm::mat4(1), glm::vec3(point.x, 0 ,-point.y))*glm::scale(glm::mat4(1), glm::vec3(0.5)));
-        //     trees.push_back(tree);
-        // }
+      
 
 
 
@@ -382,7 +396,7 @@ int GameEngine::startGame() {
             renderer.get()->SimpleRender(testTree);
 
             for(auto& tree : trees){
-                renderer.get()->testRender(tree);
+                renderer.get()->SimpleRender(tree);
             }
 
             // renderer.get()->SimpleRender(plane->mesh);

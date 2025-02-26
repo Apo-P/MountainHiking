@@ -117,8 +117,16 @@ class VariablePoissonDiscSampling {
         }
 
         // min radius is the min radius of the obj so they dont collide (also can be modified to decrease run time)
-        /// @brief generates a number of varying points
-        static std::vector<glm::vec2> GeneratePoints(float minumumRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection = 4);
+
+        /// @brief generates a number of points in varying distance from each other (Be carefull it counts towards +Z!)
+        // Also we start sampling from middle point (if we are unlucky we can get nothing)
+        /// @param minumumRadius minumum radius we want (usually obj radius)
+        /// @param maxWantedRadius maximum radius we want objects to be apart
+        /// @param sampleRegionStartPos region's starting position
+        /// @param sampleRegionSize regions size (Be carefull we always assume its a square)
+        /// @param numSamplesBeforeRejection how many time to try to find a sample (matter a lot for performance)
+        /// @return a vector of the sample positions
+        static std::vector<glm::vec2> GeneratePoints(float minumumRadius, float maxWantedRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection = 4);
 
 
    

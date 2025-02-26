@@ -147,7 +147,7 @@ void Mesh::updateVram() {
     // bind VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    // re-upload new data
+    // re-upload new data (no need to respecify positions like initial loading)
     glBufferData(GL_ARRAY_BUFFER, indexedVertices.size() * sizeof(indexedVertices[0]), indexedVertices.data(), GL_STATIC_DRAW);
     
     // unbind VAO and VBO after were are done

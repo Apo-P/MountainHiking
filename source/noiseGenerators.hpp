@@ -12,9 +12,9 @@ class NoiseFunction {
         NoiseFunction(){};
 
         // Calculate noise and return max noise value - Interface 
-        virtual float calculateHeight(float x, float z){};
+        virtual float calculateHeight(float x, float z, int maxHeight=128){};
 
-        virtual float calculateRadius(float x, float z){};
+        virtual float calculateRadius(float x, float z, float maxRadius=3){};
 
 
 };
@@ -34,7 +34,7 @@ class RandomNoise : public NoiseFunction {
         distribution(0, range)  {  
         };
 
-        float calculateHeight(float x, float z) override;
+        float calculateHeight(float x, float z, int maxHeight=1) override;
 
 
 };
@@ -66,7 +66,7 @@ class SmoothHill : public NoiseFunction {
             
             };
 
-        float calculateHeight(float x, float z) override ;
+        float calculateHeight(float x, float z, int maxHeight=1) override ;
 
 
 };
@@ -77,22 +77,29 @@ class SimplexNoise : public NoiseFunction {
     
         OpenSimplex2S simplex;
 
+        // level of detail
+        //!not used
         int lodLevel;
-        float noiseScale;
-        float persistence;
-        int octaves;
-        // chunk starting x,z used for offset
-        float chunkX,chunkZ;
 
-        int maxHeight;
-        float maxRadius;
+        // how often pattern repeats
+        float noiseScale;
+        // how much every octave contributes (less than 1 usually because higher freq contribute more) (range 0-1)
+        float persistence;
+        // Number of octaves for terrain detail (the more the more jagged) (range 1-10)
+        int octaves;
+        // flatten terrain so we have flatter vallies and sharper peaks (range 1-10)
+        float exponentiation;
+
+        // chunk starting x,z used for offset
+        //!not used
+        float chunkX,chunkZ;
 
         float noise(float x, float z);
 
     public:
 
-    SimplexNoise(int seed=21) : 
-        simplex(seed) { //initialize open simplex
+    SimplexNoise(int seed=21, float noiseScale=200, float persistence = 0.5, int octaves=4, float exponentiation=3) : 
+        simplex(seed),  noiseScale(noiseScale), persistence(persistence), octaves(octaves), exponentiation(exponentiation) { //initialize open simplex
  
     
         //configure
@@ -107,9 +114,17 @@ class SimplexNoise : public NoiseFunction {
 
     };
 
-    float calculateHeight(float x, float z);
+    // change parameter values
+    void changeValues(float noiseScale=200, float persistence = 0.5, int octaves=4, float exponentiation=3) {
+        this->noiseScale = noiseScale;
+        this->persistence = persistence;
+        this->octaves = octaves;
+        this->exponentiation = exponentiation;
+    }
 
-    float calculateRadius(float x, float z);
+    float calculateHeight(float x, float z, int maxHeight=128);
+
+    float calculateRadius(float x, float z, float maxRadius=3);
 
 };
 

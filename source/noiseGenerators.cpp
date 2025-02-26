@@ -4,12 +4,12 @@ float RandomNoise::noise() {
     return distribution(seededGenerator);
 } ;
 
-float RandomNoise::calculateHeight(float x, float z) {
+float RandomNoise::calculateHeight(float x, float z, int maxHeight) {
         
     float noiseValue = 0.0f;
 
     //use noise function (x,z) to get a value
-    noiseValue = this->noise();
+    noiseValue = this->noise() * maxHeight;
 
     return noiseValue;
     
@@ -45,12 +45,12 @@ float SmoothHill::noise(float x, float z) {
     return height;
 } ;
 
-float SmoothHill::calculateHeight(float x, float z) {
+float SmoothHill::calculateHeight(float x, float z, int maxHeight) {
         
     float noiseValue = 0.0f;
 
     //use noise function (x,z) to get a value
-    noiseValue = this->noise(x,z);
+    noiseValue = this->noise(x,z) * maxHeight;
 
     return noiseValue;
     
@@ -70,16 +70,18 @@ float SimplexNoise::noise(float x, float z) {
     //! Set scale, persistence and the rest of parameters in init function
     
     // Set the persistence and octaves
-    float persistence = 0.5;  // Example persistence
-    int octaves = 4;  // Number of octaves for terrain detail
-
+    //? dont know why but some use it
+    const float G = pow(2,-persistence);
 
     // Multiple octaves with persistence
     double noiseValue = 0.0;
+
+    //? these could be configurable
     double amplitude = 1.0;  // Initial amplitude for first octave
     double frequency = 1.0;  // Initial frequency for first octave
 
-    float lacunarity = 2;
+    float lacunarity = 2; // for fast to increase freq
+    //used to calculate normalization
     float maxAmplitude = 0;
 
     //multiple passes for better result
@@ -91,23 +93,21 @@ float SimplexNoise::noise(float x, float z) {
 
         maxAmplitude += amplitude; //keep adding amplitude to know max value
 
-        amplitude *= persistence;  // Reduce amplitude for next octave
+        amplitude *= persistence;  // *=G // Reduce amplitude for next octave
     }
 
     // Normalize from (-maxAmplitude,+maxAmplitude) to [0, 1]
     double normalizedHeight = (noiseValue + maxAmplitude) / (2 * maxAmplitude);
 
+    // exponentiation //makes transition bigger between vallies and hills
+    // return pow(normalizedHeight, exponentiation);
+
     return normalizedHeight;
 };
 
-float SimplexNoise::calculateHeight(float x, float z) {
+float SimplexNoise::calculateHeight(float x, float z, int maxHeight) {
         
     float noiseValue = 0.0f;
-
-    //! change later max height to be an input
-    //for test
-    maxHeight = 128;
-    
 
     //use noise function (x,z) to get a value
     noiseValue = this->noise(x,z) * maxHeight;
@@ -116,13 +116,9 @@ float SimplexNoise::calculateHeight(float x, float z) {
     
 }
 
-float SimplexNoise::calculateRadius(float x, float z) {
+float SimplexNoise::calculateRadius(float x, float z, float maxRadius) {
 
     float noiseValue = 0.0f;
-
-    // change later max radius to be an input
-    // for test
-    maxRadius = 3.0f;
 
     //use noise function (x,z) to get a value
     noiseValue = this->noise(x,z) * maxRadius;

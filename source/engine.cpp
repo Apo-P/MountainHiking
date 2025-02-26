@@ -287,7 +287,7 @@ int GameEngine::startGame() {
         HeightGenerator* test_gen = new testHeightGen();
 
 
-        TerrainChunk* testchunk = new TerrainChunk(*gen,0,0,5000,1000); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
+        TerrainChunk* testchunk = new TerrainChunk(*gen,0,0,500,100); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
 
@@ -308,15 +308,15 @@ int GameEngine::startGame() {
 
         float step = 250;
 
-        for(float startz=-5000; startz <0; startz +=step){
-            for (float startx=0; startx< 5000; startx +=step){
+        // for(float startz=-5000; startz <0; startz +=step){
+        //     for (float startx=0; startx< 5000; startx +=step){
                  
-                std::vector<glm::vec2> newtrees = objectPlacer.GeneratePoints(3, 15, glm::vec2(startx,startz), glm::vec2(step,step),10);
+        //         std::vector<glm::vec2> newtrees = objectPlacer.GeneratePoints(3, 15, glm::vec2(startx,startz), glm::vec2(step,step),10);
 
-                // Concatenate newtrees to treePoints
-                treePoints.insert(treePoints.end(), newtrees.begin(), newtrees.end());
-            }
-        }
+        //         // Concatenate newtrees to treePoints
+        //         treePoints.insert(treePoints.end(), newtrees.begin(), newtrees.end());
+        //     }
+        // }
 
         std::vector<std::shared_ptr<TestTree>> trees;
         for (auto point: treePoints) {

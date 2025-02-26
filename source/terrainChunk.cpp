@@ -11,6 +11,86 @@ TerrainChunk::TerrainChunk(HeightGenerator& heightGenerator, float chunkX, float
         // std::cout << "chunk created" << std::endl;
 }
 
+float TerrainChunk::getHeight(float x, float z) {
+    //if point exists in heightmap
+    if (heightMap[std::make_pair(x, z)]){
+        return heightMap[std::make_pair(x, z)];
+    }
+
+    std::cout << "point not found!" << std::endl;
+    //! could throw an error here
+    return false;
+}
+
+bool TerrainChunk::updateHeight(float x, float z, float newValue) {
+    //if point exists in heightmap
+    if (heightMap[std::make_pair(x, z)]){
+        heightMap[std::make_pair(x, z)] = newValue;
+        return true;
+    }
+    std::cout << "couldn't update point!" << std::endl;
+    //! could throw an error here
+    return false;
+}
+
+void TerrainChunk::recalculateHeight(){
+
+    //! We need to have update the height generator or else it would'nt change something
+    //!TEST
+    heightGenerator = HeightGenerator(21,0,246);
+    
+    for(auto &vertex : mesh.get()->getModifiableVertexData()) {
+
+        // calculate new height
+        float newHeight = heightGenerator.calculateHeight(vertex.position.x,vertex.position.z);
+
+        // try to update height
+        if (updateHeight(vertex.position.x,vertex.position.z, newHeight)){
+            // if succefull then add it to vertex position
+            vertex.position.y = newHeight;    
+        }
+    }
+
+    //? should mesh updating be a different func ?
+    mesh.get()->updateVram();
+
+}
+
+void TerrainChunk::reCalculateNormals( std::vector<VertexData> &vertices){
+    //recalculate normals 
+
+    // face positions
+    glm::vec3 pA = glm::vec3(), pB = glm::vec3(), pC = glm::vec3();
+
+    glm::vec3 cb = glm::vec3(), ab = glm::vec3();
+
+    for ( int i = 0, il = vertices.size(); i < il; i += 3 ) {
+
+        // get vertex data
+        VertexData& vA = vertices.at( i + 0 );
+        VertexData& vB = vertices.at( i + 1 );
+        VertexData& vC = vertices.at( i + 2 );
+
+        // get positions
+        pA = vA.position;
+        pB = vB.position;
+        pC = vC.position;
+
+        // calculate face normal
+        cb =  pC - pB;
+        ab =  pA - pB;
+        cb = glm::cross(cb, ab);
+
+        // store new normal
+        vA.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
+        vB.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
+        vC.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
+
+    }
+
+
+}
+
 std::vector<VertexData> TerrainChunk::createVertices() {
 
     // float width, float length, int widthSegments, int lengthSegments
@@ -100,58 +180,31 @@ void TerrainChunk::generateChunk(int seed) {
     //? Make alternative version to add height to heightmap as position is created to reduce complexity
     //? so not to first create everything and the modify it
 
+    // TODO use less loops and make more happen at verticies creation
 
+
+    // create vertices
     std::vector<VertexData> vertices = createVertices();
 
     //? should change this to reduce complexity;
 
+    // get vertices positions
     std::vector<glm::vec3> positions;
     for (auto vertex : vertices){
         positions.push_back(vertex.position);
     }
 
-    // get heightMap
+    // generate heightMap
     heightMap = heightGenerator.makeHeightMap(positions, seed);
 
     // update vertices
     for (auto& vertex : vertices){
-        vertex.position.y = heightMap[std::make_pair(vertex.position.x, vertex.position.z)];
+        vertex.position.y = getHeight(vertex.position.x, vertex.position.z);
     } 
 
-    //! TEST
-    // this is inefficient make this all happen in create vertex class, first generate heightmap and the make vertices 
-
-    //recalculate normals 
-
-    // face positions
-    glm::vec3 pA = glm::vec3(), pB = glm::vec3(), pC = glm::vec3();
-
-    glm::vec3 cb = glm::vec3(), ab = glm::vec3();
-
-    for ( int i = 0, il = vertices.size(); i < il; i += 3 ) {
-
-        // get vertex data
-        VertexData& vA = vertices.at( i + 0 );
-        VertexData& vB = vertices.at( i + 1 );
-        VertexData& vC = vertices.at( i + 2 );
-
-        // get positions
-        pA = vA.position;
-        pB = vB.position;
-        pC = vC.position;
-
-        // calculate face normal
-        cb =  pC - pB;
-        ab =  pA - pB;
-        cb = glm::cross(cb, ab);
-
-        // store new normal
-        vA.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
-        vB.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
-        vC.normal = glm::normalize(glm::vec3(cb.x, cb.y, cb.z ));
-
-    }
-
+    //? this is a bit inefficient it's better to calculate normals at face creation
+    //TODO make this all happen in create vertex class, first generate heightmap and the make vertices 
+    reCalculateNormals(vertices);
 
     // generate Mesh
     mesh = std::make_shared<Mesh>(vertices);

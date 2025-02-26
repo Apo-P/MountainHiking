@@ -95,7 +95,10 @@ class Mesh{
         int indexCount() const {return indices.size();}
         /// @brief returns vertices count
         int vertexCount() const {return indexedVertices.size();}
-        /// @brief returns vertexData (indexedVertices) read only
+
+        /// @brief returns vertexData (indexedVertices) (Carefull can be manipulated)
+        std::vector<VertexData>& getModifiableVertexData() {return indexedVertices;} 
+        /// @brief returns vertexData (indexedVertices) (read only because of const!)
         const std::vector<VertexData>& getVertexData() {return indexedVertices;} 
 
         // Todo: change this to a better method

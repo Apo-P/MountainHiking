@@ -42,12 +42,28 @@ class TerrainChunk {
 
         std::vector<VertexData> createVertices();
 
+        // internal method to get height in specific point (not to be used for in between points) 
+        // returns false = 0 if height was not found
+        float getHeight(float x, float z);
+
+        /// @brief internal method that recalculates the normals of all the vertices given (modifies them)
+        /// @param vertices vertcies to be modified
+        void static reCalculateNormals( std::vector<VertexData> &vertices);
+
 
     public:
         std::shared_ptr<Mesh> mesh;
 
 
         TerrainChunk( HeightGenerator& heightGenerator, float chunkX=0, float chunkZ=0, int chunkSize=500, int resolution=128); // add LOD level later
+
+
+        // an update function to update a points height (returns true or false if it managed it) (doesn't update mesh!)
+        bool updateHeight(float x, float z, float newValue);
+
+        // recalculate heightmap (and updates mesh!)
+        //! if heightgenerator is the same than nothing will change. Maybe pass new height generator?
+        void recalculateHeight();
 
         void generateChunk(int seed=21);
 

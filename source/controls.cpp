@@ -123,6 +123,15 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
     }
     // scene.SampleHeight(scene.camera.get()->getPosition());
 
+    // another test key for testing new features or functions
+    if (isKeyPressed(GLFW_KEY_U)) {
+        //Todo make this a function
+        // test live changing
+        if (scene.testChunk){
+            scene.testChunk->recalculateHeight();
+        }
+    }
+
 }
 
 

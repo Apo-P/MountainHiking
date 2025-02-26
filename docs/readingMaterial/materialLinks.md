@@ -27,3 +27,4 @@
 - [debug cmake](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/debug-launch.md)
 - [documenting better](https://developer.lsst.io/cpp/api-docs.html)
 - triple /// will make fast doxygen style comments
+- [enums not to behave as globals](https://stackoverflow.com/questions/4269365/do-enum-values-behave-like-global-variables) enum class has no implicit conversion which is annoying, but using enum as a struct member is fine!

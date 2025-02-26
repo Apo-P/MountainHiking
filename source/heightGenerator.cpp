@@ -10,7 +10,7 @@ float HeightGenerator::calculateHeight(float x, float z) {
     //? could use multiple noises here to calculate
 
     // make a big hill at center (can multiply weight here so it can have a bigger effect)
-    // noiseValue += 4 * smoothHill.calculateHeight(x,z);
+    noiseValue += 1 * smoothHill->calculateHeight(x,z);
 
     //if we are on a hill add noise
     // if (noiseValue!=0) {
@@ -19,7 +19,7 @@ float HeightGenerator::calculateHeight(float x, float z) {
 
     // use simplex noise as test
     float simplexWeight = 128;
-    noiseValue += smpNoise.calculateHeight(x,z, simplexWeight);
+    noiseValue += smpNoise->calculateHeight(x,z, simplexWeight);
 
 
 

@@ -34,6 +34,9 @@ class RandomNoise : public NoiseFunction {
         distribution(0, range)  {  
         };
 
+        // Updates range
+        void updateValues(int range) { this->distribution = std::uniform_int_distribution<>(0, range); }
+
         float calculateHeight(float x, float z, int maxHeight=1) override;
 
 
@@ -46,7 +49,7 @@ class SmoothHill : public NoiseFunction {
 
         float hillRadius;
 
-        int maxHeight;
+        int hillHeight;
 
         
 
@@ -58,13 +61,22 @@ class SmoothHill : public NoiseFunction {
     public:
 
         // create random noise within given range
-        SmoothHill(int seed=21, glm::vec2 hillCenter=glm::vec2(250,-250), float hillRadius = 250, float maxHeight=128) :
+        SmoothHill(int seed=21, glm::vec2 hillCenter=glm::vec2(250,-250), float hillRadius = 250, float hillHeight=128) :
             hillCenter(hillCenter),
             hillRadius(hillRadius),
-            maxHeight(maxHeight)
+            hillHeight(hillHeight)
             {  
             
             };
+
+
+        // Updates hillCenter, hillRadius, maxHeight
+        void updateValues(glm::vec2 hillCenter=glm::vec2(250,-250), float hillRadius = 250, float hillHeight=128) { 
+            this->hillCenter = hillCenter;
+            this->hillRadius = hillRadius;
+            this->hillHeight = hillHeight;
+        }
+
 
         float calculateHeight(float x, float z, int maxHeight=1) override ;
 
@@ -81,14 +93,16 @@ class SimplexNoise : public NoiseFunction {
         //!not used
         int lodLevel;
 
-        // how often pattern repeats
+        // how often pattern repeats (also makes terrain smoother)
         float noiseScale;
-        // how much every octave contributes (less than 1 usually because higher freq contribute more) (range 0-1)
+        // how much every octave contributes (if positive every octave contribute's more cause of higher frequancy) (range -3-5)
         float persistence;
         // Number of octaves for terrain detail (the more the more jagged) (range 1-10)
         int octaves;
-        // flatten terrain so we have flatter vallies and sharper peaks (range 1-10)
+        // flatten terrain so we have flatter vallies and sharper peaks (range 1-10) (usually 3)
         float exponentiation;
+        // how fast to increase freq (usually 2)
+        float lacunarity = 2;
 
         // chunk starting x,z used for offset
         //!not used
@@ -115,7 +129,7 @@ class SimplexNoise : public NoiseFunction {
     };
 
     // change parameter values
-    void changeValues(float noiseScale=200, float persistence = 0.5, int octaves=4, float exponentiation=3) {
+    void updateValues(float noiseScale=200, float persistence = 0.5, int octaves=4, float exponentiation=3) {
         this->noiseScale = noiseScale;
         this->persistence = persistence;
         this->octaves = octaves;

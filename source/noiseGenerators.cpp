@@ -37,7 +37,7 @@ float SmoothHill::noise(float x, float z) {
     
 
     // return height
-    float height = maxHeight * (1.0f - heightFactor);
+    float height = hillHeight * (1.0f - heightFactor);
     // we subtract in order to get the center to be the greatest height
      
     
@@ -62,7 +62,7 @@ float SimplexNoise::noise(float x, float z) {
 
 
     // as we increase scale the number of hills decreases
-    float scale = 200; 
+    float scale = noiseScale; 
 
     float xScaled = x / scale;
     float zScaled = z / scale;
@@ -71,7 +71,7 @@ float SimplexNoise::noise(float x, float z) {
     
     // Set the persistence and octaves
     //? dont know why but some use it
-    const float G = pow(2,-persistence);
+    float G = pow(2,-persistence);
 
     // Multiple octaves with persistence
     double noiseValue = 0.0;
@@ -80,29 +80,28 @@ float SimplexNoise::noise(float x, float z) {
     double amplitude = 1.0;  // Initial amplitude for first octave
     double frequency = 1.0;  // Initial frequency for first octave
 
-    float lacunarity = 2; // for fast to increase freq
     //used to calculate normalization
     float maxAmplitude = 0;
 
     //multiple passes for better result
     for (int i = 0; i < octaves; ++i) {
 
-        noiseValue += amplitude * simplex.noise2(xScaled, zScaled);
+        noiseValue += amplitude * ( simplex.noise2(xScaled * frequency, zScaled * frequency) ); // calculate new noise
 
         frequency *= lacunarity;  // Increase frequency based on lacunarity
 
         maxAmplitude += amplitude; //keep adding amplitude to know max value
 
-        amplitude *= persistence;  // *=G // Reduce amplitude for next octave
+        amplitude *= G;  // Reduce amplitude for next octave
     }
 
     // Normalize from (-maxAmplitude,+maxAmplitude) to [0, 1]
     double normalizedHeight = (noiseValue + maxAmplitude) / (2 * maxAmplitude);
 
     // exponentiation //makes transition bigger between vallies and hills
-    // return pow(normalizedHeight, exponentiation);
+    return pow(normalizedHeight, exponentiation);
 
-    return normalizedHeight;
+    // return normalizedHeight;
 };
 
 float SimplexNoise::calculateHeight(float x, float z, int maxHeight) {

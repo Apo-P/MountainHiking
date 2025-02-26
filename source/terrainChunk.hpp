@@ -62,8 +62,12 @@ class TerrainChunk {
         bool updateHeight(float x, float z, float newValue);
 
         // recalculate heightmap (and updates mesh!)
-        //! if heightgenerator is the same than nothing will change. Maybe pass new height generator?
+        //! if heightgenerator is the same than nothing will change. Maybe pass new height generator? Or use updateing functions
         void recalculateHeight();
+
+        // return heightgenerator so it can be modified
+        HeightGenerator& getHeightGenerator() {return heightGenerator;}
+        
 
         void generateChunk(int seed=21);
 

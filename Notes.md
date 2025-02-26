@@ -86,6 +86,8 @@
 
 - Better to just return a normalized range from noise generators and do the height multiplication in the height generator
 
+- maybe use a poisson disck sampling to add smooth hills in noise function (add 5 mountains spaced apart) This would require noise functions to be in a vector (and make hand picking max min values more difficult, However since no 2 hills could be together we can predict it)
+
 ### Features
 - [] use normal mapping for lighting
 

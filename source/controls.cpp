@@ -128,11 +128,114 @@ void Controls::handleWSL(const Scene& scene, const float deltaTime) {
         //Todo make this a function
         // test live changing
         if (scene.testChunk){
-            scene.testChunk->recalculateHeight();
+            std::cout << "pressed U" <<std::endl;
+            printModifiableValues();
         }
     }
 
+
+    // change modifiable value
+    if (isKeyPressed(GLFW_KEY_LEFT_BRACKET)) {
+        changeModifyIndex(currentModifiableIndex, -1);
+    }
+    if (isKeyPressed(GLFW_KEY_RIGHT_BRACKET)) {
+        changeModifyIndex(currentModifiableIndex, 1);
+    }
+
+    if (isKeyPressed(GLFW_KEY_MINUS)) {
+        // subtract value
+        modifyTerrainValues(scene.testChunk->getHeightGenerator(), currentModifiableIndex, false);
+        // recalculate height
+        scene.testChunk->recalculateHeight();
+    }
+    else if (isKeyPressed(GLFW_KEY_EQUAL)) {
+        // add value
+        modifyTerrainValues(scene.testChunk->getHeightGenerator(), currentModifiableIndex, true);
+        // recalculate height
+        scene.testChunk->recalculateHeight();
+    }
+    
+
 }
+
+void Controls::changeModifyIndex(int &index, int amount){
+    index += amount;
+
+    int  min=modifiableValues::MinEnum;
+    int  max=modifiableValues::MaxEnum;
+
+    // Check if value is outside allowed limits
+    index = std::max(index, min); // get MinEnum if current is below min
+    index = std::min(index, max); // get MaxEnum if current is above max
+
+    // say what we changed to
+    std::cout << "Now modifying:" << modifiableValues::valueNames[index] << std::endl;
+}
+
+// get heightgenerator to modify
+void Controls::modifyTerrainValues(HeightGenerator &heightGenerator, int valueIndex, bool addAmount){
+ 
+    // get amount to modify by (amount is preset)
+    float amount=0;
+
+    // if we are modifying hill
+    if(valueIndex <=modifiableValues::hillHeight) {
+        amount = 10;
+    }
+    // if we are modifying simplex
+    else if(valueIndex <=modifiableValues::smpExponentiation) {
+        if(valueIndex == modifiableValues::smpNoiseScale) {
+            amount = 10;
+        }
+        else if(valueIndex == modifiableValues::smpPersistence) {
+            amount = 0.1;
+        }
+        else {
+            amount = 1;
+        }
+    }
+
+    // check if we are adding amount
+    float newValue=0;
+    if(addAmount){
+        newValue = values[valueIndex] + amount;
+        std::cout << "added:" << amount;
+    }
+    else{
+        newValue = values[valueIndex] - amount;
+        std::cout << "subtracted:" << amount;
+    }
+
+    // check if value is within boundaries
+
+    //if yes 
+    std::cout << " new value is:" << newValue << std::endl;
+    values[valueIndex] = newValue;
+
+    // create new heightmap
+    //? or call correct update
+
+
+
+    // if we are modifying hill
+    if(valueIndex <=modifiableValues::hillHeight){
+        heightGenerator.updateHill(glm::vec2(values[modifiableValues::hillPosX], values[modifiableValues::hillPosY]), values[modifiableValues::hillRadius], values[modifiableValues::hillHeight]);
+    }
+    else if (valueIndex <=modifiableValues::smpExponentiation){
+        heightGenerator.updateSimplex(values[modifiableValues::smpNoiseScale], values[modifiableValues::smpPersistence], values[modifiableValues::smpOctaves], values[modifiableValues::smpExponentiation]);
+    }
+
+}
+
+void Controls::printModifiableValues(){
+    std::cout << "printing modifiable values" << std::endl;
+    for( int valueIndex = modifiableValues::MinEnum; valueIndex <= modifiableValues::MaxEnum; valueIndex++){
+
+        std::cout << modifiableValues::valueNames[valueIndex] << ":" << values[valueIndex] << std::endl;
+
+    }
+}
+
 
 
 void Controls::handleInputs(const Scene& scene, const float deltaTime) {

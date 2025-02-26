@@ -36,8 +36,8 @@ bool TerrainChunk::updateHeight(float x, float z, float newValue) {
 void TerrainChunk::recalculateHeight(){
 
     //! We need to have update the height generator or else it would'nt change something
-    //!TEST
-    heightGenerator = HeightGenerator(21,0,246);
+    // // !TEST
+    // heightGenerator = HeightGenerator(21,0,246);
     
     for(auto &vertex : mesh.get()->getModifiableVertexData()) {
 

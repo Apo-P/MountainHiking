@@ -287,7 +287,7 @@ int GameEngine::startGame() {
         HeightGenerator* test_gen = new testHeightGen();
 
 
-        TerrainChunk* testchunk = new TerrainChunk(*gen,0,0,500,100); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
+        TerrainChunk* testchunk = new TerrainChunk(*gen,0,0,2000,400); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
 

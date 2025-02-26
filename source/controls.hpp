@@ -19,6 +19,62 @@ class Controls {
         const float KEY_COOLDOWN_TIME = 0.5f;
 
     private:
+
+        // in a struct in order to not be global
+        // list of modifiable values
+        struct modifiableValues {
+            public:
+            enum values {
+                hillPosX=0,
+                hillPosY,
+                hillRadius,
+                hillHeight,
+                smpNoiseScale,
+                smpPersistence,
+                smpOctaves,
+                smpExponentiation
+            };
+
+            // min int of enum
+            static const int MinEnum = 0;//values::hillPosX;
+            // max int of enum
+            static const int MaxEnum = 7;//values::smpExponentiation;
+
+            
+            //  list of all modifiable value names
+            static constexpr const char* valueNames[MaxEnum+1] = {
+                "hillPosX",
+                "hillPosY",
+                "hillRadius",
+                "hillHeight",
+                "smpNoiseScale",
+                "smpPersistence",
+                "smpOctaves",
+                "smpExponentiation"
+            };
+
+        
+        };
+
+        // initial values (be carefull) these should be better initialized
+        // nice values from testing
+        std::vector<float> values{
+            250, -250, 600, 168, //hill
+            500, 1 , 4, 3 // smp
+        };
+
+        // old starting values
+        // 250, -250, 500, 128, //hill
+        //     200, 0.5, 4, 3 // smp
+
+        int currentModifiableIndex = modifiableValues::smpNoiseScale;
+
+        void printModifiableValues();
+
+        void changeModifyIndex(int &index, int amount);
+
+        void modifyTerrainValues(HeightGenerator &heightGenerator, int valueIndex, bool addAmount);
+
         /// @brief check if key was pressed
         /// @param key key to check
         /// @return bool 

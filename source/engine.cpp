@@ -294,7 +294,7 @@ int GameEngine::startGame() {
         VariablePoissonDiscSampling objectPlacer;
 
         // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it so add only 5 tries allowed (5,500,500,5)
-        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(10, glm::vec2(0,0), glm::vec2(500,500),5);
+        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(3, glm::vec2(0,0), glm::vec2(500,500),30);
         // std::vector<glm::vec2> treePoints = objectPlacer.GenerateVariablePoints(glm::vec2(0,0), glm::vec2(100,100), 4, 2, 3);
 
         // std::vector<glm::vec2> treePoints2 = objectPlacer.GenerateVariablePoints(glm::vec2(100,100), glm::vec2(100,100), 4, 2, 3);

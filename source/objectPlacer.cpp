@@ -283,10 +283,14 @@ bool VariablePoissonDiscSampling::isValid(const glm::vec2 &candidatePos, const g
 
 std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumumRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection) {
 
+
+    //TODO IMPORTANT MAKE WE INCREASE TOWARDS -Z!!!!!
+
+    // how many time we can make radius bigger (used in noise calculations)
+    float RADIUS_VARIABILITY = 4;
     // maxRadius doesn't play much role but help make the grid size 
     // (normally it is calculated by max radius that could happen for noise function, Say we get a point of radius 20 and its the highest, the 20 should be the maxRadius)
-    // TODO CHANGE WHEN WE ADDD SIMPLE NOISE!
-    float maxRadius = minumumRadius; //5 * minumumRadius;
+    float maxRadius = RADIUS_VARIABILITY * minumumRadius;
 
     // get cell size based on maximum radius
     float cellSize = maxRadius / std::sqrt(2.0f);
@@ -317,8 +321,8 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
     // calculate middle pos
     glm::vec2 middlePos(sampleRegionStartPos + (sampleRegionSize / 2.0f));
     // get middle radius
-    //TODO ADD SIMPLEX
-    float middleRadius = maxRadius;
+    //! radius should always be at least minumum and -1 minimum from maximum (so we dont exceed maximum)
+    float middleRadius = minumumRadius + noiseFunc->calculateRadius(middlePos.x, middlePos.y) * minumumRadius * (RADIUS_VARIABILITY-1);
 
     // make middle point
     std::shared_ptr<PoisonPoint>middle = std::make_shared<PoisonPoint>(middlePos, middleRadius);
@@ -353,8 +357,7 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
             glm::vec2 candidatePos = spawnNewPoint(spawnCentre, spawnRadius);
 
             // get candidates radius
-            //TODO ADD SIMPLEX
-            float candidateRadius = maxRadius;
+            float candidateRadius = minumumRadius + noiseFunc->calculateRadius(candidatePos.x, candidatePos.y) * minumumRadius * (RADIUS_VARIABILITY-1);
 
             // check if candidate is a valid candidate
             if (isValid(candidatePos, sampleRegionStartPos, sampleRegionSize, cellSize, candidateRadius, grid)) { 

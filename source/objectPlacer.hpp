@@ -5,6 +5,7 @@
 #include "noiseGenerators.hpp"
 
 
+// A uniform Poisson disc sampler to use to place objects
 class PoissonDiscSampling {
 
     private:
@@ -17,6 +18,7 @@ class PoissonDiscSampling {
 
         /// @brief Function to validate if candidate should be accepted (meets spawn criteria)
         /// @param candidate candidate pos
+        /// @param sampleRegionStartPos the starting x,z of ot region
         /// @param sampleRegionSize region size
         /// @param cellSize size of a cell
         /// @param radius radius of object (will determine the minimum distance 2 objects should be apart)
@@ -40,6 +42,7 @@ class PoissonDiscSampling {
 
         /// @brief generates spawn points with a minimum radius between them inside the region specified
         /// @param radius minumum radius between points
+        /// @param sampleRegionStartPos the starting x,z of ot region
         /// @param sampleRegionSize Region size to spawn objects
         /// @param numSamplesBeforeRejection how many time sto try to randomly find a point before rejection
         /// @return vector of points within region    
@@ -50,64 +53,17 @@ class PoissonDiscSampling {
 
 class VariablePoissonDiscSampling {
     private:
-    // function to check if candidate should be accepted (meets spawn criteria)
+        // function to check if candidate should be accepted (meets spawn criteria)
 
-    // random generators
-    //! Dont forget to use seededGenerator.seed
-    static std::mt19937 seededGenerator;
-    static std::uniform_real_distribution<float> floatDistribution;
-
-    // noise function (opensimplex)
-    static NoiseFunction* noiseFunc;
-
-    /// @brief Function to validate if candidate should be accepted (meets spawn criteria)
-    /// @param candidate candidate pos
-    /// @param sampleRegionSize region size
-    /// @param cellSize size of a cell
-    /// @param radius radius of object (will determine the minimum distance 2 objects should be apart)
-    /// @param points all current points
-    /// @param grid grid of points
-    /// @return returns true or false
-    static bool IsValid(const glm::vec2 &candidate, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, float cellSize, float radius,
-                        const std::vector<glm::vec2>& points, const std::vector<std::vector<int>>& grid);
-
-
-public:
-
-    // initialize seeders
-    static void initialize(int seed=21, int min = 0, int max = 1) {
-        
-        seededGenerator.seed(seed); 
-        floatDistribution = std::uniform_real_distribution<float>(min, max);
-        noiseFunc = new SimplexNoise(seed);
-    
-    }
-
-
-    /// @brief generates spawn points with a minimum radius between them inside the region specified
-    /// @param radius minumum radius between points
-    /// @param sampleRegionSize Region size to spawn objects
-    /// @param numSamplesBeforeRejection how many time sto try to randomly find a point before rejection
-    /// @return vector of points within region    
-    static std::vector<glm::vec2> GeneratePoints(float radius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection = 30);
-
-};
-
-/// @brief Poisson disc sampling using a square grid to make it faster
-class allPoissonDiscSampling {
-    public:        
-
-        // we make a grid of cell size radius to have an easier time to check points
+        // random generators
+        //! Dont forget to use seededGenerator.seed
+        static std::mt19937 seededGenerator;
+        static std::uniform_real_distribution<float> floatDistribution;
 
         // noise function (opensimplex)
         static NoiseFunction* noiseFunc;
 
-        static glm::vec2 spawnNewPoint(const glm::vec2 &spawnPointPosition, float radius);
-
-        static std::vector<glm::vec2> GenerateVariablePoints(const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float maxRadius=4, float minRadius =2, int numSamplesBeforeRejection = 30);
-
-    private:
- 
+        // A simple struct that store points position and radius
         struct PoisonPoint
         {
             glm::vec2 position;
@@ -115,44 +71,59 @@ class allPoissonDiscSampling {
     
             PoisonPoint(glm::vec2 position,float radius) : position(position), radius(radius) {};
         };
-    
+
+        // A simple grid cell store its staring position and a list of its contained points
         struct GridCell
         {
-            
-            // a list the indexes of the points in the cell
-            // (so we know which which point is at that cell, IMPORTANT -1 means no point!)
-            std::vector<int>points = std::vector<int>(1,-1);
+
+            glm::vec2 position;
     
             // a list of shared points 
-            // because a point can be in multiple cells
-            std::vector<std::shared_ptr<PoisonPoint>> sharedPoints;
+            // that point to the list of all the points
+            std::vector<std::shared_ptr<PoisonPoint>> pointsNeighbourhood;
 
 
         };
 
-        static bool boxCircleCollision(glm::vec2 boxPos, float boxWidth, float boxHeight, glm::vec2 circlePos, float circleRadius) {
+        /// @brief returns if candidate is inside defined region
+        static bool isInsideRegion(const glm::vec2 &candidatePos, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize);
+
+        /// @brief returns if candidate collides with a gridsquare
+        static bool collidesWithGridSquare(const glm::vec2 &gridSquarePos, const float &cellSize, const glm::vec2 &candidatePos, const float &candidateRadius);
+
+        /// @brief returns if candidate is colliding with another point 
+        static bool collidesWithPoint(const glm::vec2 &pointPos, const float &pointRadius, const glm::vec2 &candidatePos, const float &candidateRadius);
+
+        /// @brief returns if candidate is inside neighbourhood of any point inside neighbouring cells (neighbourhood is the collection of points in a cell)
+        static bool isInNeighbourhood(const glm::vec2 &candidatePos, const float &candidateRadius, const std::vector<std::shared_ptr<PoisonPoint>> &neighbourhood);
+
+        /// @brief will spawn a random new point within given radius
+        static glm::vec2 spawnNewPoint(const glm::vec2 &spawnPointPosition, float radius);
+
+        /// @brief checks if candidate is a valid candidate
+        static bool isValid(const glm::vec2 &candidate, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, float cellSize, float candidateRadius,
+                    const std::vector<std::vector<GridCell>> &grid);
 
 
-            // Find the closest point on the box to the circle's center
-            float closestX = std::max(boxPos.x, std::min(circlePos.x, boxPos.x + boxWidth));
-            float closestY = std::max(boxPos.y, std::min(circlePos.y, boxPos.y + boxHeight));
+    public:
 
-            glm::vec2 testPoint(closestX, closestY);
-
-            // Calculate the distance from the circle's center to this closest point
-            float distance = glm::length(testPoint- circlePos);
-
-            // return true or false if distance is greater that circle radius (point is in the circle)
-            return distance <= circleRadius;
-
-
-
-        };
-
-        static bool IsVariableValid(const std::shared_ptr<PoisonPoint> candidate, const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float cellSize,
-            const std::vector<std::vector<GridCell>> grid);
+        // initialize seeders
+        static void initialize(int seed=21, int min = 0, int max = 1) {
+            
+            seededGenerator.seed(seed); 
+            floatDistribution = std::uniform_real_distribution<float>(min, max);
+            noiseFunc = new SimplexNoise(seed);
         
-                            
-    };
+        }
+
+        // min radius is the min radius of the obj so they dont collide (also can be modified to decrease run time)
+        /// @brief generates a number of varying points
+        static std::vector<glm::vec2> GeneratePoints(float minumumRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection = 4);
+
+
+   
+};
+
+
 
 #endif

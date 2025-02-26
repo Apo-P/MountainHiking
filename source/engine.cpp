@@ -287,14 +287,14 @@ int GameEngine::startGame() {
         HeightGenerator* test_gen = new testHeightGen();
 
 
-        TerrainChunk* testchunk = new TerrainChunk(*test_gen,0,0,50,10); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
+        TerrainChunk* testchunk = new TerrainChunk(*test_gen,0,0,500,100); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
 
-        PoissonDiscSampling objectPlacer;
+        VariablePoissonDiscSampling objectPlacer;
 
         // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it so add only 5 tries allowed (5,500,500,5)
-        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(5, glm::vec2(0,0), glm::vec2(50,50),5);
+        std::vector<glm::vec2> treePoints = objectPlacer.GeneratePoints(10, glm::vec2(0,0), glm::vec2(500,500),5);
         // std::vector<glm::vec2> treePoints = objectPlacer.GenerateVariablePoints(glm::vec2(0,0), glm::vec2(100,100), 4, 2, 3);
 
         // std::vector<glm::vec2> treePoints2 = objectPlacer.GenerateVariablePoints(glm::vec2(100,100), glm::vec2(100,100), 4, 2, 3);

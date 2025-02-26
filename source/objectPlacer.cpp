@@ -1,12 +1,47 @@
 #include "objectPlacer.hpp"
 
-// static member must be defined in cpp to avoid linker error
-NoiseFunction* allPoissonDiscSampling::noiseFunc = new SimplexNoise();
+// helper functions
+
+// this should be inside another header like "simple_collisions.hpp"
+// returns if circle collided with a square
+bool boxCircleCollision(glm::vec2 boxPos, float boxWidth, float boxHeight, glm::vec2 circlePos, float circleRadius) {
+
+
+    // Find the closest point on the box to the circle's center
+    float closestX = std::max(boxPos.x, std::min(circlePos.x, boxPos.x + boxWidth));
+    float closestY = std::max(boxPos.y, std::min(circlePos.y, boxPos.y + boxHeight));
+
+    glm::vec2 testPoint(closestX, closestY);
+
+    // Calculate the distance from the circle's center to this closest point
+    float distance = glm::length(testPoint- circlePos);
+
+    // return true or false if distance is smaller than circle radius (point is in the circle)
+    return distance <= circleRadius;
+
+
+
+};
+
+bool circleCircleCollision(const glm::vec2 &circle1Pos, const float &circle1Radius, const glm::vec2 &circle2Pos, const float &circle2Radius) {
+
+
+    // Calculate the distance between centers
+    float distance = glm::length(circle1Pos - circle2Pos);
+
+    // calculate combined radius
+    float combinedRadius = circle1Radius + circle2Radius;
+
+    // return true or false if distance is smaller that combined circle radius
+    return distance <= combinedRadius;
+
+}
+
 
 
 //Constant radius poisson
 
-
+// static member must be defined in cpp to avoid linker error
 // allocate memory for the static members (this need to be done because inside the class no memory is allocated they are only defined)
 //! Dont forget to initialize them later!
 std::mt19937 PoissonDiscSampling::seededGenerator;
@@ -129,32 +164,32 @@ std::vector<glm::vec2> PoissonDiscSampling::GeneratePoints(float radius, const g
 
 
 
-// Variable radius attempts
+// Variable radius poisson
 
+// static member must be defined in cpp to avoid linker error
+//! change later
+NoiseFunction* VariablePoissonDiscSampling::noiseFunc = new SimplexNoise(21);
 
+// allocate memory for the static members (this need to be done because inside the class no memory is allocated they are only defined)
+//! Dont forget to initialize them later!
+std::mt19937 VariablePoissonDiscSampling::seededGenerator;
+std::uniform_real_distribution<float> VariablePoissonDiscSampling::floatDistribution;
 
+bool VariablePoissonDiscSampling::isInsideRegion(const glm::vec2 &candidate, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize){
 
+    return (candidate.x >= sampleRegionStartPos.x && candidate.x < sampleRegionStartPos.x + sampleRegionSize.x && candidate.y >= sampleRegionStartPos.y && candidate.y < sampleRegionStartPos.y + sampleRegionSize.y) ;
+}
 
-// Variable radius attempts old
-
-glm::vec2 allPoissonDiscSampling::spawnNewPoint(const glm::vec2 &spawnPointPosition, float radius){
-
-    // Random number generation setup
-    //TODO add this to class
-    //! could use a seed here
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
+glm::vec2 VariablePoissonDiscSampling::spawnNewPoint(const glm::vec2 &spawnPointPosition, float radius){
     // calculate min max radius
     float min = radius;
-    float max = radius * 2.0f;
+    float max = 2.0f * radius;
 
     //get random angle
-    float angle = dist(rng) * 2.0f * M_PI;
+    float angle = floatDistribution(seededGenerator) * 2.0f * M_PI;
 
     // get random distance
-    float distance = (dist(rng) * (max - min)) + min;
+    float distance = (floatDistribution(seededGenerator) * (max - min)) + min;
 
     // calculate direction
     glm::vec2 dir(std::sin(angle), std::cos(angle));
@@ -164,27 +199,40 @@ glm::vec2 allPoissonDiscSampling::spawnNewPoint(const glm::vec2 &spawnPointPosit
     
 
     return candidate;
-};
+}
 
-bool allPoissonDiscSampling::IsVariableValid(const std::shared_ptr<PoisonPoint> candidate, const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float cellSize,
-                                          const std::vector<std::vector<GridCell>> grid)
-{
+bool VariablePoissonDiscSampling::collidesWithGridSquare(const glm::vec2 &gridSquarePos, const float &cellSize, const glm::vec2 &candidatePos, const float &candidateRadius){
+    return boxCircleCollision(gridSquarePos, cellSize, cellSize, candidatePos, candidateRadius);
+}
 
-    glm::vec2 candidatePos = candidate.get()->position;
-    float candidateRadius = candidate.get()->radius;
+bool VariablePoissonDiscSampling::collidesWithPoint(const glm::vec2 &pointPos, const float &pointRadius, const glm::vec2 &candidatePos, const float &candidateRadius){
+    return circleCircleCollision(pointPos, pointRadius, candidatePos, candidateRadius);
+}
 
+bool VariablePoissonDiscSampling::isInNeighbourhood(const glm::vec2 &candidatePos, const float &candidateRadius, const std::vector<std::shared_ptr<PoisonPoint>> &neighbourhood){
     
-    // int cellRadius = std::ceil( candidateRadius / cellSize);
+    // check all points
+    for(auto& point : neighbourhood){
+        
+        // if candidate collides with point return true
+        if (collidesWithPoint(point.get()->position, point.get()->radius, candidatePos, candidateRadius)) return true;
+
+
+    }
+
+    // if we could find a collision
+    return true;
+}
+
+bool VariablePoissonDiscSampling::isValid(const glm::vec2 &candidatePos, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, float cellSize, float candidateRadius,
+    const std::vector<std::vector<GridCell>> &grid){
 
     // if candidate x,z is inside sampleRegion
-    if (candidatePos.x >= sampleRegionStartPosition.x && candidatePos.x < sampleRegionSize.x && candidatePos.y >= sampleRegionStartPosition.y && candidatePos.y < sampleRegionSize.y) {
+    if(isInsideRegion(candidatePos, sampleRegionStartPos, sampleRegionSize)) {
 
         // finds its cell
-        int cellX = static_cast<int>(candidatePos.x / cellSize);
-        int cellY = static_cast<int>(candidatePos.y / cellSize);
-
-        // centerIndex is where candidate is
-
+        int cellX = static_cast<int>((candidatePos.x - sampleRegionStartPos.x) / cellSize);
+        int cellY = static_cast<int>((candidatePos.y - sampleRegionStartPos.y) / cellSize);
 
         // find neighboring cells
         int searchStartX = std::max(0, cellX - 2);
@@ -192,93 +240,108 @@ bool allPoissonDiscSampling::IsVariableValid(const std::shared_ptr<PoisonPoint> 
         int searchStartY = std::max(0, cellY - 2);
         int searchEndY = std::min(cellY + 2, static_cast<int>(grid[0].size()) - 1);
 
-
-
-        // Check if the circle is too close to any in the prospective cell and the neighboring cells.
         // search neighboring cells
-        for (int x = searchStartX; x <= searchEndX; ++x)
-        {
-            for (int y = searchStartY; y <= searchEndY; ++y)
-            {
+        for (int x = searchStartX; x <= searchEndX; ++x) {
+            for (int y = searchStartY; y <= searchEndY; ++y) {
 
-                // if candidate intersects the grid square AND intersects something within that square
-                // then discard it
+                // get current grid cell
+                GridCell gridCell = grid[x][y];
 
-                // we check the collision now cause the radius could be to small to worry about other points
-                glm::vec2 gridCellPos (x * cellSize, y * cellSize);
 
-                if (boxCircleCollision(gridCellPos, cellSize, cellSize, candidatePos, candidateRadius))
-                {
-
-                    GridCell GridCell = grid[x][y];
-
-                    // check if we intersect a point inside grid the cell
-                    for(auto& point : GridCell.sharedPoints) {
-
-                        float candidateDst = glm::length(candidatePos - point.get()->position);
-
-                        // if candidate distance from the point is less than minimum distance
-                        if (candidateDst < candidateRadius) {
-                            // discard candidate
-                            return false;
-                    }
-
-                    }
+                // check if it collides with square (if not then no need to check inside)
+                if(!collidesWithGridSquare(gridCell.position, cellSize, candidatePos, candidateRadius)) {
+                    continue;
                 }
+                // if grid has no points inside skip cell
+                if (gridCell.pointsNeighbourhood.empty()){
+                    continue;
+                }
+
+
+                // check if it collides with any other point inside the cell
+                if (isInNeighbourhood(candidatePos , candidateRadius, gridCell.pointsNeighbourhood)){
+                    return false;
+                }
+
+                //! Can add more checks here
+
+
             }
         }
-
+    
+        // if it passed all checks return true
         return true;
+
     }
 
     // discard candidate if it is outside boundaries
     return false;
 
-};
+}
 
 
 
-std::vector<glm::vec2> allPoissonDiscSampling::GenerateVariablePoints(const glm::vec2 &sampleRegionStartPosition, const glm::vec2 &sampleRegionSize, float maxRadius, float minRadius, int numSamplesBeforeRejection) {
+std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumumRadius, const glm::vec2 &sampleRegionStartPos, const glm::vec2 &sampleRegionSize, int numSamplesBeforeRejection) {
 
+    // maxRadius doesn't play much role but help make the grid size 
+    // (normally it is calculated by max radius that could happen for noise function, Say we get a point of radius 20 and its the highest, the 20 should be the maxRadius)
+    // TODO CHANGE WHEN WE ADDD SIMPLE NOISE!
+    float maxRadius = minumumRadius; //5 * minumumRadius;
 
-    // get cell size based on spawn radius
-    // now based on min and max radius
-    float cellSize = ((minRadius + maxRadius) * 0.5f) / std::sqrt(2.0f);
+    // get cell size based on maximum radius
+    float cellSize = maxRadius / std::sqrt(2.0f);
 
     // calculate grid width and height
+    //! Important we assume region is square throughout the program for now!
     int gridWidth = static_cast<int>(std::ceil(sampleRegionSize.x / cellSize));
     int gridHeight = static_cast<int>(std::ceil(sampleRegionSize.y / cellSize));
 
-    
 
-    
-
-    // grid stores an grid cell (initialize gird)
+    // grid stores an 2Darray grid cell 
+    // initialize grid of gridWidth and gridHeight
     std::vector<std::vector<GridCell>> grid(gridWidth, std::vector<GridCell>(gridHeight));
+
+    // initialize grid positions
+    for (int x=0; x < gridWidth; x++){
+        for(int y=0; y < gridHeight; y++)
+            grid[x][y].position = (sampleRegionStartPos + glm::vec2(x * cellSize, y * cellSize));
+    }
 
     // points store's the points we create
     std::vector<std::shared_ptr<PoisonPoint>> points; 
     // spawn points are the points from which we try to create a point
     std::vector<std::shared_ptr<PoisonPoint>> spawnPoints;
 
-    // start at middle
-    std::shared_ptr<PoisonPoint>middle = std::make_shared<PoisonPoint>(sampleRegionStartPosition + (sampleRegionSize / 2.0f), maxRadius);
-    spawnPoints.push_back(middle);
     
-    // Random number generation setup
-    //! could use a seed here
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
+    // calculate middle pos
+    glm::vec2 middlePos(sampleRegionStartPos + (sampleRegionSize / 2.0f));
+    // get middle radius
+    //TODO ADD SIMPLEX
+    float middleRadius = maxRadius;
+
+    // make middle point
+    std::shared_ptr<PoisonPoint>middle = std::make_shared<PoisonPoint>(middlePos, middleRadius);
+    // add it as first spawn point
+    spawnPoints.push_back(middle);
+    // add middle point to its cell
+    int middleX = static_cast<int>((middlePos.x - sampleRegionStartPos.x) / cellSize);
+    int middleY = static_cast<int>((middlePos.y - sampleRegionStartPos.y) / cellSize);
+    grid[middleX][middleY].pointsNeighbourhood.push_back(middle);
+
+    // Initialize random generators
+    initialize(21);
 
     // while we have spawn points
     while (!spawnPoints.empty()) {
+
         // pick random spawn point
-        int spawnIndex = static_cast<int>(dist(rng) * spawnPoints.size());
+        int spawnIndex = static_cast<int>(floatDistribution(seededGenerator) * spawnPoints.size());
 
         // get spawn center
-        std::shared_ptr<PoisonPoint> spawnPoint = spawnPoints[spawnIndex];
+        glm::vec2 spawnCentre = spawnPoints[spawnIndex].get()->position;
+        // get spawn Radius
+        float spawnRadius = spawnPoints[spawnIndex].get()->radius;
 
         // if we found a point
         bool candidateAccepted = false;
@@ -286,35 +349,30 @@ std::vector<glm::vec2> allPoissonDiscSampling::GenerateVariablePoints(const glm:
         // try to find an accepted spawn point within samples allowed
         for (int i = 0; i < numSamplesBeforeRejection; ++i) {
 
-            // get spawn point position
-            glm::vec2 spawnCentre = spawnPoint.get()->position;
+            // spawn new candidate
+            glm::vec2 candidatePos = spawnNewPoint(spawnCentre, spawnRadius);
 
-            // calculate random radius using simplex noise for spawnPoint center
-            float radius = minRadius + noiseFunc->calculateRadius(spawnCentre.x, spawnCentre.y) * (maxRadius - minRadius);
+            // get candidates radius
+            //TODO ADD SIMPLEX
+            float candidateRadius = maxRadius;
 
-            // spawn a new point within radius;
-            glm::vec2 candidatePosition = spawnNewPoint(spawnCentre, radius);
+            // check if candidate is a valid candidate
+            if (isValid(candidatePos, sampleRegionStartPos, sampleRegionSize, cellSize, candidateRadius, grid)) { 
 
-            // make new candidate
-            std::shared_ptr<PoisonPoint> candidate = std::make_shared<PoisonPoint>(candidatePosition, radius);
-            
-            // if candidate is a valid candidate
-            if (IsVariableValid(candidate, sampleRegionStartPosition, sampleRegionSize, cellSize, grid)) {
+
+                // make Candidate point
+                std::shared_ptr<PoisonPoint> candidatePoint = std::make_shared<PoisonPoint>(candidatePos, candidateRadius);
 
                 // add it to points list
-                points.push_back(candidate);
-
+                points.push_back(candidatePoint);
                 // add it as a new spawn point
-                spawnPoints.push_back(candidate);
+                spawnPoints.push_back(candidatePoint);
 
-                // store which cell it is stored at
-                int ax = static_cast<int>(candidatePosition.x / cellSize);
-                int ay = static_cast<int>(candidatePosition.y / cellSize);
-                // if (ax>2 | ay>2) {
-                //     // throw std::range_error("asd");
-                // }
-                // int cp = ax+1;
-                grid[ax][ay].sharedPoints.push_back(candidate);
+                // finds its cell
+                int cellX = static_cast<int>((candidatePos.x - sampleRegionStartPos.x) / cellSize);
+                int cellY = static_cast<int>((candidatePos.y - sampleRegionStartPos.y) / cellSize);
+                // store it to its cell
+                grid[cellX][cellY].pointsNeighbourhood.push_back(candidatePoint);
 
                 // store we found a valid candidate to add to points
                 candidateAccepted = true;
@@ -323,18 +381,21 @@ std::vector<glm::vec2> allPoissonDiscSampling::GenerateVariablePoints(const glm:
             }
         }
 
+
         // if we couldn't find a valid candidate
         if (!candidateAccepted) {
-            // remove the current spawnpoint
+            // remove the current spawn point
             spawnPoints.erase(spawnPoints.begin() + spawnIndex);
+
         }
+
     }
+
 
     // make a final list of position vectors
     std::vector<glm::vec2> finalPoints;
 
-    // could be a bit more efficient to change storage structure to skip this
-
+    //? could it be a bit more efficient to change storage structure to skip this?
     for(auto& point : points) {
         finalPoints.push_back(point->position);
     }
@@ -342,6 +403,4 @@ std::vector<glm::vec2> allPoissonDiscSampling::GenerateVariablePoints(const glm:
     // return point positions
     return finalPoints;
 
-
 }
-

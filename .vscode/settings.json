@@ -64,6 +64,8 @@
         "glew",
         "glfw",
         "lacunarity",
+        "neighbourhood",
+        "neighbouring",
         "OPENGL",
         "perlin",
         "Pmatrices",

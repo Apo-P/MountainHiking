@@ -105,6 +105,47 @@ void indexVBO(
     }
 }
 
+void calculateTangents(
+    std::vector<VertexData> &vertices,
+    const std::vector<unsigned int>& indices
+) {
+
+    // for each face (triangles in this case)
+    for (size_t i = 0; i < indices.size(); i += 3) {
+        // get vertices
+        VertexData& v0 = vertices[indices[i]];
+        VertexData& v1 = vertices[indices[i+1]];
+        VertexData& v2 = vertices[indices[i+2]];
+
+        // get triangle edges
+        glm::vec3 edge1 = v1.position - v0.position;
+        glm::vec3 edge2 = v2.position - v0.position;
+
+        // get delta uv
+        vec2 deltaUV1 = v1.uv - v0.uv;
+        vec2 deltaUV2 = v2.uv - v0.uv;
+
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        // calculate tangent
+        glm::vec3 tangent = {
+            f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
+            f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
+            f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z)
+        };
+
+        // store tangent to each vertex
+        v0.tangent += tangent;
+        v1.tangent += tangent;
+        v2.tangent += tangent;
+    }
+
+    for (auto& vertex : vertices) {
+        vertex.tangent = normalize(vertex.tangent);
+    }
+    
+}
+
 void Mesh::loadVram() {
 
 
@@ -125,6 +166,9 @@ void Mesh::loadVram() {
     //Specify uv attribute 
     glVertexAttribPointer(static_cast<int>(Shader::layoutPosition::UV), 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, uv));
     glEnableVertexAttribArray(static_cast<int>(Shader::layoutPosition::UV));
+    //Specify TANGENT attribute 
+    glVertexAttribPointer(static_cast<int>(Shader::layoutPosition::TANGENT), 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, tangent));
+    glEnableVertexAttribArray(static_cast<int>(Shader::layoutPosition::TANGENT));
 
 
     //Generate EBO and bind it to GPU
@@ -188,6 +232,8 @@ Mesh::Mesh(const std::vector<VertexData>& in_vertices){
     indexVBO(in_vertices, indices, indexedVertices);
 
     // Do other calculations if necessary
+    // calculate tangent vectors
+    calculateTangents(this->indexedVertices, indices);
 
     // loadVram
     loadVram();
@@ -209,6 +255,8 @@ Mesh::Mesh(const std::string path) {
     indexVBO(vertices, indices, indexedVertices);
 
     // Do other calculations if necessary
+    // calculate tangent vectors
+    calculateTangents(this->indexedVertices, indices);
 
     // loadVram
     loadVram();

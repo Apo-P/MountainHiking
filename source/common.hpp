@@ -29,6 +29,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include <glm/gtc/type_ptr.hpp>
 
 #define DEFAULT_POSITION glm::vec3(0)
 #define DEFAULT_ORIENTATION glm::quat(glm::vec3(0,0,0))  //x:pitch, y:yaw, z:roll

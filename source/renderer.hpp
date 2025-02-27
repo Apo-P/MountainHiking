@@ -9,6 +9,7 @@
 #include "mesh.hpp"
 #include "model.hpp"
 #include "scene.hpp"
+#include "light.hpp"
 
 /// @brief Possible RenderModes for Renderer
 //? could later add map to cast RenderMode to GLenum
@@ -28,22 +29,27 @@ class Renderer{
         std::shared_ptr<Shader> simpleShader;
         
 
+        const int MAX_DIR_LIGHTS = 1; // 1 directional light
+        const int MAX_POINT_LIGHTS = 1; // 1 point light
         
 
         RenderModes mode = RenderModes::Normal; //Default is normal
         
-        GLuint VPmatricesUBO;
+        GLuint VPmatricesUBO, LightsUBO;
 
         std::shared_ptr<GLFWwindow> window;
 
         // TODO: generalize this for other UBO's
         /// @brief make UBO for view and projection matrix
         void makeUBO_VP();
+
+        void makeUBO_Lights();
     public:
 
         bool DebugNormals = false; // change to private later
         std::shared_ptr<Shader> testShader;
         std::shared_ptr<Shader> skyboxShader;
+        std::shared_ptr<Shader> pbrShader;
         std::shared_ptr<Shader> normalDebugShader;
 
         //! scene should have access to these
@@ -53,6 +59,20 @@ class Renderer{
         /// @brief send projection matrix to shaders
         /// @param projectionMatrix projection matrix to send
         void sendProjectionMatrix(glm::mat4 projectionMatrix);
+
+        /// @brief send list of lights
+        /// @param directionalLights list of directional lights
+        void sendDirectionalLights(std::vector<DirectionalLight> directionalLights);
+
+        /// @brief send list of lights
+        /// @param pointLights list of point lights
+        void sendPointLights( std::vector<PointLight> pointLights);
+
+        /// @brief send list of lights
+        /// @param directionalLights list of directional lights
+        /// @param pointLights list of point lights
+        void sendLights(std::vector<DirectionalLight> directionalLights, std::vector<PointLight> pointLights);
+
         //for testing
         void bindShader(){simpleShader.get()->bind(); };
         void unbindShader(){simpleShader.get()->unbind(); };
@@ -76,6 +96,9 @@ class Renderer{
         // BE CAREFULL WE DONT CHECK ITS A SKYBOX FOR NOW! (so we dont know if it has a cubemap)
         void renderSkybox(std::shared_ptr<Model> skybox);
 
+        //test
+        void renderPBR(std::shared_ptr<Model> obj, const glm::vec3 &cameraPos);
+
 
         /// @brief simple render a object
         /// @param obj object to render
@@ -92,6 +115,10 @@ class Renderer{
         /// @brief get UBO of VP
         /// @return returns UBO
         GLuint getUBO_VP() { return VPmatricesUBO; };
+
+        /// @brief get UBO of Lights
+        /// @return returns UBO
+        GLuint getUBO_Lights() { return LightsUBO; };
 
         glm::vec2 getWindowSize();
 

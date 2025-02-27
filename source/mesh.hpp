@@ -22,19 +22,23 @@ struct VertexData
     glm::vec3 position;
     glm::vec2 uv;
     glm::vec3 normal;
+    glm::vec3 tangent;
 
     /// @brief Create a VertexData obj with given vertex data
     /// @param position vertex position
     /// @param uv vertex uv (default=0)
     /// @param normal vertex uv (default=0)
+    /// @param tangent vertex tangent (default=0) (could be optimised since its per face the same)
     VertexData( 
         const glm::vec3& position,
         const glm::vec2& uv = glm::vec2(0),
-        const glm::vec3& normal = glm::vec3(0)
+        const glm::vec3& normal = glm::vec3(0),
+        const glm::vec3& tangent = glm::vec3(0)
     ) {
         this->position = position;
         this->uv = uv;
         this->normal = normal;
+        this->tangent = tangent;
     }
 
     bool operator<(const VertexData that) const {

@@ -109,7 +109,8 @@ int Shader::getBindingPoint(Shader::uniforms uniformUBO) {
     {
     case uniforms::VPmatrix :
         return static_cast<int>(bindingPoints::VPmatrix);
-    
+    case uniforms::Lights :
+        return static_cast<int>(bindingPoints::Lights);
     default:
         throw std::runtime_error("Tried to get a UBO that doesn't have a binding point!\n");
         return -1;
@@ -120,6 +121,9 @@ int Shader::getBindingPoint(std::string UBOName) {
 
     if (UBOName == std::string("VPmatrices")) {
         return static_cast<int>(bindingPoints::VPmatrix);
+    }
+    else if (UBOName == std::string("Lights")) {
+        return static_cast<int>(bindingPoints::Lights);
     }
     else {
         throw std::runtime_error("Tried to get a UBO that doesn't have a binding point!\n");

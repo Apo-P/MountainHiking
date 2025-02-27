@@ -90,6 +90,10 @@
 
 - Seams can be observed from cube map (is it a problem with the cube map or the renderer?)
 
+- use tesselation? https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
+
+- heightmap in materials is used for tesselation shader to add detail (but increases render time) (https://www.youtube.com/shorts/_tNX0ycbIKU)
+
 ### Features
 - [] use normal mapping for lighting
 

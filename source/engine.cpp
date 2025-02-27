@@ -166,6 +166,21 @@ class TestTree : public Model {
 
 };
 
+#include "material.hpp"
+
+class TestCube : public Model {
+
+    public:
+
+        TestCube(){
+            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/cube.obj"));
+
+            // be carefull if no texture we will have a segmentation fault in texture renderer for now, maybe add check if obj has texture else use something else
+            // texture = std::make_shared<Texture>("resources/textures/grass1.png");
+            material = std::make_shared<Material>("resources/materials/testRustyMetal");
+        }
+};
+
 void Renderer::testRender(std::shared_ptr<Model> obj){
 
     //! Clean this up after testing
@@ -219,6 +234,31 @@ void Renderer::renderSkybox(std::shared_ptr<Model> skybox){
 
 }
 
+
+void Renderer::renderPBR(std::shared_ptr<Model> obj, const glm::vec3 &cameraPos){
+
+    //! Clean this up after testing
+
+    // 1.Bind shader
+    pbrShader->bind();
+
+    // 2.Bind VAO
+    obj->bind();
+    // 3.Bind texture
+    obj->material->bind();
+    
+    // 4.Send Uniforms
+    // //! change later to be done in shader class   
+    GLuint programId = pbrShader->getProgramId();
+    GLuint uniformLocation = glGetUniformLocation(programId, "cameraPosition");
+    glUniform3fv(uniformLocation, 1, glm::value_ptr(cameraPos));
+
+    pbrShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
+
+    // 5.Draw Triangles
+    obj->draw(*this);
+
+}
 
 class testHeightGen : public HeightGenerator {
     std::unordered_map<std::pair<float,float>, float, FloatPairHash> makeHeightMap (std::vector<glm::vec3> positions, int seed) override{
@@ -296,23 +336,7 @@ int GameEngine::startGame() {
         std::shared_ptr<Texture> testTextureTwo = std::make_shared<Texture>("resources/textures/dryDirt.png");
         std::shared_ptr<Texture> testTextureThree = std::make_shared<Texture>("resources/textures/snow1.png");
 
-        //! IMPORTANT INTEGRATE LATER
-
-        // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
-        // -------------------------------------------------------------------------------------------
-        renderer.get()->testShader->bind();// don't forget to activate/use the shader before setting uniforms!
-        // either set it manually like so:
-        GLuint testShaderId = renderer.get()->testShader.get()->getProgramId();
-        glUniform1i(glGetUniformLocation(testShaderId, "texture0"), 0); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
-        glUniform1i(glGetUniformLocation(testShaderId, "texture1"), 1); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
-        glUniform1i(glGetUniformLocation(testShaderId, "texture2"), 2); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
-        // or set it via the texture class
-        // ourShader.setInt("texture2", 1);
-
-        // ! need to integrate this to init!
-        // TODO Also add a shader function and maybe get rid of the requirement for uniforms (maybe keep them as an option)
-        GLuint skyboxShaderId = renderer->skyboxShader->getProgramId();
-        glUniform1i(glGetUniformLocation(skyboxShaderId, "skybox"), 0);
+        
 
 
 
@@ -365,6 +389,18 @@ int GameEngine::startGame() {
             trees.push_back(tree);
         }
 
+
+        // pbr test
+        std::shared_ptr<TestCube> testCube = std::make_shared<TestCube>();
+        testCube->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(-10,10,0)));
+        // test lights
+        //! should be controlled by a scene
+        std::vector<DirectionalLight> dirLights{ DirectionalLight(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(45.0),0)) }; 
+        // DirectionalLight(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(180.0+45),0))
+        
+        std::vector<PointLight> pointLights{ PointLight(glm::vec3(-8,10,0), DEFAULT_ORIENTATION, 50.0f,  glm::vec3(1,0,0)) }; // red for testing
+
+        renderer->sendLights(dirLights, pointLights);
       
 
 
@@ -414,17 +450,20 @@ int GameEngine::startGame() {
             //! this needs to be done every frame
             renderer.get()->sendViewMatrix(mainScene.camera.get()->getView());
 
-
             // update scene
 
             mainScene.update(deltaTime);
 
             // Render into framebuffer //! this should be in renderer
             
+            
 
             renderer.get()->SimpleRender(triangle);
             //use test render for cube
-            renderer.get()->testRender(cube);
+            // renderer.get()->testRender(cube);
+
+            // test render pbr
+            renderer->renderPBR(testCube, mainScene.camera->getPosition());
 
             renderer.get()->SimpleRender(circle);
 

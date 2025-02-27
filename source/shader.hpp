@@ -16,7 +16,8 @@ class Shader{
             ModelMatrix=0, //! be carefull order of uniforms needs to be the same as the order in Uniform names
             Terrain=1,
 
-            VPmatrix=100   //! UBO OBJECTS Have 100 in front to distinguish them, last digit need to be the same as binding point
+            VPmatrix=100,   //! UBO OBJECTS Have 100 in front to distinguish them, last digit need to be the same as binding point
+            Lights = 101
         };
 
         //? should UBOs be different from uniforms?
@@ -25,13 +26,15 @@ class Shader{
         enum class layoutPosition{
             POSITION = 0,
             NORMAL = 1,
-            UV = 2
+            UV = 2,
+            TANGENT = 3
         };
 
 
         // where uniform block index will be bounded to
         enum class bindingPoints{
-            VPmatrix = 0
+            VPmatrix = 0,
+            Lights = 1
         };
 
         //! Macro to cast enum to int Carefull with scope
@@ -68,8 +71,9 @@ class Shader{
             "Terrain"
         };
         /// @brief list of possible UBO names
-        std::string UBONames[1] = {
-            "VPmatrices"
+        std::string UBONames[2] = {
+            "VPmatrices",
+            "Lights"
         };
 
         ///TODO: Remove these variables as they are stores in the map 

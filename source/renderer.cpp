@@ -49,12 +49,12 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
     std::cout << "Renderer class made" << std::endl;
 
     // compile shaders
-    simpleShader = std::make_shared<Shader>("shaders/simpleVertex.vert", "shaders/simpleFragment.frag");
+    simpleShader = std::make_shared<Shader>("shaders/debugShaders/simpleVertex.vert", "shaders/debugShaders/simpleFragment.frag");
 
-    normalDebugShader = std::make_shared<Shader>("shaders/normalDebug.vert", "shaders/normalDebug.frag", "shaders/normalDebug.geom");
+    normalDebugShader = std::make_shared<Shader>("shaders/debugShaders/normalDebug.vert", "shaders/debugShaders/normalDebug.frag", "shaders/debugShaders/normalDebug.geom");
 
 
-    testShader = std::make_shared<Shader>("shaders/testVertex.vert", "shaders/testTexture.frag");
+    testShader = std::make_shared<Shader>("shaders/debugShaders/testVertex.vert", "shaders/debugShaders/testTexture.frag");
 
     skyboxShader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
 

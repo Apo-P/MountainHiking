@@ -88,6 +88,8 @@
 
 - maybe use a poisson disck sampling to add smooth hills in noise function (add 5 mountains spaced apart) This would require noise functions to be in a vector (and make hand picking max min values more difficult, However since no 2 hills could be together we can predict it)
 
+- Seams can be observed from cube map (is it a problem with the cube map or the renderer?)
+
 ### Features
 - [] use normal mapping for lighting
 

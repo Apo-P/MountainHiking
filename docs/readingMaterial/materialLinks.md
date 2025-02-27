@@ -19,6 +19,9 @@
 
 - [Object placement using poisson disk sampling](http://devmag.org.za/2009/05/03/poisson-disk-sampling/)
 
+## Skybox and cubemaps
+- [Skybox](https://learnopengl.com/Advanced-OpenGL/Cubemaps)
+
 ## Quick debug GUI
 - [imGui](https://github.com/ocornut/imgui/wiki/Getting-Started)
 

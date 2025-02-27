@@ -43,6 +43,7 @@ class Renderer{
 
         bool DebugNormals = false; // change to private later
         std::shared_ptr<Shader> testShader;
+        std::shared_ptr<Shader> skyboxShader;
         std::shared_ptr<Shader> normalDebugShader;
 
         //! scene should have access to these
@@ -70,6 +71,10 @@ class Renderer{
         std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
         // test render
         void testRender(std::shared_ptr<Model> obj);
+
+        //test 
+        // BE CAREFULL WE DONT CHECK ITS A SKYBOX FOR NOW! (so we dont know if it has a cubemap)
+        void renderSkybox(std::shared_ptr<Model> skybox);
 
 
         /// @brief simple render a object

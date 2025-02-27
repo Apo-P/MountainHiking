@@ -56,6 +56,8 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
 
     testShader = std::make_shared<Shader>("shaders/testVertex.vert", "shaders/testTexture.frag");
 
+    skyboxShader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
+
     // allocate Memory for UBO's
     makeUBO_VP();
 

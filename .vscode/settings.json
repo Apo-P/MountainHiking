@@ -61,6 +61,8 @@
         "typeinfo": "cpp"
     },
     "cSpell.words": [
+        "Cubemap",
+        "cubemaps",
         "glew",
         "glfw",
         "lacunarity",
@@ -69,6 +71,7 @@
         "OPENGL",
         "perlin",
         "Pmatrices",
+        "skybox",
         "tinyobj",
         "TINYOBJLOADER",
         "vallies",

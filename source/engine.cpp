@@ -194,6 +194,31 @@ void Renderer::testRender(std::shared_ptr<Model> obj){
     }
 }
 
+void Renderer::renderSkybox(std::shared_ptr<Model> skybox){
+
+    //! Clean this up after testing
+
+    // 0. change depth function for this shader
+    glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+
+    // 1.Bind shader
+    skyboxShader->bind();
+
+    // 2.Bind VAO
+    skybox->bind();
+    // 3.Bind texture
+    skybox->texture->bind();
+    
+    // 4.Send Uniforms
+
+    // 5.Draw Triangles
+    skybox->draw(*this);
+
+    // 6.reset depth function
+    glDepthFunc(GL_LESS); // set depth function back to default 
+
+}
+
 
 class testHeightGen : public HeightGenerator {
     std::unordered_map<std::pair<float,float>, float, FloatPairHash> makeHeightMap (std::vector<glm::vec3> positions, int seed) override{
@@ -218,6 +243,7 @@ class testHeightGen : public HeightGenerator {
 //TODO add this to a header when done with testing
 #include <terrainChunkManager.hpp>
 #include <objectPlacer.hpp>
+#include <skybox.hpp>
 
 
 
@@ -256,6 +282,10 @@ int GameEngine::startGame() {
 
         std::shared_ptr<TestTree> testTree = std::static_pointer_cast<TestTree>(std::make_shared<TestTree>());
 
+        //make a skybox
+
+        std::shared_ptr<Skybox> skybox = std::make_shared<Skybox>();
+
 
         // ChunkManager* chunkmanager = new ChunkManager(21,3);
 
@@ -278,6 +308,11 @@ int GameEngine::startGame() {
         glUniform1i(glGetUniformLocation(testShaderId, "texture2"), 2); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
         // or set it via the texture class
         // ourShader.setInt("texture2", 1);
+
+        // ! need to integrate this to init!
+        // TODO Also add a shader function and maybe get rid of the requirement for uniforms (maybe keep them as an option)
+        GLuint skyboxShaderId = renderer->skyboxShader->getProgramId();
+        glUniform1i(glGetUniformLocation(skyboxShaderId, "skybox"), 0);
 
 
 
@@ -467,6 +502,8 @@ int GameEngine::startGame() {
             // END TEST RENDER ---
 
 
+            //! RENDER SKYBOX LAST
+            renderer->renderSkybox(skybox);
 
 
 

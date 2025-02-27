@@ -34,3 +34,12 @@ void Texture::bind(int texUnitPosition) {
     //? is it needed?
     texturePosition = texUnitPosition;
 };
+
+void Texture::bind() {
+    //? should this be done by renderer?
+    // Activate texture unit0
+    glActiveTexture(GL_TEXTURE0);
+
+    // Bind this texture to activated texture unit
+    glBindTexture(GL_TEXTURE_2D, textureId);
+};

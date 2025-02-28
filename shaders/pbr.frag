@@ -109,6 +109,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+// calculate BRDF
 vec3 CookToranceBRDF(
 		vec3 N,
 		vec3 V,
@@ -145,6 +146,7 @@ vec3 CookToranceBRDF(
 	return (diffuse + specular) * radiance * NdotL;
 }
 
+// do pbr ligthing Calculation
 vec3 pbrLighting(float visibility, vec3 defaultF0) {
 	// Lighting parameters for fragment
 	vec3 albedo     = texture(albedoMap, uvCoords).rgb;
@@ -160,17 +162,23 @@ vec3 pbrLighting(float visibility, vec3 defaultF0) {
 	vec3 F0 = mix(defaultF0, albedo, metallic);
 
 	// Reflectance equation output
-	vec3 Lo = vec3(0.0);
+	// Could be optimised to just be Lo
+	vec3 LoDirectional = vec3(0.0);
+	vec3 LoPoint = vec3(0.0);
 
+	// calculate reflectance for each directional light
 	for (int i=0; i<dirLightsCount; i++) {
 		vec3 L = normalize(-dirLights[i].direction.xyz); // Light vector
 		vec3 H = normalize(V+L); // Halfway vector
 
 		vec3 radiance = dirLights[i].colorPower.xyz * dirLights[i].colorPower.w;
 
-		Lo += CookToranceBRDF(N, V, L, H, radiance, albedo, metallic, roughness, F0);
+		// add Lo for this directional light 
+		// ! important visibility (shadows) effect only directional light
+		LoDirectional +=  visibility *CookToranceBRDF(N, V, L, H, radiance, albedo, metallic, roughness, F0);
 	}
 
+	// calculate reflectance for each point light
 	for (int i=0; i<pointLightsCount; i++) {
 		vec3 L = pointLights[i].position.xyz - worldSpace.position; // Light vector
 		float distance = length(L);
@@ -181,11 +189,14 @@ vec3 pbrLighting(float visibility, vec3 defaultF0) {
 		float attenuation = 1.0 / (distance * distance); // inverse square law
 		vec3 radiance = pointLights[i].colorPower.xyz * pointLights[i].colorPower.w * attenuation;
 
-		Lo += CookToranceBRDF(N, V, L, H, radiance, albedo, metallic, roughness, F0);
+		LoPoint += CookToranceBRDF(N, V, L, H, radiance, albedo, metallic, roughness, F0);
 	}
 
+	// ambient color
 	vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + Lo;
+
+	// final color
+    vec3 color = ambient + LoDirectional + LoPoint;
 
 	return color;
 }
@@ -198,8 +209,9 @@ vec3 gammaCorrection(vec3 color) {
 	return pow(color, vec3(1.0/2.2));
 }
 
-//? Why is this?
+// sample shadow mapper for this point
 float shadows() {
+	// return 1.0 until we implement shadow mapping
 	return 1.0;
 }
 
@@ -209,9 +221,9 @@ void main() {
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
-    vec3 F0 = vec3(0.04); 
+    vec3 defaultF0 = vec3(0.04); 
 
-	vec3 color = pbrLighting(visibility, F0);
+	vec3 color = pbrLighting(visibility, defaultF0);
 
 	color = hdrToneMapping(color);
 

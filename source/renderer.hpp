@@ -62,16 +62,16 @@ class Renderer{
 
         /// @brief send list of lights
         /// @param directionalLights list of directional lights
-        void sendDirectionalLights(std::vector<DirectionalLight> directionalLights);
+        void sendDirectionalLights(std::vector<std::shared_ptr<DirectionalLight>>  directionalLights);
 
         /// @brief send list of lights
         /// @param pointLights list of point lights
-        void sendPointLights( std::vector<PointLight> pointLights);
+        void sendPointLights( std::vector<std::shared_ptr<PointLight>> pointLights);
 
         /// @brief send list of lights
         /// @param directionalLights list of directional lights
         /// @param pointLights list of point lights
-        void sendLights(std::vector<DirectionalLight> directionalLights, std::vector<PointLight> pointLights);
+        void sendLights(std::vector<std::shared_ptr<DirectionalLight>>  directionalLights, std::vector<std::shared_ptr<PointLight>> pointLights);
 
         //for testing
         void bindShader(){simpleShader.get()->bind(); };
@@ -85,6 +85,7 @@ class Renderer{
         /// @param meshObj mesh to render
         void SimpleRender(std::shared_ptr<Mesh> meshObj);
         void SimpleRender(std::shared_ptr<Mesh> meshObj, glm::mat4 modelMatrix);
+        void SimpleRender(std::shared_ptr<Object> obj);
 
         
         //test texture for those that dont have one yet

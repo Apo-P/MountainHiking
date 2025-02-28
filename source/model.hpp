@@ -46,6 +46,7 @@ class Model {
         
     public:
         /// @brief constructor
+        //? could also add constructor that takes input (example base model matrix)
         Model();
 
         /// @brief an update method

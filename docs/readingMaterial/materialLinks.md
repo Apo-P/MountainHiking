@@ -37,3 +37,5 @@
 - [enums not to behave as globals](https://stackoverflow.com/questions/4269365/do-enum-values-behave-like-global-variables) enum class has no implicit conversion which is annoying, but using enum as a struct member is fine!
 
 - [Virtuals and pure Virtual classes](https://stackoverflow.com/questions/2652198/difference-between-a-virtual-function-and-a-pure-virtual-function) I found that in pure virtual i dont need the ovveride keyword and that [i should use const = 0; if they dont modify the class](https://stackoverflow.com/questions/21187965/c-code-explanation-for-method-prototype-with-const-0)
+
+- [Passing child classes ans Parent class when they are a share pointer] (https://stackoverflow.com/questions/13403490/passing-shared-ptrderived-as-shared-ptrbase)

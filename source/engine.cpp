@@ -166,6 +166,15 @@ class TestTree : public Model {
 
 };
 
+class TestSphere : public Model {
+    public:
+        TestSphere(){
+            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/sphere.obj"));
+
+            // this->baseModelMatrix = glm::scale(glm::mat4(1), glm::vec3(0.5));
+        }
+};
+
 #include "material.hpp"
 
 class TestCube : public Model {
@@ -395,10 +404,28 @@ int GameEngine::startGame() {
         testCube->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(-10,10,0)));
         // test lights
         //! should be controlled by a scene
-        std::vector<DirectionalLight> dirLights{ DirectionalLight(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(45.0),0)) }; 
+        std::vector<std::shared_ptr<DirectionalLight>> dirLights = { std::make_shared<DirectionalLight>(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(45.0),0)) }; 
         // DirectionalLight(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(180.0+45),0))
         
-        std::vector<PointLight> pointLights{ PointLight(glm::vec3(-8,10,0), DEFAULT_ORIENTATION, 50.0f,  glm::vec3(1,0,0)) }; // red for testing
+        std::vector<std::shared_ptr<PointLight>> pointLights =  { std::make_shared<PointLight>(glm::vec3(-8,10,10), DEFAULT_ORIENTATION, 50.0f,  glm::vec3(1,0,0)) }; // red for testing
+
+        // set a sphere to see each light in debug mode (could later make all lights have this by default)
+        for (auto &dirLight : dirLights){
+            // make a new model
+            std::shared_ptr<TestSphere> newModel = std::make_shared<TestSphere>();
+            // translate it to current pos
+            newModel->setModelMatrix(glm::translate(glm::mat4(1),dirLight->getPosition()));
+            // give it to obj
+            dirLight->setModel(newModel);
+        }
+        for (auto &pointLight : pointLights){
+            // make a new model
+            std::shared_ptr<TestSphere> newModel = std::make_shared<TestSphere>();
+            // translate it to current pos
+            newModel->setModelMatrix(glm::translate(glm::mat4(1),pointLight->getPosition()));
+            // give it to obj
+            pointLight->setModel(newModel);
+        }
 
         renderer->sendLights(dirLights, pointLights);
       
@@ -464,6 +491,14 @@ int GameEngine::startGame() {
 
             // test render pbr
             renderer->renderPBR(testCube, mainScene.camera->getPosition());
+
+            // render a sphere to see each light in debug mode (could later make all lights have this by default)
+            for (auto dirLight : dirLights){
+                renderer->SimpleRender(dirLight);
+            }
+            for (auto &pointLight : pointLights){
+                renderer->SimpleRender(pointLight);
+            }
 
             renderer.get()->SimpleRender(circle);
 

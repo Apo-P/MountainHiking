@@ -67,7 +67,7 @@ void Renderer::sendProjectionMatrix(glm::mat4 projectionMatrix) {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Renderer::sendDirectionalLights(std::vector<DirectionalLight> directionalLights) {
+void Renderer::sendDirectionalLights(std::vector<std::shared_ptr<DirectionalLight>> directionalLights) {
 
     // bind UBO
     glBindBuffer(GL_UNIFORM_BUFFER, getUBO_Lights());
@@ -75,7 +75,7 @@ void Renderer::sendDirectionalLights(std::vector<DirectionalLight> directionalLi
     // send light data
     size_t offset = 0; //! Be carefull with offset
     for (auto& dirLight : directionalLights) {
-        std::vector<glm::vec4> lightData = dirLight.data(); 
+        std::vector<glm::vec4> lightData = dirLight->data(); 
         glBufferSubData(GL_UNIFORM_BUFFER, offset, lightData.size() * sizeof(lightData[0]), lightData.data());
         offset += lightData.size() * sizeof(lightData[0]);
     }
@@ -91,7 +91,7 @@ void Renderer::sendDirectionalLights(std::vector<DirectionalLight> directionalLi
 }
 
         
-void Renderer::sendPointLights( std::vector<PointLight> pointLights){
+void Renderer::sendPointLights( std::vector<std::shared_ptr<PointLight>> pointLights){
 
     // bind UBO
     glBindBuffer(GL_UNIFORM_BUFFER, getUBO_Lights());
@@ -99,7 +99,7 @@ void Renderer::sendPointLights( std::vector<PointLight> pointLights){
     // send light data
     size_t offset = MAX_DIR_LIGHTS * DirectionalLight::sizeofData();//! Be carefull with offset
     for (auto& pointLight : pointLights) {
-        std::vector<glm::vec4> lightData = pointLight.data();
+        std::vector<glm::vec4> lightData = pointLight->data();
         glBufferSubData(GL_UNIFORM_BUFFER, offset, lightData.size() * sizeof(lightData[0]), lightData.data());
         offset += lightData.size() * sizeof(lightData[0]);
     }
@@ -115,7 +115,7 @@ void Renderer::sendPointLights( std::vector<PointLight> pointLights){
 }
 
 
-void Renderer::sendLights(std::vector<DirectionalLight> directionalLights, std::vector<PointLight> pointLights){
+void Renderer::sendLights(std::vector<std::shared_ptr<DirectionalLight>>  directionalLights, std::vector<std::shared_ptr<PointLight>> pointLights){
 
     sendDirectionalLights(directionalLights);
     sendPointLights(pointLights);
@@ -267,6 +267,31 @@ void Renderer::SimpleRender(std::shared_ptr<Model> obj){
     }
 
 }
+
+void Renderer::SimpleRender(std::shared_ptr<Object> obj) {
+    // 1.Bind shader
+    simpleShader->bind();
+
+
+    // 2.Bind VAO
+    obj->model->bind();
+    // 3.Bind texture
+    // 4.Send Uniforms
+    simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->model->getModelMatrix());
+    // 5.Draw Triangles
+
+    obj->model->draw(*this);
+
+
+    //debug 
+    if (DebugNormals){
+        normalDebugShader->bind();
+        obj->model->bind();
+        simpleShader->sendUniform(Shader::uniforms::ModelMatrix , obj->model->getModelMatrix());
+        obj->model->draw(*this);
+    }
+}
+
 
 void Renderer::changeMode(RenderModes new_mode){
     mode = new_mode;

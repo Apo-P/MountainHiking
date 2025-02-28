@@ -129,19 +129,19 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
     window = new_window;
 
     std::cout << "Renderer class made" << std::endl;
-
+    
     // compile shaders
-    simpleShader = std::make_shared<Shader>("shaders/debugShaders/simpleVertex.vert", "shaders/debugShaders/simpleFragment.frag");
+    simpleShader = AssetManager::LoadShader("simpleShader", "shaders/debugShaders/simpleVertex.vert", "shaders/debugShaders/simpleFragment.frag"); //! use variable name (as specified in shader) as key for now
 
-    normalDebugShader = std::make_shared<Shader>("shaders/debugShaders/normalDebug.vert", "shaders/debugShaders/normalDebug.frag", "shaders/debugShaders/normalDebug.geom");
+    normalDebugShader = AssetManager::LoadShader("normalDebugShader", "shaders/debugShaders/normalDebug.vert", "shaders/debugShaders/normalDebug.frag", "shaders/debugShaders/normalDebug.geom"); //! use variable name (as specified in shader) as key for now
 
-    testShader = std::make_shared<Shader>("shaders/debugShaders/testVertex.vert", "shaders/debugShaders/testTexture.frag");
+    testShader = AssetManager::LoadShader("testShader", "shaders/debugShaders/testVertex.vert", "shaders/debugShaders/testTexture.frag"); //! use variable name (as specified in shader) as key for now
 
-    terrainShader = std::make_shared<Shader>("shaders/terrain.vert", "shaders/terrain.frag");
+    terrainShader = AssetManager::LoadShader("terrainShader", "shaders/terrain.vert", "shaders/terrain.frag"); //! use variable name (as specified in shader) as key for now
 
-    skyboxShader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
+    skyboxShader = AssetManager::LoadShader("skyboxShader", "shaders/skybox.vert", "shaders/skybox.frag"); //! use variable name (as specified in shader) as key for now
 
-    pbrShader = std::make_shared<Shader>("shaders/pbr.vert", "shaders/pbr.frag");
+    pbrShader = AssetManager::LoadShader("pbrShader", "shaders/pbr.vert", "shaders/pbr.frag"); //! use variable name (as specified in shader) as key for now
 
     // allocate Memory for UBO's
     makeUBO_VP();

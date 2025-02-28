@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "texture.hpp"
 
+// TODO Update to use asset loader
 class Cubemap : public Texture
 {
     public:

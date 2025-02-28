@@ -42,4 +42,6 @@
 
 - [Virtuals and pure Virtual classes](https://stackoverflow.com/questions/2652198/difference-between-a-virtual-function-and-a-pure-virtual-function) I found that in pure virtual i dont need the ovveride keyword and that [i should use const = 0; if they dont modify the class](https://stackoverflow.com/questions/21187965/c-code-explanation-for-method-prototype-with-const-0)
 
-- [Passing child classes ans Parent class when they are a share pointer] (https://stackoverflow.com/questions/13403490/passing-shared-ptrderived-as-shared-ptrbase)
+- [Passing child classes ans Parent class when they are a share pointer](https://stackoverflow.com/questions/13403490/passing-shared-ptrderived-as-shared-ptrbase)
+
+- [maps vs unordered maps](https://www.geeksforgeeks.org/map-vs-unordered_map-c/)

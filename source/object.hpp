@@ -69,7 +69,7 @@ class Object {
         virtual void setModel(std::shared_ptr<Model> newModel) { model = newModel; };
 
         //Bad function only use carefully. Will remove model from object
-        virtual void deleteModel(std::shared_ptr<Model> newModel) { model = nullptr; };
+        virtual void deleteModel() { model = nullptr; };
 
         //? should add an update method that updates the model model matrix based on position, orientation
         // Model->void setModelMatrix(glm::mat4 newModelMatrix); set's model matrix , not base model matrix (which is used mainly for scale)

@@ -129,7 +129,7 @@ class SimplexNoise : public NoiseFunction {
     };
 
     // change parameter values
-    void updateValues(float noiseScale=200, float persistence = 0.5, int octaves=4, float exponentiation=3) {
+    void updateValues(float noiseScale=500, float persistence = 1, int octaves=4, float exponentiation=2) {
         this->noiseScale = noiseScale;
         this->persistence = persistence;
         this->octaves = octaves;

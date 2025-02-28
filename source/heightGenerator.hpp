@@ -36,9 +36,10 @@ class HeightGenerator {
             MIN_HEIGHT(MIN_HEIGHT),
             MAX_HEIGHT(MAX_HEIGHT)  
             {
+                //! these initial values yielded nice results
                 smoothHill = new SmoothHill(seed, glm::vec2(250,-250), 600, 168); //use direct initialization instead of copy in the body cause its faster
                 rndNoise = new RandomNoise(seed, 5);
-                smpNoise = new SimplexNoise(seed, 500, 1, 4, 3);
+                smpNoise = new SimplexNoise(seed, 500, 1, 4, 2); 
 
                 //HeighGenerator made
             };
@@ -47,7 +48,7 @@ class HeightGenerator {
         void updateHill(glm::vec2 newPos, float newRadius=500, float newHeight=128){ 
             this->smoothHill->updateValues(newPos,newRadius,newHeight); 
         };
-        void updateSimplex(float noiseScale=200, float persistence = 0.5, int octaves=4, float exponentiation=3){ 
+        void updateSimplex(float noiseScale=500, float persistence = 1, int octaves=4, float exponentiation=2){ 
             this->smpNoise->updateValues(noiseScale, persistence, octaves, exponentiation); 
         };
 

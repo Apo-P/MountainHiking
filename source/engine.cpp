@@ -122,6 +122,9 @@ void GameEngine::initialize(){
 
 }
 
+
+#include "assetManager.hpp"
+
 // Test cube --------
 
 Cube::Cube(GameEngine& eng, std::string modelMesh){
@@ -134,7 +137,7 @@ Cube::Cube(GameEngine& eng, std::string modelMesh){
 
     mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>(modelLocation));
 
-    texture = std::make_shared<Texture>("resources/textures/grass1.png");
+    texture = AssetManager::LoadTexture("grass1.png", "resources/textures/grass1.png"); //!use file name as key for now
 
 }
 
@@ -365,7 +368,7 @@ int GameEngine::startGame() {
         circle.get()->setModelMatrix(glm::scale(glm::mat4(1), glm::vec3(3)));
 
         std::shared_ptr<TestTree> testTree = std::static_pointer_cast<TestTree>(std::make_shared<TestTree>());
-        testTree->texture = std::make_shared<Texture>("resources/textures/simpleTreeTexturePallet.png");
+        testTree->texture = AssetManager::LoadTexture("simpleTreeTexturePallet.png", "resources/textures/simpleTreeTexturePallet.png"); //!use file name as key for now
 
         //make a skybox
 
@@ -378,9 +381,9 @@ int GameEngine::startGame() {
         std::shared_ptr<Shader> testShader = renderer.get()->testShader;
         testShader->bind();
         std::shared_ptr<Shader> testNormalDebugShader = renderer.get()->normalDebugShader;
-        std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/dryDirt.png");
-        std::shared_ptr<Texture> testTextureTwo = std::make_shared<Texture>("resources/textures/grass1.png");
-        std::shared_ptr<Texture> testTextureThree = std::make_shared<Texture>("resources/textures/snow1.png");
+        std::shared_ptr<Texture> testTexture = AssetManager::LoadTexture("dryDirt.png", "resources/textures/dryDirt.png"); //!use file name as key for now
+        std::shared_ptr<Texture> testTextureTwo = AssetManager::LoadTexture("grass1.png", "resources/textures/grass1.png"); //!use file name as key for now
+        std::shared_ptr<Texture> testTextureThree = AssetManager::LoadTexture("snow1.png", "resources/textures/snow1.png"); //!use file name as key for now
 
         
 
@@ -389,9 +392,10 @@ int GameEngine::startGame() {
         glm::mat4 testModelMatrix = glm::translate(glm::mat4(1),glm::vec3(0,0,0));
 
         HeightGenerator* gen = new HeightGenerator();
-        HeightGenerator* test_gen = new testHeightGen();
+        // HeightGenerator* test_gen = new testHeightGen();
 
-
+        float testChunkSize = 2000;
+        float testChunkRes = testChunkSize/5; // divide by 5 to get resolution (in order to have 1 vert per 5 float)
         std::shared_ptr<TerrainChunk> testchunk = std::make_shared<TerrainChunk>(*gen,0,0,2000,400); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
@@ -419,17 +423,20 @@ int GameEngine::startGame() {
 
         //! final configuration as stress test takes 1,5 minutes to load
 
-        float step = 250;
-
-        // for(float startz=-5000; startz <0; startz +=step){
-        //     for (float startx=0; startx< 5000; startx +=step){
+        float step = testChunkRes/10; // found it looked better (however could look weird)
+        float minRadius = 3; // about the size of the test tree
+        float maxRadius = 15; // found looked better
+        
+        for(float startz=-testChunkSize; startz <0; startz +=step){
+            for (float startx=0; startx< testChunkSize; startx +=step){
                  
-        //         std::vector<glm::vec2> newtrees = objectPlacer.GeneratePoints(3, 15, glm::vec2(startx,startz), glm::vec2(step,step),10);
+                std::vector<glm::vec2> newtrees = objectPlacer.GeneratePoints(minRadius, maxRadius, glm::vec2(startx,startz), glm::vec2(step,step),10);
 
-        //         // Concatenate newtrees to treePoints
-        //         treePoints.insert(treePoints.end(), newtrees.begin(), newtrees.end());
-        //     }
-        // }
+                // Concatenate newtrees to treePoints
+                treePoints.insert(treePoints.end(), newtrees.begin(), newtrees.end());
+            }
+        }
+        std::cout << "spawning tree complete" << std::endl; 
 
         std::vector<std::shared_ptr<TestTree>> trees;
         for (auto point: treePoints) {
@@ -440,6 +447,7 @@ int GameEngine::startGame() {
             float terrainY = testchunk->approximateHeight(glm::vec3(point.x,0,point.y));
 
             tree.get()->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(point.x, terrainY ,point.y)));
+            tree->texture = AssetManager::GetTexture("simpleTreeTexturePallet.png"); //!use file name as key for now (IT IS ALREADY LOADED ABOVE BUT BE CAREFULL BETTER TO USE LOAD IF NOT SURE)
             trees.push_back(tree);
         }
 
@@ -567,7 +575,7 @@ int GameEngine::startGame() {
             renderer.get()->testRender(testTree);
 
             for(auto& tree : trees){
-                renderer.get()->SimpleRender(tree);
+                renderer.get()->testRender(tree);
             }
 
             // renderer.get()->SimpleRender(plane->mesh);

@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-
+// TODO UPDATE TO USE ASSET loader
 Material::Material(const std::string materialPath) {
     const std::filesystem::path directory(materialPath);
 

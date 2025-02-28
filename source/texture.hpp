@@ -36,6 +36,13 @@ class Texture
         /// @brief Binds texture to a texture unit 0
         virtual void bind() ;
 
+        // delete texture from gpu
+        virtual void release() {
+            // delete texture from gpu
+            glDeleteTextures(1, &textureId);
+        }
+        
+
 
 };
 

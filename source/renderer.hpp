@@ -10,6 +10,7 @@
 #include "model.hpp"
 #include "scene.hpp"
 #include "light.hpp"
+#include "assetManager.hpp"
 
 /// @brief Possible RenderModes for Renderer
 //? could later add map to cast RenderMode to GLenum

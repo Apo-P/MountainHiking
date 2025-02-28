@@ -62,6 +62,8 @@ class Shader{
         // ? Should these be in a map or get method that takes name of variable as input
         // ? so we dont have to have empty variables for shaders that dont use them?
 
+        // TODO ADD MAP LIKE IN Asset manager!!!
+
         // Locations(indexes)
         std::unordered_map<std::string, GLuint> uniform_locations;
 

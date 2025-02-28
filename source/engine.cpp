@@ -578,37 +578,6 @@ int GameEngine::startGame() {
                 renderer.get()->testRender(tree);
             }
 
-            // renderer.get()->SimpleRender(plane->mesh);
-
-
-            // for (auto keyValuePair : chunkmanager->chunks) {
-            //     // get the chunk pointer for key,value pair
-            //     TerrainChunk* chunk = keyValuePair.second.get();
-
-            //     // renderer.get()->SimpleRender(chunk->mesh, glm::translate(glm::mat4(1),glm::vec3(0,0,0)));
-
-            //     testShader->bind();
-            //     chunk->mesh->bind();
-
-            //     testTextureTwo.get()->bind(0);
-            //     testTexture.get()->bind(1);
-            //     testTextureThree.get()->bind(2);
-
-            //     testShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
-            //     testShader->sendUniform(Shader::uniforms::Terrain , true);
-                
-            //     chunk->mesh->draw(*renderer.get());
-
-            //     testShader->sendUniform(Shader::uniforms::Terrain , false);
-
-            //     if (renderer.get()->DebugNormals){
-            //         testNormalDebugShader->bind();
-            //         chunk->mesh->bind();
-            //         testNormalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
-            //         chunk->mesh->draw(*renderer.get());
-            //     }
-
-            // }
 
 
             

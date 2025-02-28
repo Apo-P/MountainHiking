@@ -98,6 +98,12 @@
 
 - make post processing pipeline
 
+- add a buffer zone (margin) in post processing texture so when we move the screen we cant see the seam
+
+- scene should contain list of effects it wants to activate
+
+- implement mtl loading with obj file at some point
+
 ### Features
 - [] use normal mapping for lighting
 

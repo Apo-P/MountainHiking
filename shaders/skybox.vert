@@ -22,6 +22,6 @@ void main()
     // Optimization set z to w so it will be set to 1 when normalized. So the depth buffer is equal to 1 and skybox is only drawn when there is nothing there
     gl_Position = worldSpace_vertexPosition.xyww;
 
-    // set uv coords to position * time the factor we want
+    // set uv coords to position
     uvCoords = modelSpace_vertexPosition;
 }

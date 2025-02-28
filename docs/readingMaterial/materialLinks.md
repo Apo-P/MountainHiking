@@ -29,6 +29,10 @@
 - [PBR THEORY](https://learnopengl.com/PBR/Lighting)
 - [PBR CODE](https://learnopengl.com/code_viewer_gh.php?code=src/6.pbr/1.2.lighting_textured/1.2.pbr.fs)
 
+## triplanar texture mapping
+-[triplanar texture mapping](https://catlikecoding.com/unity/tutorials/advanced-rendering/triplanar-mapping/) !!!
+
+
 ## post Processing
 - [postprocessing](https://learnopengl.com/In-Practice/2D-Game/Postprocessing)
 - [framebuffers](https://learnopengl.com/Advanced-OpenGL/Framebuffers)

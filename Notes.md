@@ -104,6 +104,13 @@
 
 - implement mtl loading with obj file at some point
 
+- cant find a efficient way to blend pbr textures (maybe first create a blended texture for each vertex instead of calculating the mon the shader?)
+
+- found what a final target could look like (https://www.youtube.com/watch?v=QMRF2ZfRAQU)
+
+- texture blending we want (https://www.youtube.com/watch?v=F7WK_kOIG5Y)
+-[triplanar texture mapping](https://catlikecoding.com/unity/tutorials/advanced-rendering/triplanar-mapping/) !!!
+
 ### Features
 - [] use normal mapping for lighting
 

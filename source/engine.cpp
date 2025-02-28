@@ -156,27 +156,7 @@ class Circle : public Model {
 
 };
 
-class TestTree : public Model {
-    public:
-        TestTree(){
-            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/mySimpleTree.obj"));
 
-            this->baseModelMatrix = glm::scale(glm::mat4(1), glm::vec3(0.5));
-
-            // be carefull if no texture we will have a segmentation fault in texture renderer for now, maybe add check if obj has texture else use something else
-            // texture = std::make_shared<Texture>("resources/textures/simpleTreeTexturePallet.png");
-        }
-
-};
-
-class TestSphere : public Model {
-    public:
-        TestSphere(){
-            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/sphere.obj"));
-
-            // this->baseModelMatrix = glm::scale(glm::mat4(1), glm::vec3(0.5));
-        }
-};
 
 #include "material.hpp"
 
@@ -329,8 +309,10 @@ class testHeightGen : public HeightGenerator {
 
 //TODO add this to a header when done with testing
 #include <terrainChunkManager.hpp>
-#include <objectPlacer.hpp>
+
 #include <skybox.hpp>
+
+#include <tree.hpp>
 
 
 
@@ -367,7 +349,7 @@ int GameEngine::startGame() {
         // set test circle to approcimate radius of test tree (about 3 )
         circle.get()->setModelMatrix(glm::scale(glm::mat4(1), glm::vec3(3)));
 
-        std::shared_ptr<TestTree> testTree = std::static_pointer_cast<TestTree>(std::make_shared<TestTree>());
+        std::shared_ptr<Tree> testTree = std::static_pointer_cast<Tree>(std::make_shared<Tree>());
         testTree->texture = AssetManager::LoadTexture("simpleTreeTexturePallet.png", "resources/textures/simpleTreeTexturePallet.png"); //!use file name as key for now
 
         //make a skybox
@@ -375,118 +357,35 @@ int GameEngine::startGame() {
         std::shared_ptr<Skybox> skybox = std::make_shared<Skybox>();
 
 
+        // make terrain
+
         // ChunkManager* chunkmanager = new ChunkManager(21,3);
 
-
-        std::shared_ptr<Shader> testShader = renderer.get()->testShader;
-        testShader->bind();
-        std::shared_ptr<Shader> testNormalDebugShader = renderer.get()->normalDebugShader;
-        std::shared_ptr<Texture> testTexture = AssetManager::LoadTexture("dryDirt.png", "resources/textures/dryDirt.png"); //!use file name as key for now
-        std::shared_ptr<Texture> testTextureTwo = AssetManager::LoadTexture("grass1.png", "resources/textures/grass1.png"); //!use file name as key for now
-        std::shared_ptr<Texture> testTextureThree = AssetManager::LoadTexture("snow1.png", "resources/textures/snow1.png"); //!use file name as key for now
-
         
+        // make test chunk
 
-
-
-        glm::mat4 testModelMatrix = glm::translate(glm::mat4(1),glm::vec3(0,0,0));
+        float testChunkSize = 4000;
+        float testChunkRes = testChunkSize/5; // divide by 5 to get resolution (in order to have 1 vert per 5 float)
+        glm::vec2 testChunkStartPos = glm::vec2(0,0); //! font use until we fix point gen//glm::vec2(-testChunkSize/2,testChunkSize/2); // in order to have 0,0 as center
 
         HeightGenerator* gen = new HeightGenerator();
+        gen->updateHill(glm::vec2(testChunkSize/2,-testChunkSize/2)); //! changing position since we didnt fix the point spawning
         // HeightGenerator* test_gen = new testHeightGen();
 
-        float testChunkSize = 2000;
-        float testChunkRes = testChunkSize/5; // divide by 5 to get resolution (in order to have 1 vert per 5 float)
-        std::shared_ptr<TerrainChunk> testchunk = std::make_shared<TerrainChunk>(*gen,0,0,2000,400); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
+        std::shared_ptr<TerrainChunk> testchunk = std::make_shared<TerrainChunk>(*gen,testChunkStartPos.x,testChunkStartPos.y,testChunkSize,testChunkRes); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
 
-        //load texture into chunk
-        //? this should be done my terrain chunk manager or by chunk its self at creation
-        //? for example chunk could have special values, flags
-        testchunk->textureHeight0 = testTexture;
-        testchunk->textureHeight1 = testTextureTwo;
-        testchunk->textureHeight2 = testTextureThree;
-
-
-
-        VariablePoissonDiscSampling objectPlacer;
-
-        // be carefull with radius and size because if too large then it could take a while to load (5,500,500) is starting to push it so add only 5 tries allowed (5,500,500,5)
-        std::vector<glm::vec2> treePoints; //= objectPlacer.GeneratePoints(3, 15, glm::vec2(0,0), glm::vec2(500,500),30);
-        
-
-
-        //! stress testing showed (3, 15, glm::vec2(startx,startz), glm::vec2(step,step),10) with step at 500 and max length being 5000 to take a minute to load
-        //! testing showed random noise does better more dense forest maybe tweek simple for rolling hills
-        //! making step 250 yielded better results
-
-        //! important finding multiplying noise by some factor (3 in the test) increased density and frequency of forests
-
-        //! final configuration as stress test takes 1,5 minutes to load
-
-        float step = testChunkRes/10; // found it looked better (however could look weird)
-        float minRadius = 3; // about the size of the test tree
-        float maxRadius = 15; // found looked better
-        
-        for(float startz=-testChunkSize; startz <0; startz +=step){
-            for (float startx=0; startx< testChunkSize; startx +=step){
-                 
-                std::vector<glm::vec2> newtrees = objectPlacer.GeneratePoints(minRadius, maxRadius, glm::vec2(startx,startz), glm::vec2(step,step),10);
-
-                // Concatenate newtrees to treePoints
-                treePoints.insert(treePoints.end(), newtrees.begin(), newtrees.end());
-            }
-        }
-        std::cout << "spawning tree complete" << std::endl; 
-
-        std::vector<std::shared_ptr<TestTree>> trees;
-        for (auto point: treePoints) {
-            std::shared_ptr<TestTree> tree = std::make_shared<TestTree>();
-            //set model matrix to point location (also scale down because radius is 1 and model size is 2)
-
-            //! carefull with the -Z for now
-            float terrainY = testchunk->approximateHeight(glm::vec3(point.x,0,point.y));
-
-            tree.get()->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(point.x, terrainY ,point.y)));
-            tree->texture = AssetManager::GetTexture("simpleTreeTexturePallet.png"); //!use file name as key for now (IT IS ALREADY LOADED ABOVE BUT BE CAREFULL BETTER TO USE LOAD IF NOT SURE)
-            trees.push_back(tree);
-        }
-
+    
 
         // pbr test
         std::shared_ptr<TestCube> testCube = std::make_shared<TestCube>();
         testCube->applyTransformation(glm::translate(glm::mat4(1), glm::vec3(-10,10,0)));
-        // test lights
-        //! should be controlled by a scene
-        std::vector<std::shared_ptr<DirectionalLight>> dirLights = { std::make_shared<DirectionalLight>(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(45.0),0)) }; 
-        // DirectionalLight(glm::vec3(5,5,10), eulerToQuat(glm::radians(-45.0),glm::radians(180.0+45),0))
         
-        std::vector<std::shared_ptr<PointLight>> pointLights =  { std::make_shared<PointLight>(glm::vec3(-8,10,10), DEFAULT_ORIENTATION, 50.0f,  glm::vec3(1,0,0)) }; // red for testing
-
-        // set a sphere to see each light in debug mode (could later make all lights have this by default)
-        for (auto &dirLight : dirLights){
-            // make a new model
-            std::shared_ptr<TestSphere> newModel = std::make_shared<TestSphere>();
-            // translate it to current pos
-            newModel->setModelMatrix(glm::translate(glm::mat4(1),dirLight->getPosition()));
-            // give it to obj
-            dirLight->setModel(newModel);
-        }
-        for (auto &pointLight : pointLights){
-            // make a new model
-            std::shared_ptr<TestSphere> newModel = std::make_shared<TestSphere>();
-            // translate it to current pos
-            newModel->setModelMatrix(glm::translate(glm::mat4(1),pointLight->getPosition()));
-            // give it to obj
-            pointLight->setModel(newModel);
-        }
-
-        renderer->sendLights(dirLights, pointLights);
-      
-
+        
 
 
         //make a camera   //?be 5 units up and look a bit down
-        std::shared_ptr<Camera> mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 5.0f, 0.0f), eulerToQuat(-45,0,0));
+        std::shared_ptr<Camera> mainCamera = std::make_shared<Camera>(glm::vec3(testChunkSize/2, 5.0f, -testChunkSize/2), eulerToQuat(-45,0,0));
 
         //make a scene
         Scene mainScene(mainCamera);
@@ -501,6 +400,18 @@ int GameEngine::startGame() {
 
         
         mainScene.setTestChunk(*testchunk); //apparently we can pass the reference of a shared pointer without issue
+
+
+        // maybe we should store the trees in the chunk? or give a way to quickly find which trees belong to which chunk
+        mainScene.spawnTrees(testchunk, testChunkStartPos, testChunkSize, testChunkRes);
+
+        // test lights
+        //! should be controlled by a scene
+        mainScene.generateLights();
+
+        // DO this when light position change
+        // could also update each one individually
+        renderer->sendLights(mainScene.dirLights, mainScene.pointLights);
 
 
         // post processing test
@@ -563,10 +474,10 @@ int GameEngine::startGame() {
             renderer->renderPBR(testCube, mainScene.camera->getPosition());
 
             // render a sphere to see each light in debug mode (could later make all lights have this by default)
-            for (auto dirLight : dirLights){
+            for (auto dirLight : mainScene.dirLights){
                 renderer->SimpleRender(dirLight);
             }
-            for (auto &pointLight : pointLights){
+            for (auto &pointLight : mainScene.pointLights){
                 renderer->SimpleRender(pointLight);
             }
 
@@ -574,7 +485,8 @@ int GameEngine::startGame() {
 
             renderer.get()->testRender(testTree);
 
-            for(auto& tree : trees){
+            //? could be a function in renderer
+            for(auto& tree : mainScene.trees){
                 renderer.get()->testRender(tree);
             }
 

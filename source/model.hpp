@@ -6,6 +6,8 @@
 #include "texture.hpp"
 #include "material.hpp"
 
+#include "assetManager.hpp"
+
 
 class GameEngine;
 

@@ -8,6 +8,13 @@ TerrainChunk::TerrainChunk(HeightGenerator& heightGenerator, float chunkX, float
     chunkSize(chunkSize),
     resolution(resolution) {
 
+        // set initial textures
+        //? this should be done my terrain chunk manager or by chunk its self at creation
+        //? for example chunk could have special values, flags
+        textureHeight0 = AssetManager::LoadTexture("dryDirt.png", "resources/textures/dryDirt.png"); //!use file name as key for now
+        textureHeight1 = AssetManager::LoadTexture("grass1.png", "resources/textures/grass1.png"); //!use file name as key for now
+        textureHeight2 = AssetManager::LoadTexture("snow1.png", "resources/textures/snow1.png"); //!use file name as key for now
+
         // std::cout << "chunk created" << std::endl;
 }
 

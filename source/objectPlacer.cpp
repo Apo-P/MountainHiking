@@ -431,9 +431,9 @@ std::vector<glm::vec2> VariablePoissonDiscSampling::GeneratePoints(float minumum
     }
 
     // if no point was created
-    if (finalPoints.empty()) {
-        std::cout << "bad middle as first point! No obj was spawned\nMiddle point was:" << middlePos.x << "," <<middlePos.y <<std::endl;
-    }
+    // if (finalPoints.empty()) {
+        // std::cout << "bad middle as first point! No obj was spawned\nMiddle point was:" << middlePos.x << "," <<middlePos.y <<std::endl;
+    // }
 
     // return point positions
     return finalPoints;

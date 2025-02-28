@@ -51,6 +51,7 @@ class Renderer{
         std::shared_ptr<Shader> skyboxShader;
         std::shared_ptr<Shader> pbrShader;
         std::shared_ptr<Shader> normalDebugShader;
+        std::shared_ptr<Shader> terrainShader;
 
         //! scene should have access to these
         /// @brief send view matrix to shaders
@@ -89,7 +90,7 @@ class Renderer{
 
         
         //test texture for those that dont have one yet
-        std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
+        // std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
         // test render
         void testRender(std::shared_ptr<Model> obj);
 
@@ -99,6 +100,8 @@ class Renderer{
 
         //test
         void renderPBR(std::shared_ptr<Model> obj, const glm::vec3 &cameraPos);
+
+        void renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk);
 
 
         /// @brief simple render a object

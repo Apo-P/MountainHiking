@@ -3,9 +3,7 @@
 // Model Space In
 layout(location = 0) in vec3 modelSpace_vertexPosition;
 layout(location = 1) in vec3 modelSpace_vertexNormal;
-layout(location = 2) in vec2 modelSpace_vertexUV;
-
-uniform vec3 cameraPosition;
+layout(location = 2) in vec2 vertexUV;
 
 // Model * View * Projection
 uniform mat4 M;
@@ -18,7 +16,6 @@ layout(std140) uniform VPmatrices {
 
 // forward to next stage (fragment)
 out vec2 uvCoords;
-out vec3 WorldPos;
 
 
 void main()
@@ -27,6 +24,5 @@ void main()
     gl_Position = P * V * M * vec4(modelSpace_vertexPosition, 1.0);
 
     // don't forget to forward to next stage the out vars
-    uvCoords = modelSpace_vertexUV;
-    WorldPos = vec3(M * vec4(modelSpace_vertexPosition, 1.0)); //? Should we pass vec4 instead?
+    uvCoords = vertexUV;
 }

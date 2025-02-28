@@ -156,12 +156,12 @@ class Circle : public Model {
 class TestTree : public Model {
     public:
         TestTree(){
-            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/lowPolyTree.obj"));
+            mesh = std::static_pointer_cast<Mesh>(std::make_shared<Mesh>("resources/models/mySimpleTree.obj"));
 
-            this->baseModelMatrix = glm::scale(glm::mat4(1), glm::vec3(0.01));
+            this->baseModelMatrix = glm::scale(glm::mat4(1), glm::vec3(0.5));
 
             // be carefull if no texture we will have a segmentation fault in texture renderer for now, maybe add check if obj has texture else use something else
-            // texture = std::make_shared<Texture>("resources/textures/grass1.png");
+            // texture = std::make_shared<Texture>("resources/textures/simpleTreeTexturePallet.png");
         }
 
 };
@@ -200,8 +200,8 @@ void Renderer::testRender(std::shared_ptr<Model> obj){
     // 2.Bind VAO
     obj->bind();
     // 3.Bind texture
-    if(obj->texture) obj->texture.get()->bind(0);
-    else testTexture.get()->bind(0);
+    obj->texture->bind(0);
+
     
     // 4.Send Uniforms
     testShader->sendUniform(Shader::uniforms::ModelMatrix , obj->getModelMatrix());
@@ -243,6 +243,41 @@ void Renderer::renderSkybox(std::shared_ptr<Model> skybox){
 
 }
 
+void Renderer::renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk){
+
+    // TEST RENDER -----
+    // 1.Bind shader
+    terrainShader->bind();
+    // 2.Bind VAO
+    terrainChunk->mesh->bind();
+    // 3.Bind texture
+    terrainChunk->textureHeight0->bind(0);
+    terrainChunk->textureHeight1->bind(1);
+    terrainChunk->textureHeight2->bind(2);
+    
+    // 4.Send Uniforms
+    terrainShader->sendUniform(Shader::uniforms::ModelMatrix , glm::mat4(1)); // or send model matrix if it has one
+    terrainShader->sendUniform(Shader::uniforms::Terrain , true);
+    // 5.Draw Triangles
+    terrainChunk->mesh->draw(*this);
+
+    //! Temporary will change once we implement materials
+    //reset terrain to false after we are done drawing terrain
+    testShader->sendUniform(Shader::uniforms::Terrain , false);
+
+
+
+    //debug 
+    if (DebugNormals){
+        normalDebugShader->bind();
+        terrainChunk->mesh->bind();
+        normalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , glm::mat4(1));
+        terrainChunk->mesh->draw(*this);
+    }
+
+
+    // END TEST RENDER ---
+}
 
 void Renderer::renderPBR(std::shared_ptr<Model> obj, const glm::vec3 &cameraPos){
 
@@ -254,7 +289,7 @@ void Renderer::renderPBR(std::shared_ptr<Model> obj, const glm::vec3 &cameraPos)
     // 2.Bind VAO
     obj->bind();
     // 3.Bind texture
-    obj->material->bind();
+    obj->material->bind(3);
     
     // 4.Send Uniforms
     // //! change later to be done in shader class   
@@ -330,6 +365,7 @@ int GameEngine::startGame() {
         circle.get()->setModelMatrix(glm::scale(glm::mat4(1), glm::vec3(3)));
 
         std::shared_ptr<TestTree> testTree = std::static_pointer_cast<TestTree>(std::make_shared<TestTree>());
+        testTree->texture = std::make_shared<Texture>("resources/textures/simpleTreeTexturePallet.png");
 
         //make a skybox
 
@@ -340,9 +376,10 @@ int GameEngine::startGame() {
 
 
         std::shared_ptr<Shader> testShader = renderer.get()->testShader;
+        testShader->bind();
         std::shared_ptr<Shader> testNormalDebugShader = renderer.get()->normalDebugShader;
-        std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/grass1.png");
-        std::shared_ptr<Texture> testTextureTwo = std::make_shared<Texture>("resources/textures/dryDirt.png");
+        std::shared_ptr<Texture> testTexture = std::make_shared<Texture>("resources/textures/dryDirt.png");
+        std::shared_ptr<Texture> testTextureTwo = std::make_shared<Texture>("resources/textures/grass1.png");
         std::shared_ptr<Texture> testTextureThree = std::make_shared<Texture>("resources/textures/snow1.png");
 
         
@@ -355,8 +392,16 @@ int GameEngine::startGame() {
         HeightGenerator* test_gen = new testHeightGen();
 
 
-        TerrainChunk* testchunk = new TerrainChunk(*gen,0,0,2000,400); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
+        std::shared_ptr<TerrainChunk> testchunk = std::make_shared<TerrainChunk>(*gen,0,0,2000,400); // chunk size of fifty and resolution of 10 -> each grid square is 50/10
         testchunk->generateChunk();
+
+        //load texture into chunk
+        //? this should be done my terrain chunk manager or by chunk its self at creation
+        //? for example chunk could have special values, flags
+        testchunk->textureHeight0 = testTexture;
+        testchunk->textureHeight1 = testTextureTwo;
+        testchunk->textureHeight2 = testTextureThree;
+
 
 
         VariablePoissonDiscSampling objectPlacer;
@@ -447,7 +492,7 @@ int GameEngine::startGame() {
         cube.get()->setModelMatrix(glm::translate(glm::mat4(1), vec3(0,0,-2)));
 
         
-        mainScene.setTestChunk(*testchunk);
+        mainScene.setTestChunk(*testchunk); //apparently we can pass the reference of a shared pointer without issue
 
 
         // post processing test
@@ -519,7 +564,7 @@ int GameEngine::startGame() {
 
             renderer.get()->SimpleRender(circle);
 
-            renderer.get()->SimpleRender(testTree);
+            renderer.get()->testRender(testTree);
 
             for(auto& tree : trees){
                 renderer.get()->SimpleRender(tree);
@@ -559,38 +604,11 @@ int GameEngine::startGame() {
 
 
             
-            // TEST RENDER -----
-            // 1.Bind shader
-            testShader->bind();
-            // 2.Bind VAO
-            testchunk->mesh->bind();
-            // 3.Bind texture
-            testTextureTwo.get()->bind(0);
-            testTexture.get()->bind(1);
-            testTextureThree.get()->bind(2);
-            
-            // 4.Send Uniforms
-            testShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
-            testShader->sendUniform(Shader::uniforms::Terrain , true);
-            // 5.Draw Triangles
-            testchunk->mesh->draw(*renderer.get());
-
-            //! Temporary will change once we implement materials
-            //reset terrain to false after we are done drawing terrain
-            testShader->sendUniform(Shader::uniforms::Terrain , false);
+            // render terrain
+            renderer->renderTerrain(testchunk);
 
 
-
-            //debug 
-            if (renderer.get()->DebugNormals){
-                testNormalDebugShader->bind();
-                testchunk->mesh->bind();
-                testNormalDebugShader->sendUniform(Shader::uniforms::ModelMatrix , testModelMatrix);
-                testchunk->mesh->draw(*renderer.get());
-            }
-
-
-            // END TEST RENDER ---
+            // render objects
 
 
             //! RENDER SKYBOX LAST

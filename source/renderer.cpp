@@ -137,6 +137,8 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
 
     testShader = std::make_shared<Shader>("shaders/debugShaders/testVertex.vert", "shaders/debugShaders/testTexture.frag");
 
+    terrainShader = std::make_shared<Shader>("shaders/terrain.vert", "shaders/terrain.frag");
+
     skyboxShader = std::make_shared<Shader>("shaders/skybox.vert", "shaders/skybox.frag");
 
     pbrShader = std::make_shared<Shader>("shaders/pbr.vert", "shaders/pbr.frag");
@@ -166,7 +168,15 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
     glUniform1i(glGetUniformLocation(testShaderId, "texture1"), 1); // Configure shader sampler to use correct texture unit (TEXTURE_1 in this case)
     glUniform1i(glGetUniformLocation(testShaderId, "texture2"), 2); // Configure shader sampler to use correct texture unit (TEXTURE_2 in this case)
     // or set it via the texture class
-    // ourShader.setInt("texture2", 1);
+    // testShader->SetInteger("texture0", 0);
+
+    //? need to have init be done in shader i think
+    terrainShader->bind();// don't forget to activate/use the shader before setting uniforms!
+    // either set it manually like so:
+    GLuint terrainShaderId = terrainShader->getProgramId();
+    glUniform1i(glGetUniformLocation(terrainShaderId, "texture0"), 0); // Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
+    glUniform1i(glGetUniformLocation(terrainShaderId, "texture1"), 1); // Configure shader sampler to use correct texture unit (TEXTURE_1 in this case)
+    glUniform1i(glGetUniformLocation(terrainShaderId, "texture2"), 2); // Configure shader sampler to use correct texture unit (TEXTURE_2 in this case)
 
     // ! need to integrate this to init!
     // TODO Also add a shader function and maybe get rid of the requirement for uniforms (maybe keep them as an option)
@@ -177,12 +187,12 @@ Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
     // pbr
     pbrShader->bind();
 
-    GLuint pbrShaderId = pbrShader->getProgramId();
-    glUniform1i(glGetUniformLocation(pbrShaderId, "albedoMap"), 0);// Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
-    glUniform1i(glGetUniformLocation(pbrShaderId, "normalMap"), 1);// Configure shader sampler to use correct texture unit (TEXTURE_1 in this case)
-    glUniform1i(glGetUniformLocation(pbrShaderId, "metallicMap"), 2);// Configure shader sampler to use correct texture unit (TEXTURE_2 in this case)
-    glUniform1i(glGetUniformLocation(pbrShaderId, "roughnessMap"), 3);// Configure shader sampler to use correct texture unit (TEXTURE_3 in this case)
-    glUniform1i(glGetUniformLocation(pbrShaderId, "aoMap"), 4);// Configure shader sampler to use correct texture unit (TEXTURE_4 in this case)
+    GLuint pbrShaderId = pbrShader->getProgramId(); //ors tart from 0
+    glUniform1i(glGetUniformLocation(pbrShaderId, "albedoMap"), 3);// Configure shader sampler to use correct texture unit (TEXTURE_0 in this case)
+    glUniform1i(glGetUniformLocation(pbrShaderId, "normalMap"), 4);// Configure shader sampler to use correct texture unit (TEXTURE_1 in this case)
+    glUniform1i(glGetUniformLocation(pbrShaderId, "metallicMap"), 5);// Configure shader sampler to use correct texture unit (TEXTURE_2 in this case)
+    glUniform1i(glGetUniformLocation(pbrShaderId, "roughnessMap"), 6);// Configure shader sampler to use correct texture unit (TEXTURE_3 in this case)
+    glUniform1i(glGetUniformLocation(pbrShaderId, "aoMap"), 7);// Configure shader sampler to use correct texture unit (TEXTURE_4 in this case)
     
     
     

@@ -28,7 +28,7 @@ struct Material {
     Material(const std::string materialPath);
 
     // bind the textures
-    void bind();
+    void bind(int texUnitStartPosition = 0);
 };
 
 #endif

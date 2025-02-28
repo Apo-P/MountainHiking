@@ -28,10 +28,10 @@ class Model {
         std::shared_ptr<Mesh> mesh = nullptr;
 
         // object's texture, inherited models could have more than one
-        std::shared_ptr<Texture> texture;
+        std::shared_ptr<Texture> texture = nullptr;
 
         // object's material, inherited models could have more than one
-        std::shared_ptr<Material> material;
+        std::shared_ptr<Material> material = nullptr;
 
     protected:
         //! bind and draw are virtual for now but i dont thinks they need to be

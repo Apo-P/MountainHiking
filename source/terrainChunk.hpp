@@ -54,6 +54,26 @@ class TerrainChunk {
     public:
         std::shared_ptr<Mesh> mesh;
 
+        //? all these could be a vector to be sent
+        //? should also be a struct since we need so much data
+        //! for now its constant in vector
+        // list optimal height for textures
+        float optimalHeight0 = 10; // optimal height for textureHeight0
+        float optimalHeight1 = 150; // optimal height for textureHeight1
+        float optimalHeight2 = 200; // optimal height for textureHeight2
+
+        // list blending zone for each zone
+        float idealZone0 = 10;  // Ideal zone for height0 (no blending is done within this zone)
+        float idealZone1 = 100; // Ideal zone for height1 (no blending is done within this zone)
+        float idealZone2 = 20;  // Ideal zone for height2 (no blending is done within this zone)
+        // So if a pos.Y is not within an ideal zone -> it will blend the two zone its between
+        // could also use a weight factor so blending isn't linear (like how big is the zone, if its stronger etc.)
+
+
+        std::shared_ptr<Texture> textureHeight0 = nullptr; //texture for height0
+        std::shared_ptr<Texture> textureHeight1 = nullptr; //texture for height0
+        std::shared_ptr<Texture> textureHeight2 = nullptr; //texture for height0
+
 
         TerrainChunk( HeightGenerator& heightGenerator, float chunkX=0, float chunkZ=0, int chunkSize=500, int resolution=128); // add LOD level later
 

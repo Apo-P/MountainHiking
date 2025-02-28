@@ -48,26 +48,26 @@ Material::Material(const std::string materialPath) {
 }
 
 
-void Material::bind() {
+void Material::bind(int texUnitStartPosition) {
 
     if (albedo != nullptr) {
-        albedo->bind(0);
+        albedo->bind(texUnitStartPosition + 0);
     }
 
     if (normal != nullptr) {
-        normal->bind(1);
+        normal->bind(texUnitStartPosition + 1);
     }
 
     if (metallic != nullptr) {
-        metallic->bind(2);
+        metallic->bind(texUnitStartPosition + 2);
     } 
 
     if (roughness != nullptr) {
-        roughness->bind(3);
+        roughness->bind(texUnitStartPosition + 3);
     } 
 
     if (ao != nullptr) {
-        ao->bind(4);
+        ao->bind(texUnitStartPosition +4);
     }
 
 }

@@ -29,6 +29,10 @@
 - [PBR THEORY](https://learnopengl.com/PBR/Lighting)
 - [PBR CODE](https://learnopengl.com/code_viewer_gh.php?code=src/6.pbr/1.2.lighting_textured/1.2.pbr.fs)
 
+## post Processing
+- [postprocessing](https://learnopengl.com/In-Practice/2D-Game/Postprocessing)
+- [framebuffers](https://learnopengl.com/Advanced-OpenGL/Framebuffers)
+
 ## Vscode and general code
 - [debug](https://www.youtube.com/watch?v=-tGSO5-eRRg)
 - [debug cmake](https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/debug-launch.md)

@@ -5,6 +5,7 @@
 #include <renderer.hpp>
 #include <controls.hpp>
 
+#include "postProcessor.hpp"
 
 class PhysicsEngine;
 
@@ -17,6 +18,8 @@ class GameEngine{
         std::unique_ptr<Renderer> renderer;
 
         std::unique_ptr<Controls> controller;
+
+        std::unique_ptr<PostProcessor> postProcessingEffects;
 
         std::shared_ptr<PhysicsEngine> physicsEngine;
 

@@ -122,6 +122,8 @@ void Renderer::sendLights(std::vector<std::shared_ptr<DirectionalLight>>  direct
 
 }
 
+
+
 Renderer::Renderer(std::shared_ptr<GLFWwindow> new_window){
 
     window = new_window;

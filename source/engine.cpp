@@ -449,6 +449,16 @@ int GameEngine::startGame() {
         
         mainScene.setTestChunk(*testchunk);
 
+
+        // post processing test
+        const int W_WIDTH = 1024;
+        const int W_HEIGHT = 768;
+        std::shared_ptr<Shader> effectShader = std::make_shared<Shader>("shaders/postProcessingShaders/effects.vert", "shaders/postProcessingShaders/effects.frag");
+        postProcessingEffects = std::make_unique<PostProcessor>(*effectShader.get(), W_WIDTH, W_HEIGHT);
+
+        float keyCooldown =-1;
+        float KEY_COOLDOWN_TIME = 0.5f;
+
         // end of testing ----
 
         //Enter main loop
@@ -468,11 +478,18 @@ int GameEngine::startGame() {
 
             controller.get()->handleInputs(mainScene, deltaTime);
 
+            //! post processor start before main render
+            postProcessingEffects->BeginRender();
+            glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+            
+
             // Clear Buffers / Screen //! this should be in renderer
             // dont forget to clear depth buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
 
             // Event handling / Update game state //! this should be in scene
+
+            
 
             //! this needs to be done every frame
             renderer.get()->sendViewMatrix(mainScene.camera.get()->getView());
@@ -582,6 +599,24 @@ int GameEngine::startGame() {
 
 
             
+            //! post processor ends after main render
+            postProcessingEffects->EndRender();
+
+            //? here scene could give flags to post preccessor 
+            // manual for now
+            if (keyCooldown < 0) {
+                if (glfwGetKey(window.get(), GLFW_KEY_E) == GLFW_PRESS) { 
+                    if (postProcessingEffects->Bobbing) postProcessingEffects->Bobbing = false;
+                    else postProcessingEffects->Bobbing = true;
+                }
+            }
+            keyCooldown = keyCooldown < 0 ? KEY_COOLDOWN_TIME : keyCooldown - deltaTime; 
+
+
+            //! post processor renders effects
+            postProcessingEffects->Render(glfwGetTime());
+
+            //! then we show screen
 
 
             // Swap Buffers //! this should be in renderer

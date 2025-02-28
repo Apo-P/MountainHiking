@@ -94,6 +94,10 @@
 
 - heightmap in materials is used for tesselation shader to add detail (but increases render time) (https://www.youtube.com/shorts/_tNX0ycbIKU)
 
+- make a resource manager
+
+- make post processing pipeline
+
 ### Features
 - [] use normal mapping for lighting
 

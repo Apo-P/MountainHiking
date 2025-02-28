@@ -121,6 +121,11 @@ class Shader{
         void sendUniform(Shader::uniforms uniformTarget, const bool &matrix);
 
         GLuint getProgramId(){ return programId; };
+
+        //! fast compatibillity with post processor
+        //! clean up later
+        void SetFloat (const char *name, float value, bool useShader = false);
+        void SetInteger (const char *name, int value, bool useShader = false);
 };
 
 #endif

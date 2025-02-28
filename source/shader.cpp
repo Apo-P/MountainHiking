@@ -237,3 +237,21 @@ void Shader::sendUniform(Shader::uniforms uniformTarget, const bool &value) {
 
 }
 
+//? I kinda prefer this that using the other functions its simpler. However it can allow mistakes to happen
+//?  should find a way to merge the two approaches
+//! fast compatibillity with post processor
+//! clean up later
+
+void Shader::SetFloat(const char *name, float value, bool useShader)
+{
+    if (useShader)
+        this->bind();
+    glUniform1f(glGetUniformLocation(this->programId, name), value);
+}
+void Shader::SetInteger(const char *name, int value, bool useShader)
+{
+    if (useShader)
+        this->bind();
+    glUniform1i(glGetUniformLocation(this->programId, name), value);
+}
+

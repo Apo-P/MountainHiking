@@ -102,7 +102,7 @@ class Renderer{
         //test
         void renderPBR(std::shared_ptr<Model> obj, const glm::vec3 &cameraPos);
 
-        void renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk);
+        void renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk, const glm::vec3 &cameraPos);
 
 
         /// @brief simple render a object

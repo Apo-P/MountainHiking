@@ -5,7 +5,7 @@ layout(location = 0) in vec3 modelSpace_vertexPosition;
 layout(location = 1) in vec3 modelSpace_vertexNormal;
 layout(location = 2) in vec2 modelSpace_vertexUV;
 
-uniform vec3 cameraPosition;
+// uniform vec3 cameraPosition;
 
 // Model * View * Projection
 uniform mat4 M;

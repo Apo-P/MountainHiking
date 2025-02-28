@@ -15,6 +15,13 @@ uniform float optimalHeight0 = 10; // rocky texture
 uniform float optimalHeight1 = 150; // grass
 uniform float optimalHeight2 = 200; // snow
 
+// basic fog
+uniform vec3 cameraPosition; // camera position in world space
+// uniform vec3 fogColor;
+uniform float fogStart = 200.0;  // Start altitude
+uniform float fogEnd = 270.0;   // Full fog altitude
+
+
 
 uniform bool Terrain = false;
 
@@ -85,7 +92,20 @@ void main()
     // gl_FragColor = CalcTexColor();
 
     if (Terrain){
-        gl_FragColor = CalcTexColor();
+
+        vec4 textureColor = CalcTexColor();
+        // basic fog
+
+        //temp
+        vec3 fogColor = vec3(0.5f, 0.5f, 0.5f);//vec3(0.5f, 0.5f, 0.5f);
+
+        float fogFactor = smoothstep(fogStart, fogEnd, cameraPosition.y);
+        fogFactor=0.5 * fogFactor; // only allow for 50% mix at max height
+
+        vec3 color = mix(vec3(textureColor),fogColor, fogFactor);
+
+        gl_FragColor = vec4(color, 1.0);
+
     }
     else {
         gl_FragColor = texture(texture1, uvCoords);

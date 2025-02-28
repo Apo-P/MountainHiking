@@ -226,7 +226,7 @@ void Renderer::renderSkybox(std::shared_ptr<Model> skybox){
 
 }
 
-void Renderer::renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk){
+void Renderer::renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk, const glm::vec3 &cameraPos){
 
     // TEST RENDER -----
     // 1.Bind shader
@@ -241,6 +241,11 @@ void Renderer::renderTerrain(std::shared_ptr<TerrainChunk> terrainChunk){
     // 4.Send Uniforms
     terrainShader->sendUniform(Shader::uniforms::ModelMatrix , glm::mat4(1)); // or send model matrix if it has one
     terrainShader->sendUniform(Shader::uniforms::Terrain , true);
+
+    GLuint programId = terrainShader->getProgramId();
+    GLuint uniformLocation = glGetUniformLocation(programId, "cameraPosition");
+    glUniform3fv(uniformLocation, 1, glm::value_ptr(cameraPos));
+
     // 5.Draw Triangles
     terrainChunk->mesh->draw(*this);
 
@@ -494,7 +499,7 @@ int GameEngine::startGame() {
 
             
             // render terrain
-            renderer->renderTerrain(testchunk);
+            renderer->renderTerrain(testchunk, mainScene.camera->getPosition());
 
 
             // render objects
